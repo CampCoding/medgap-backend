@@ -1,16 +1,25 @@
-const pgPool = require("pg")?.Pool;
+// db.js
+const { Pool } = require("pg");
+const mysql2 = require("mysql2/promise");
 
-const pgClient = new pgPool({
+// --------- ENV HELPERS ----------
+const ENV = (process.env.ENV || process.env.NODE_ENV || "development")
+  .trim()
+  .toLowerCase();
+  // console.log("ENV",ENV)
+const USING_PG = ENV !== "development";
+
+// --------- POSTGRES -------------
+const pgClient = new Pool({
   user: process.env.PG_USER,
   password: process.env.PG_PASS,
   host: process.env.PG_HOST,
-  port: process.env.PG_PORT,
+  port: Number(process.env.PG_PORT || 5432),
   database: process.env.PG_DB,
-  ssl: { rejectUnauthorized: false } // Add this line if SSL is required
+  ssl: process.env.PG_SSL === "true" ? { rejectUnauthorized: false } : false,
 });
 
-// ---------------- MYSQL CONNECTION ----------------
-const mysql2 = require("mysql2/promise");
+// --------- MYSQL ----------------
 const mysqlClient = mysql2.createPool({
   host: process.env.MYSQL_HOST,
   user: process.env.MYSQL_USER,
@@ -18,15 +27,20 @@ const mysqlClient = mysql2.createPool({
   database: process.env.MYSQL_DB,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  charset: "utf8mb4",
 });
 
-if (process.env.ENV == "development") {
-  mysqlClient.getConnection();
+// --------- DRIVER SELECTION -----
+let client;
+if (USING_PG) {
+  console.log("[DB] Using Postgres driver");
+  client = pgClient;
+  
 } else {
-  pgClient.connect();
-}
+  console.log("[DB] Using MySQL driver");
+  client = mysqlClient;
  
-module.exports = {
-  client: process.env.ENV == "development" ? mysqlClient : pgClient
-};
+}
+
+module.exports = { client };

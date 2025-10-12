@@ -1,0 +1,565 @@
+const responseBuilder = require("../../utils/responsebuilder");
+const repo = require("../../repositories/student/studyPlans");
+const getTokenFromHeader = require("../../utils/getToken");
+const { verifyAccessToken } = require("../../utils/jwt");
+
+function getStudentId(req, res) {
+  try {
+    const token = getTokenFromHeader(req, res);
+    if (!token || res.headersSent) return null;
+    const decoded = verifyAccessToken(token, "student");
+    return decoded?.id || decoded?.student_id || decoded?.user?.student_id;
+  } catch (err) {
+    console.error("Token verification error:", err.message);
+    return null;
+  }
+}
+
+// Step 1: Schedule Setup
+async function createPlan(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const {
+    plan_name,
+    start_date,
+    end_date,
+    study_days,
+    daily_time_budget,
+    daily_limits,
+    question_mode,
+    difficulty_balance,
+    questions_per_session,
+    // Content fields
+    exams_modules,
+    exams_topics,
+    flashcards_modules,
+    flashcards_topics,
+    question_bank_modules,
+    question_bank_topics,
+    question_bank_quizzes,
+  } = req.body || {};
+
+  // Validation
+  if (
+    !plan_name ||
+    !start_date ||
+    !end_date ||
+    !study_days ||
+    !daily_time_budget
+  ) {
+    return responseBuilder.badRequest(res, "Missing required fields");
+  }
+
+  if (!Array.isArray(study_days) || study_days.length === 0) {
+    return responseBuilder.badRequest(
+      res,
+      "study_days must be a non-empty array"
+    );
+  }
+
+  if (daily_time_budget < 30) {
+    return responseBuilder.badRequest(
+      res,
+      "daily_time_budget must be at least 30 minutes"
+    );
+  }
+
+  // At least one content type must be provided
+  if (!exams_modules && !flashcards_modules && !question_bank_modules) {
+    return responseBuilder.badRequest(
+      res,
+      "At least one content type (exams, flashcards, or question_bank) must be provided"
+    );
+  }
+
+  try {
+    // Create the plan
+    const created = await repo.createStudyPlan({
+      studentId,
+      planName: plan_name,
+      startDate: start_date,
+      endDate: end_date,
+      studyDays: study_days,
+      dailyTimeBudget: daily_time_budget,
+      dailyLimits: daily_limits || null,
+      questionMode: question_mode || "study",
+      difficultyBalance: difficulty_balance || "balanced",
+      questionsPerSession: questions_per_session || 20,
+    });
+
+    // Add content to the plan
+    await repo.addPlanContent({
+      planId: created.plan_id,
+      examsModules: exams_modules || [],
+      examsTopics: exams_topics || [],
+      flashcardsModules: flashcards_modules || [],
+      flashcardsTopics: flashcards_topics || [],
+      questionBankModules: question_bank_modules || [],
+      questionBankTopics: question_bank_topics || [],
+      questionBankQuizzes: question_bank_quizzes || [],
+    });
+
+    return responseBuilder.success(res, {
+      data: created,
+      message: "Complete study plan created successfully",
+    });
+  } catch (error) {
+    console.error("Create plan error:", error);
+    return responseBuilder.serverError(res, "Failed to create study plan");
+  }
+}
+
+// Get all plans for student
+async function getPlans(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const { status } = req.query;
+  const plans = await repo.getStudyPlans({ studentId, status });
+
+  return responseBuilder.success(res, {
+    data: plans,
+    message: "Study plans retrieved successfully",
+  });
+}
+
+// Get specific plan
+async function getPlan(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const { plan_id } = req.params;
+  const plan = await repo.getStudyPlanById({
+    planId: Number(plan_id),
+    studentId,
+  });
+
+  if (!plan) {
+    return responseBuilder.notFound(res, "Study plan not found");
+  }
+
+  return responseBuilder.success(res, {
+    data: plan,
+    message: "Study plan retrieved successfully",
+  });
+}
+
+// Update plan
+async function updatePlan(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const { plan_id } = req.params;
+  const {
+    plan_name,
+    start_date,
+    end_date,
+    study_days,
+    daily_time_budget,
+    daily_limits,
+    question_mode,
+    difficulty_balance,
+    questions_per_session,
+    status,
+  } = req.body || {};
+
+  try {
+    const updated = await repo.updateStudyPlan({
+      planId: Number(plan_id),
+      studentId,
+      planName: plan_name,
+      startDate: start_date,
+      endDate: end_date,
+      studyDays: study_days,
+      dailyTimeBudget: daily_time_budget,
+      dailyLimits: daily_limits,
+      questionMode: question_mode,
+      difficultyBalance: difficulty_balance,
+      questionsPerSession: questions_per_session,
+      status: status,
+    });
+
+    if (!updated) {
+      return responseBuilder.notFound(res, "Study plan not found");
+    }
+
+    return responseBuilder.success(res, {
+      data: { updated: true },
+      message: "Study plan updated successfully",
+    });
+  } catch (error) {
+    console.error("Update plan error:", error);
+    return responseBuilder.serverError(res, "Failed to update study plan");
+  }
+}
+
+// Delete plan
+async function deletePlan(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const { plan_id } = req.params;
+  const deleted = await repo.deleteStudyPlan({
+    planId: Number(plan_id),
+    studentId,
+  });
+
+  if (!deleted) {
+    return responseBuilder.notFound(res, "Study plan not found");
+  }
+
+  return responseBuilder.success(res, {
+    data: { deleted: true },
+    message: "Study plan deleted successfully",
+  });
+}
+
+// Step 3: Content Management - Add all content at once
+async function addContent(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const { plan_id } = req.params;
+  const {
+    exams_modules,
+    exams_topics,
+    flashcards_modules,
+    flashcards_topics,
+    question_bank_modules,
+    question_bank_topics,
+    question_bank_quizzes,
+  } = req.body || {};
+
+  // Validation - At least one content type must be provided
+  if (!exams_modules && !flashcards_modules && !question_bank_modules) {
+    return responseBuilder.badRequest(
+      res,
+      "At least one content type (exams, flashcards, or question_bank) must be provided"
+    );
+  }
+
+  try {
+    const created = await repo.addPlanContent({
+      planId: Number(plan_id),
+      examsModules: exams_modules || [],
+      examsTopics: exams_topics || [],
+      flashcardsModules: flashcards_modules || [],
+      flashcardsTopics: flashcards_topics || [],
+      questionBankModules: question_bank_modules || [],
+      questionBankTopics: question_bank_topics || [],
+      questionBankQuizzes: question_bank_quizzes || [],
+    });
+
+    return responseBuilder.success(res, {
+      data: created,
+      message: "Plan content added successfully",
+    });
+  } catch (error) {
+    console.error("Add content error:", error);
+    return responseBuilder.serverError(res, "Failed to add content to plan");
+  }
+}
+
+async function getContent(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const { plan_id } = req.params;
+
+  // Verify plan belongs to student
+  const plan = await repo.getStudyPlanById({
+    planId: Number(plan_id),
+    studentId,
+  });
+  if (!plan) {
+    return responseBuilder.notFound(res, "Study plan not found");
+  }
+
+  const content = await repo.getPlanContent({
+    planId: Number(plan_id),
+  });
+
+  // Get plan summary information
+  const summary = await repo.getPlanSummary({
+    planId: Number(plan_id),
+    studentId,
+  });
+
+  return responseBuilder.success(res, {
+    data: {
+      ...content,
+      summary: summary,
+    },
+    message: "Plan content retrieved successfully",
+  });
+}
+
+async function removeContent(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const { plan_id, content_id } = req.params;
+
+  // Verify plan belongs to student
+  const plan = await repo.getStudyPlanById({
+    planId: Number(plan_id),
+    studentId,
+  });
+  if (!plan) {
+    return responseBuilder.notFound(res, "Study plan not found");
+  }
+
+  const removed = await repo.removePlanContent({
+    contentId: Number(content_id),
+    planId: Number(plan_id),
+  });
+
+  if (!removed) {
+    return responseBuilder.notFound(res, "Content not found");
+  }
+
+  return responseBuilder.success(res, {
+    data: { removed: true },
+    message: "Content removed from plan successfully",
+  });
+}
+
+// Generate sessions
+async function generateSessions(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const { plan_id } = req.params;
+
+  try {
+    const result = await repo.generatePlanSessions({
+      planId: Number(plan_id),
+      studentId,
+    });
+
+    return responseBuilder.success(res, {
+      data: result,
+      message: "Study sessions generated successfully",
+    });
+  } catch (error) {
+    console.error("Generate sessions error:", error);
+    return responseBuilder.badRequest(res, error.message);
+  }
+}
+
+// Get sessions
+async function getSessions(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const { plan_id } = req.params;
+  const { date, status, schedule } = req.query;
+
+  // Verify plan belongs to student
+  const plan = await repo.getStudyPlanById({
+    planId: Number(plan_id),
+    studentId,
+  });
+  if (!plan) {
+    return responseBuilder.notFound(res, "Study plan not found");
+  }
+
+  // If schedule parameter is true, return detailed schedule
+  if (schedule === "true") {
+    const scheduleData = await repo.getSessionsWithSchedule({
+      planId: Number(plan_id),
+      studentId,
+    });
+
+    if (!scheduleData) {
+      return responseBuilder.notFound(res, "Study plan not found");
+    }
+
+    return responseBuilder.success(res, {
+      data: scheduleData,
+      message: "Study schedule retrieved successfully",
+    });
+  }
+
+  // Otherwise, return regular sessions
+  const sessions = await repo.getPlanSessions({
+    planId: Number(plan_id),
+    studentId,
+    date: date || null,
+    status: status || null,
+  });
+
+  return responseBuilder.success(res, {
+    data: sessions,
+    message: "Study sessions retrieved successfully",
+  });
+}
+
+// Update session progress
+async function updateSessionProgress(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const { session_id } = req.params;
+  const {
+    questions_attempted,
+    questions_correct,
+    flashcards_studied,
+    time_spent,
+    status,
+  } = req.body || {};
+
+  try {
+    const updated = await repo.updateSessionProgress({
+      sessionId: Number(session_id),
+      studentId,
+      questionsAttempted: questions_attempted,
+      questionsCorrect: questions_correct,
+      flashcardsStudied: flashcards_studied,
+      timeSpent: time_spent,
+      status: status,
+    });
+
+    if (!updated) {
+      return responseBuilder.notFound(res, "Session not found");
+    }
+
+    return responseBuilder.success(res, {
+      data: { updated: true },
+      message: "Session progress updated successfully",
+    });
+  } catch (error) {
+    console.error("Update session error:", error);
+    return responseBuilder.serverError(
+      res,
+      "Failed to update session progress"
+    );
+  }
+}
+
+// Helper endpoints for content selection
+async function getModules(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  try {
+    const modules = await repo.getModulesWithStats({ studentId });
+    return responseBuilder.success(res, {
+      data: modules,
+      message: "Modules retrieved successfully",
+    });
+  } catch (error) {
+    console.error("Get modules error:", error);
+    return responseBuilder.serverError(res, "Failed to retrieve modules");
+  }
+}
+
+async function getTopicsByModule(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const { module_id } = req.params;
+  console.log(JSON.parse(module_id))
+  try {
+    const topics = await repo.getTopicsByModule({
+      moduleId: JSON.parse(module_id)?.join(","),
+    });
+    return responseBuilder.success(res, {
+      data: topics,
+      message: "Topics retrieved successfully",
+    });
+  } catch (error) {
+    console.error("Get topics error:", error);
+    return responseBuilder.serverError(res, "Failed to retrieve topics");
+  }
+}
+
+
+async function getSubjectsByModule(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const { module_id } = req.params;
+  console.log(JSON.parse(module_id))
+  try {
+    const subjects = await repo.getSubjectsByModule({
+      moduleId: JSON.parse(module_id)?.join(","),
+    });
+    return responseBuilder.success(res, {
+      data: subjects,
+      message: "Subjects retrieved successfully",
+    });
+  } catch (error) {
+    console.error("Get subjects error:", error);
+    return responseBuilder.serverError(res, "Failed to retrieve subjects");
+  }
+}
+
+async function getTopicsBySubject(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const { module_id } = req.params;
+  console.log(JSON.parse(module_id))
+  try {
+    const topics = await repo.getTopicsBySubject({
+      moduleId: JSON.parse(module_id)?.join(","),
+    });
+    return responseBuilder.success(res, {
+      data: topics,
+      message: "Topics retrieved successfully",
+    });
+  } catch (error) {
+    console.error("Get topics error:", error);
+    return responseBuilder.serverError(res, "Failed to retrieve topics");
+  }
+}
+
+module.exports = {
+  createPlan,
+  getPlans,
+  getPlan,
+  updatePlan,
+  deletePlan,
+  addContent,
+  getContent,
+  removeContent,
+  generateSessions,
+  getSessions,
+  updateSessionProgress,
+  getModules,
+  getTopicsByModule,
+  getSubjectsByModule,
+  getTopicsBySubject,
+};

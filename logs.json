@@ -1,0 +1,73 @@
+[
+  {
+    "timestamp": "2025-09-18T09:14:51.287Z",
+    "level": "info",
+    "message": "Role created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/create",
+    "additional_data": "{\"role_id\":4,\"role_name\":\"Editor\",\"role_description\":\"Can Manage All Dashboard Except Some Super Admin AND Admin as(Add New Admins - Or Add Users To dashboard) Permissions.\",\"created_at\":\"2025-09-18T09:14:51.098Z\",\"updated_at\":\"2025-09-18T09:14:51.098Z\",\"created_by\":null,\"allow_all\":\"0\"}",
+    "error_details": null,
+    "requestResponse": {
+      "role_id": 4,
+      "role_name": "Editor",
+      "role_description": "Can Manage All Dashboard Except Some Super Admin AND Admin as(Add New Admins - Or Add Users To dashboard) Permissions.",
+      "created_at": "2025-09-18T09:14:51.098Z",
+      "updated_at": "2025-09-18T09:14:51.098Z",
+      "created_by": null,
+      "allow_all": "0"
+    }
+  },
+  {
+    "timestamp": "2025-09-18T09:14:41.809Z",
+    "level": "info",
+    "message": "Role created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/create",
+    "additional_data": "{\"role_id\":3,\"role_name\":\"Editor\",\"role_description\":\"Can Manage All Dashboard Except Some Super Admin AND Admin as(Add New Admins - Or Add Users To dashboard) Permissions.\",\"created_at\":\"2025-09-18T09:14:41.766Z\",\"updated_at\":\"2025-09-18T09:14:41.766Z\",\"created_by\":null,\"allow_all\":\"0\"}",
+    "error_details": null,
+    "requestResponse": {
+      "role_id": 3,
+      "role_name": "Editor",
+      "role_description": "Can Manage All Dashboard Except Some Super Admin AND Admin as(Add New Admins - Or Add Users To dashboard) Permissions.",
+      "created_at": "2025-09-18T09:14:41.766Z",
+      "updated_at": "2025-09-18T09:14:41.766Z",
+      "created_by": null,
+      "allow_all": "0"
+    }
+  },
+  {
+    "timestamp": "2025-09-18T09:14:03.657Z",
+    "level": "error",
+    "message": "Failed to create role",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/create",
+    "additional_data": "{}",
+    "error_details": "null value in column \"allow_all\" of relation \"roles\" violates not-null constraint",
+    "requestResponse": {}
+  },
+  {
+    "timestamp": "2025-09-18T09:12:30.062Z",
+    "level": "error",
+    "message": "Failed to create role",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/create",
+    "additional_data": "{}",
+    "error_details": "permission denied for sequence roles_role_id_seq",
+    "requestResponse": {}
+  },
+  {
+    "timestamp": "2025-09-18T09:10:54.885Z",
+    "level": "error",
+    "message": "Failed to create role",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/create",
+    "additional_data": "{}",
+    "error_details": "value too long for type character varying(100)",
+    "requestResponse": {}
+  }
+]

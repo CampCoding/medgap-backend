@@ -1,0 +1,36 @@
+App 958426 output: [dotenv@17.2.2] injecting env (12) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+App 958426 output: campcod3_medgap-user
+App 958426 output: [DB] Using Postgres driver
+App 958426 output: 🚀 Server is running on http://localhost:3120
+App 958426 output: Error fetching topics: Error: Error fetching topics: client.execute is not a function
+App 958426 output:     at TopicsRepository.getAllTopics (/home/campcod3/medgap/repositories/topics/topics.js:115:13)
+App 958426 output:     at getAllTopics (/home/campcod3/medgap/controllers/topics/topics.js:79:26)
+App 958426 output:     at Layer.handleRequest (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/layer.js:152:17)
+App 958426 output:     at next (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/route.js:157:13)
+App 958426 output:     at Route.dispatch (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/route.js:117:3)
+App 958426 output:     at handle (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:435:11)
+App 958426 output:     at Layer.handleRequest (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/layer.js:152:17)
+App 958426 output:     at /home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:295:15
+App 958426 output:     at processParams (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:582:12)
+App 958426 output:     at next (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:291:5)
+App 961784 output: [dotenv@17.2.2] injecting env (12) from .env -- tip: ⚙️  override existing env vars with { override: true }
+App 961784 output: campcod3_medgap-user
+App 961784 output: ENV production
+App 961784 output: [DB] Using Postgres driver
+App 961784 output: 🚀 Server is running on http://localhost:3120
+App 961784 output: Error fetching topics: Error: Error fetching topics: client.execute is not a function
+App 961784 output:     at TopicsRepository.getAllTopics (/home/campcod3/medgap/repositories/topics/topics.js:115:13)
+App 961784 output:     at getAllTopics (/home/campcod3/medgap/controllers/topics/topics.js:79:26)
+App 961784 output:     at Layer.handleRequest (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/layer.js:152:17)
+App 961784 output:     at next (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/route.js:157:13)
+App 961784 output:     at Route.dispatch (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/route.js:117:3)
+App 961784 output:     at handle (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:435:11)
+App 961784 output:     at Layer.handleRequest (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/layer.js:152:17)
+App 961784 output:     at /home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:295:15
+App 961784 output:     at processParams (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:582:12)
+App 961784 output:     at next (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:291:5)
+App 964334 output: [dotenv@17.2.2] injecting env (12) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+App 964334 output: campcod3_medgap-user
+App 964334 output: ENV development
+App 964334 output: [DB] Using MySQL driver
+App 964334 output: 🚀 Server is running on http://localhost:3120
