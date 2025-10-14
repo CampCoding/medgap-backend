@@ -21,13 +21,13 @@ router.get("/:id/attempts", controller.getExamAttempts);
 
 // Create and update exams
 router.post("/", controller.createExam);
-router.put("/:id", updateExamValidation, controller.updateExam);
+router.put("/:id",  controller.updateExam);
 router.patch("/:id/status", controller.updateExamStatus);
 
 // Question management
-router.post("/:id/questions", addQuestionValidation, controller.addQuestionToExam);
+router.post("/:id/questions", controller.addQuestionToExam);
 router.put("/:id/questions/:questionId", controller.updateExamQuestion);
-router.delete("/:id/questions/:questionId", removeQuestionValidation, controller.removeQuestionFromExam);
+router.delete("/:id/questions/:questionId", controller.removeQuestionFromExam);
 
 // Exam management
 router.post("/:id/start", controller.startExam);

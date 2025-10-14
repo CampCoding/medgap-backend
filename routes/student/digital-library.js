@@ -11,4 +11,7 @@ router.get("/modules/:module_id/books", ctrl.listModuleBooks);
 // Increment view count
 router.post("/books/:ebook_id/view", ctrl.viewBook);
 
+// Save annotation for a book
+router.post("/books/:ebook_id/annotations", ctrl.saveAnnotation);
+
 module.exports = router;

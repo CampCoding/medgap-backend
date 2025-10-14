@@ -21,5 +21,14 @@ router.delete("/:plan_id/content/:content_id", ctrl.removeContent);
 router.post("/:plan_id/sessions/generate", ctrl.generateSessions);
 router.get("/:plan_id/sessions", ctrl.getSessions);
 router.put("/:plan_id/sessions/:session_id", ctrl.updateSessionProgress);
+router.get("/:plan_id/sessions/:session_id/details", ctrl.getSessionDetails);
+router.post("/:plan_id/sessions/:session_id/questions/:question_id/solve", ctrl.solveSessionQuestion);
+router.post("/:plan_id/sessions/:session_id/flashcards/:flashcard_id/review", ctrl.reviewSessionFlashcard);
+
+// Today overview
+router.get("/today/overview", ctrl.getToday);
+
+// Dashboard overview (study-dash)
+router.get("/dash/overview", ctrl.getDashboard);
 
 module.exports = router;

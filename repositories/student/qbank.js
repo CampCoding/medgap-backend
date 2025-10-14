@@ -133,13 +133,15 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}) => {
 	 LEFT JOIN question_options qo ON q.question_id = qo.question_id
 	 WHERE q.topic_id IN (${placeholders})`;
     const values = [...topicIds];
-    if (filters.status) {
-        sql += ` AND q.difficulty_level IN (?)`;
-        values.push(filters.status?.join(","));
+    if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
+        const difficultyPlaceholders = filters.status.map(() => '?').join(',');
+        sql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
+        values.push(...filters.status);
     }
 
     sql += ` GROUP BY q.question_id ORDER BY q.created_at DESC LIMIT ?`;
-    values.push(filters?.numQuestions)
+    values.push(filters?.numQuestions || 10); // Added default limit for safety
+    console.log(sql, values)
     const [rows] = await client.execute(sql, values);
     return rows.map((q) => ({ ...q, options: JSON.parse(q.options)?.filter(Boolean) || [] }));
 }
@@ -168,6 +170,7 @@ const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filt
     const topicIds = explicitTopicIds.length ? explicitTopicIds : topics.map(t => t.topic_id);
 
     const questions = await fetchQuestionsByTopicIds(topicIds, filters);
+    console.log({modules, subjects, topics, questions})
     return { modules, subjects, topics, questions };
 }
 
@@ -383,7 +386,7 @@ const listQuestion = async ({ qbank_id, studentId }) => {
             if (typeof r.notes === 'string') r.notes = JSON.parse(r.notes).filter(Boolean);
             if (typeof r.flashcards === 'string') {
                 const parsed = JSON.parse(r.flashcards).filter(Boolean);
-                // parse tags nested JSON string if needed
+
                 for (const fc of parsed) {
                     if (typeof fc.tags === 'string') {
                         try { fc.tags = JSON.parse(fc.tags); } catch { }
@@ -455,14 +458,14 @@ const getFlashcardsByMode = async ({ studentId, mode = 'repetition', limit = 20,
     } else if (mode === 'used') {
         where += ` AND sfc.card_solved = '1'`;
         order = `ORDER BY (sfc.last_reviewed IS NULL), sfc.last_reviewed DESC`;
-    } else if(mode == "spaced-repetition") {
+    } else if (mode == "spaced-repetition") {
         where += ` AND (sfc.next_review IS NULL OR sfc.next_review <= NOW())`;
-    }else{
-        
+    } else {
+
         order = `ORDER BY sfc.created_at DESC`;
     }
 
-    // optional deck filter
+
     if (deckId) {
         where += ` AND sfc.deck_id = ?`;
         values.push(deckId);
@@ -522,7 +525,7 @@ const reviewFlashcard = async ({ studentId, student_flash_card_id, quality, corr
         intervalHours = 6;
         intervalDays = 0;
     } else {
-        // Short initial schedule: 1d, 2d, 4d for first three successful reviews
+
         if (repetitions === 0) intervalDays = 1;
         else if (repetitions === 1) intervalDays = 2;
         else if (repetitions === 2) intervalDays = 4;
@@ -536,7 +539,7 @@ const reviewFlashcard = async ({ studentId, student_flash_card_id, quality, corr
     const status = q >= 3 ? 'seen' : 'not_seen';
     const solved = q >= 4 ? '1' : (card.card_solved || '0');
 
-    // Compute JS timestamps instead of using MySQL NOW()/DATE_ADD
+
     const now = new Date();
     const nextReview = useHours
         ? new Date(now.getTime() + intervalHours * 60 * 60 * 1000)
@@ -565,14 +568,20 @@ const reviewFlashcard = async ({ studentId, student_flash_card_id, quality, corr
     ) : null;
 }
 
-// List qbanks for teachers
-const listQbanks = async ({ teacherId, page = 1, limit = 20, search = "", status = "active" }) => {
+
+const listQbanks = async ({ studentId, page = 1, limit = 20, search = "", status = "active" }) => {
     const offset = (page - 1) * limit;
-    
+
     let sql = `
         SELECT 
             q.*,
-            COUNT(qq.question_id) as question_count,
+            COUNT(DISTINCT qq.question_id) AS question_count,
+            COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL THEN sq.question_id END) AS solved_count,
+            COUNT(DISTINCT CASE WHEN sq.is_correct = '1' THEN sq.question_id END) AS correct_count,
+            CASE 
+              WHEN COUNT(DISTINCT qq.question_id) = 0 THEN 0
+              ELSE ROUND((COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL THEN sq.question_id END) / COUNT(DISTINCT qq.question_id)) * 100, 0)
+            END AS progress_percent,
             u.unit_name as subject_name,
             m.subject_name as module_name
         FROM qbank q
@@ -581,43 +590,47 @@ const listQbanks = async ({ teacherId, page = 1, limit = 20, search = "", status
         LEFT JOIN topics t ON qu.topic_id = t.topic_id
         LEFT JOIN units u ON t.unit_id = u.unit_id
         LEFT JOIN modules m ON u.module_id = m.module_id
-        WHERE q.deleted = '0'
+        LEFT JOIN solved_questions sq 
+          ON sq.qbank_id = q.qbank_id 
+         AND sq.question_id = qq.question_id 
+         AND sq.student_id = ?
+        WHERE q.deleted = '0' AND q.student_id = ?
     `;
-    
-    let params = [];
-    
+
+    let params = [studentId, studentId];
+
     if (search) {
         sql += ` AND q.qbank_name LIKE ?`;
         params.push(`%${search}%`);
     }
-    
+
     if (status) {
         sql += ` AND q.active = ?`;
         params.push(status === 'active' ? '1' : '0');
     }
-    
+
     sql += ` GROUP BY q.qbank_id ORDER BY q.qbank_id DESC LIMIT ? OFFSET ?`;
     params.push(limit, offset);
-    
+
     const [rows] = await client.execute(sql, params);
-    
-    // Get total count for pagination
-    let countSql = `SELECT COUNT(*) as total FROM qbank WHERE deleted = '0'`;
-    let countParams = [];
-    
+
+
+    let countSql = `SELECT COUNT(*) as total FROM qbank WHERE deleted = '0' AND student_id = ?`;
+    let countParams = [studentId];
+
     if (search) {
         countSql += ` AND qbank_name LIKE ?`;
         countParams.push(`%${search}%`);
     }
-    
+
     if (status) {
         countSql += ` AND active = ?`;
         countParams.push(status === 'active' ? '1' : '0');
     }
-    
+
     const [countResult] = await client.execute(countSql, countParams);
     const total = countResult[0].total;
-    
+
     return {
         qbanks: rows,
         pagination: {
@@ -629,10 +642,10 @@ const listQbanks = async ({ teacherId, page = 1, limit = 20, search = "", status
     };
 };
 
-// Get available questions for exam selection
+
 const getAvailableQuestions = async ({ page = 1, limit = 50, search = "", subject = "", topic = "", difficulty = "", question_type = "", status = "active" }) => {
     const offset = (page - 1) * limit;
-    
+
     let sql = `
         SELECT 
             q.*,
@@ -656,81 +669,81 @@ const getAvailableQuestions = async ({ page = 1, limit = 50, search = "", subjec
         LEFT JOIN modules m ON u.module_id = m.module_id
         WHERE q.status = ?
     `;
-    
+
     let params = [status];
-    
+
     if (search) {
         sql += ` AND (q.question_text LIKE ? OR q.model_answer LIKE ?)`;
         params.push(`%${search}%`, `%${search}%`);
     }
-    
+
     if (subject) {
         sql += ` AND m.module_id = ?`;
         params.push(subject);
     }
-    
+
     if (topic) {
         sql += ` AND t.topic_id = ?`;
         params.push(topic);
     }
-    
+
     if (difficulty) {
         sql += ` AND q.difficulty_level = ?`;
         params.push(difficulty);
     }
-    
+
     if (question_type) {
         sql += ` AND q.question_type = ?`;
         params.push(question_type);
     }
-    
+
     sql += ` GROUP BY q.question_id ORDER BY q.created_at DESC LIMIT ? OFFSET ?`;
     params.push(limit, offset);
-    
+
     const [rows] = await client.execute(sql, params);
-    
-    // Parse options for each question
+
+
     const questions = rows.map(q => ({
         ...q,
         options: JSON.parse(q.options).filter(Boolean)
     }));
-    
-    // Get total count for pagination
+
+
     let countSql = `SELECT COUNT(*) as total FROM questions q
         LEFT JOIN topics t ON q.topic_id = t.topic_id
         LEFT JOIN units u ON t.unit_id = u.unit_id
         LEFT JOIN modules m ON u.module_id = m.module_id
         WHERE q.status = ?`;
     let countParams = [status];
-    
+
     if (search) {
         countSql += ` AND (q.question_text LIKE ? OR q.model_answer LIKE ?)`;
         countParams.push(`%${search}%`, `%${search}%`);
     }
-    
+
     if (subject) {
         countSql += ` AND m.module_id = ?`;
         countParams.push(subject);
     }
-    
+
     if (topic) {
         countSql += ` AND t.topic_id = ?`;
         countParams.push(topic);
     }
-    
+
     if (difficulty) {
         countSql += ` AND q.difficulty_level = ?`;
         countParams.push(difficulty);
     }
-    
+
     if (question_type) {
         countSql += ` AND q.question_type = ?`;
         countParams.push(question_type);
     }
-    
+
     const [countResult] = await client.execute(countSql, countParams);
     const total = countResult[0].total;
-    
+
     return {
         questions,
         pagination: {
@@ -742,6 +755,639 @@ const getAvailableQuestions = async ({ page = 1, limit = 50, search = "", subjec
     };
 };
 
+
+
+const getStudentExams = async ({ studentId, page = 1, limit = 20, search = "", status = "published", difficulty = "" }) => {
+    const offset = (page - 1) * limit;
+    
+    let sql = `
+        SELECT 
+            e.exam_id as id,
+            e.title as name,
+            e.scheduled_date,
+            e.start_date,
+            e.end_date,
+            e.duration,
+            e.difficulty,
+            e.status,
+            e.instructions,
+            m.subject_name as subject_name,
+            COUNT(eq.question_id) as questions,
+            e.created_at
+        FROM exams e
+        LEFT JOIN modules m ON e.subject_id = m.module_id
+        LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+        WHERE e.status = ? 
+        AND m.module_id IN (
+            SELECT se.module_id
+            FROM student_enrollments se
+            WHERE se.student_id = ? AND se.status = 'active'
+        )
+    `;
+    
+    let params = [status, studentId];
+    
+    if (search) {
+        sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
+        params.push(`%${search}%`, `%${search}%`);
+    }
+    
+    if (difficulty) {
+        sql += ` AND e.difficulty = ?`;
+        params.push(difficulty);
+    }
+    
+    sql += ` GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
+    
+    const [rows] = await client.execute(sql, params);
+    
+    // Transform the data
+    const transformedExams = rows.map(exam => transformExamData(exam));
+    
+    // Get total count
+    let countSql = `
+        SELECT COUNT(DISTINCT e.exam_id) as total 
+        FROM exams e
+        LEFT JOIN modules m ON e.subject_id = m.module_id
+        WHERE e.status = ? 
+        AND m.module_id IN (
+            SELECT se.module_id
+            FROM student_enrollments se
+            WHERE se.student_id = ? AND se.status = 'active'
+        )
+    `;
+    let countParams = [status, studentId];
+    
+    if (search) {
+        countSql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
+        countParams.push(`%${search}%`, `%${search}%`);
+    }
+    
+    if (difficulty) {
+        countSql += ` AND e.difficulty = ?`;
+        countParams.push(difficulty);
+    }
+    
+    const [countResult] = await client.execute(countSql, countParams);
+    const total = countResult[0].total;
+    
+    return {
+        exams: transformedExams,
+        pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        },
+    };
+};
+
+// Get upcoming exams for student (scheduled or published)
+const getUpcomingExams = async ({ studentId, page = 1, limit = 20, search = "", difficulty = "" }) => {
+    const offset = (page - 1) * limit;
+    
+    let sql = `
+        SELECT 
+            e.exam_id as id,
+            e.title as name,
+            e.scheduled_date,
+            e.start_date,
+            e.end_date,
+            e.duration,
+            e.difficulty,
+            e.status,
+            e.instructions,
+            m.subject_name as subject_name,
+            COUNT(eq.question_id) as questions,
+            CASE WHEN er.student_id IS NULL THEN 0 ELSE 1 END AS is_registered,
+            e.created_at
+        FROM exams e
+        LEFT JOIN modules m ON e.subject_id = m.module_id
+        LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+        LEFT JOIN exam_registrations er ON er.exam_id = e.exam_id AND er.student_id = ?
+        WHERE e.status IN ('published', 'scheduled') 
+        AND (e.scheduled_date > NOW() OR e.start_date > NOW() OR e.end_date > NOW())
+        AND m.module_id IN (
+            SELECT se.module_id
+            FROM student_enrollments se
+            WHERE se.student_id = ?
+        )
+    `;
+    
+    let params = [studentId, studentId];
+    
+    if (search) {
+        sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
+        params.push(`%${search}%`, `%${search}%`);
+    }
+    
+    if (difficulty) {
+        sql += ` AND e.difficulty = ?`;
+        params.push(difficulty);
+    }
+    
+    sql += ` GROUP BY e.exam_id ORDER BY e.scheduled_date ASC, e.start_date ASC LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
+    console.log(sql, params)
+    const [rows] = await client.execute(sql, params);
+    
+    // Transform the data
+    const transformedExams = rows.map(exam => transformExamData(exam));
+    
+    // Get total count
+    const total = await getExamCount(studentId, ['published', 'scheduled'], search, difficulty, true);
+    
+    return {
+        exams: transformedExams,
+        pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        },
+    };
+};
+
+// Get on-demand exams for student (published and available now)
+const getOnDemandExams = async ({ studentId, page = 1, limit = 20, search = "", difficulty = "" }) => {
+    const offset = (page - 1) * limit;
+    
+    let sql = `
+        SELECT 
+            e.exam_id as id,
+            e.title as name,
+            e.scheduled_date,
+            e.start_date,
+            e.end_date,
+            e.duration,
+            e.difficulty,
+            e.status,
+            e.instructions,
+            m.subject_name as subject_name,
+            COUNT(eq.question_id) as questions,
+            e.created_at
+        FROM exams e
+        LEFT JOIN modules m ON e.subject_id = m.module_id
+        LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+        WHERE e.status = 'published' 
+        AND (e.scheduled_date IS NULL OR e.scheduled_date <= NOW())
+        AND (e.end_date IS NULL OR e.end_date > NOW())
+        AND m.module_id IN (
+            SELECT se.module_id
+            FROM student_enrollments se
+            WHERE se.student_id = ? 
+        )
+    `;
+    
+    let params = [studentId];
+    
+    if (search) {
+        sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
+        params.push(`%${search}%`, `%${search}%`);
+    }
+    
+    if (difficulty) {
+        sql += ` AND e.difficulty = ?`;
+        params.push(difficulty);
+    }
+    
+    sql += ` GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
+    
+    const [rows] = await client.execute(sql, params);
+    
+    // Transform the data
+    const transformedExams = rows.map(exam => transformExamData(exam));
+    
+    // Get total count
+    const total = await getExamCount(studentId, ['published'], search, difficulty, false);
+    
+    return {
+        exams: transformedExams,
+        pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        },
+    };
+};
+
+// Get past exam results for student
+const getExamResults = async ({ studentId, page = 1, limit = 20, search = "", difficulty = "" }) => {
+    const offset = (page - 1) * limit;
+    
+    let sql = `
+        SELECT 
+            e.exam_id as id,
+            e.title as name,
+            e.difficulty,
+            m.subject_name as subject_name,
+            COUNT(eq.question_id) as questions,
+            ea.started_at,
+            ea.submitted_at,
+            ea.time_spent,
+            ea.total_score,
+            ea.status as attempt_status
+        FROM exam_attempts ea
+        INNER JOIN exams e ON ea.exam_id = e.exam_id
+        LEFT JOIN modules m ON e.subject_id = m.module_id
+        LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+        WHERE ea.student_id = ? 
+        AND ea.status = 'submitted'
+        AND m.module_id IN (
+            SELECT se.module_id
+            FROM student_enrollments se
+            WHERE se.student_id = ? AND se.status = 'active'
+        )
+    `;
+    
+    let params = [studentId, studentId];
+    
+    if (search) {
+        sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
+        params.push(`%${search}%`, `%${search}%`);
+    }
+    
+    if (difficulty) {
+        sql += ` AND e.difficulty = ?`;
+        params.push(difficulty);
+    }
+    
+    sql += ` GROUP BY ea.exam_id, ea.started_at ORDER BY ea.submitted_at DESC LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
+    
+    const [rows] = await client.execute(sql, params);
+    
+    // Transform the data for results
+    const transformedResults = rows.map(result => {
+        const examDate = result.submitted_at || result.started_at;
+        const formattedDate = examDate ? new Date(examDate).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        }) : 'TBD';
+        
+        const durationHours = result.time_spent ? Math.floor(result.time_spent / 3600) : 0;
+        const durationMinutes = result.time_spent ? Math.floor((result.time_spent % 3600) / 60) : 0;
+        const formattedDuration = durationHours > 0 ? 
+            `${durationHours}h ${durationMinutes}m` : 
+            `${durationMinutes}m`;
+        
+        // Calculate percentage score
+        const totalQuestions = result.questions || 1;
+        const percentage = Math.round((result.total_score / totalQuestions) * 100);
+        
+        return {
+            id: result.id,
+            name: result.name,
+            date: formattedDate,
+            score: `${percentage}%`,
+            percentile: `${Math.min(percentage + 10, 99)}th`, // Mock percentile calculation
+            correct: `${result.total_score}/${totalQuestions}`,
+            duration: formattedDuration,
+            difficulty: result.difficulty || 'Medium',
+            subject_name: result.subject_name,
+            attempt_status: result.attempt_status
+        };
+    });
+    
+    // Get total count
+    const total = await getExamResultsCount(studentId, search, difficulty);
+    
+    return {
+        results: transformedResults,
+        pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        },
+    };
+};
+
+// Start an exam (create exam attempt)
+const startExam = async ({ studentId, examId }) => {
+    // Check if exam exists and student has access
+    const examCheck = await client.execute(`
+        SELECT e.exam_id, e.title, e.duration, e.status
+        FROM exams e
+        LEFT JOIN modules m ON e.subject_id = m.module_id
+        WHERE e.exam_id = ? 
+        AND e.status = 'published'
+        AND m.module_id IN (
+            SELECT se.module_id
+            FROM student_enrollments se
+            WHERE se.student_id = ? AND se.status = 'active'
+        )
+    `, [examId, studentId]);
+    
+    if (examCheck[0].length === 0) {
+        throw new Error('Exam not found or access denied');
+    }
+    
+    // Check if student already has an active attempt
+    const activeAttempt = await client.execute(`
+        SELECT exam_attempt_id FROM exam_attempts 
+        WHERE exam_id = ? AND student_id = ? AND status = 'in_progress'
+    `, [examId, studentId]);
+    
+    if (activeAttempt[0].length > 0) {
+        return activeAttempt[0][0].exam_attempt_id; // Return existing attempt
+    }
+    
+    // Create new exam attempt
+    const [result] = await client.execute(`
+        INSERT INTO exam_attempts (exam_id, student_id, status, started_at)
+        VALUES (?, ?, 'in_progress', NOW())
+    `, [examId, studentId]);
+    
+    return result.insertId;
+};
+
+// Submit exam answers
+const submitExamAnswer = async ({ attemptId, examQuestionId, answerText, selectedOptionId, timeSpent }) => {
+    // Check if answer already exists
+    const existingAnswer = await client.execute(`
+        SELECT exam_answer_id FROM exam_answers 
+        WHERE attempt_id = ? AND exam_question_id = ?
+    `, [attemptId, examQuestionId]);
+
+    if (existingAnswer[0].length > 0) {
+        // Update existing answer
+        const [result] = await client.execute(`
+            UPDATE exam_answers 
+            SET answer_text = ?, selected_option_id = ?, time_spent = ?, answered_at = NOW()
+            WHERE attempt_id = ? AND exam_question_id = ?
+        `, [answerText, selectedOptionId, timeSpent, attemptId, examQuestionId]);
+
+        return result.affectedRows > 0;
+    } else {
+        // Create new answer
+        const [result] = await client.execute(`
+            INSERT INTO exam_answers (attempt_id, exam_question_id, answer_text, selected_option_id, time_spent)
+            VALUES (?, ?, ?, ?, ?)
+        `, [attemptId, examQuestionId, answerText, selectedOptionId, timeSpent]);
+
+        return result.affectedRows > 0;
+    }
+};
+
+// Submit exam (complete attempt)
+const submitExam = async ({ attemptId, studentId }) => {
+    // Get all answers and calculate score
+    const [answers] = await client.execute(`
+        SELECT ea.*, qo.is_correct, eq.points
+        FROM exam_answers ea
+        INNER JOIN exam_questions eq ON ea.exam_question_id = eq.id
+        LEFT JOIN question_options qo ON ea.selected_option_id = qo.option_id
+        WHERE ea.attempt_id = ?
+    `, [attemptId]);
+
+    let totalScore = 0;
+    let totalPoints = 0;
+
+    // Update answers with correctness and points
+    for (const answer of answers) {
+        const isCorrect = answer.is_correct ? 1 : 0;
+        const pointsEarned = isCorrect ? (answer.points || 1) : 0;
+
+        totalScore += pointsEarned;
+        totalPoints += (answer.points || 1);
+
+        // Update answer record
+        await client.execute(`
+            UPDATE exam_answers 
+            SET is_correct = ?, points_earned = ?
+            WHERE exam_answer_id = ?
+        `, [isCorrect, pointsEarned, answer.exam_answer_id]);
+    }
+
+    // Update attempt record
+    const [result] = await client.execute(`
+        UPDATE exam_attempts 
+        SET status = 'submitted', submitted_at = NOW(), total_score = ?
+        WHERE exam_attempt_id = ? AND student_id = ?
+    `, [totalScore, attemptId, studentId]);
+
+    return {
+        success: result.affectedRows > 0,
+        totalScore,
+        totalPoints,
+        percentage: Math.round((totalScore / totalPoints) * 100)
+    };
+};
+
+// Get exam questions for a specific exam
+const getExamQuestions = async ({ examId, studentId }) => {
+    // Verify student has access to exam
+    const examCheck = await client.execute(`
+        SELECT e.exam_id, e.title, e.duration, e.instructions
+        FROM exams e
+        LEFT JOIN modules m ON e.subject_id = m.module_id
+        WHERE e.exam_id = ? 
+        AND e.status = 'published'
+        AND m.module_id IN (
+            SELECT se.module_id
+            FROM student_enrollments se
+            WHERE se.student_id = ? AND se.status = 'active'
+        )
+    `, [examId, studentId]);
+    
+    if (examCheck[0].length === 0) {
+        throw new Error('Exam not found or access denied');
+    }
+    
+    const exam = examCheck[0][0];
+    
+    // Get exam questions with options
+    const [questions] = await client.execute(`
+        SELECT 
+            eq.id,
+            eq.order_index,
+            eq.points,
+            q.question_id,
+            q.question_text,
+            q.question_type,
+            q.difficulty_level,
+            q.explanation,
+            COALESCE(
+                JSON_ARRAYAGG(
+                    CASE WHEN qo.option_id IS NOT NULL THEN JSON_OBJECT(
+                        'option_id', qo.option_id,
+                        'option_text', qo.option_text,
+                        'is_correct', qo.is_correct,
+                        'explanation', qo.explanation
+                    ) END
+                ), JSON_ARRAY()
+            ) AS options
+        FROM exam_questions eq
+        INNER JOIN questions q ON eq.question_id = q.question_id
+        LEFT JOIN question_options qo ON q.question_id = qo.question_id
+        WHERE eq.exam_id = ?
+        GROUP BY eq.id, q.question_id
+        ORDER BY eq.order_index
+    `, [examId]);
+    
+    // Parse options for each question
+    const questionsWithOptions = questions.map(q => ({
+        ...q,
+        options: JSON.parse(q.options).filter(Boolean)
+    }));
+    
+    return {
+        exam: {
+            exam_id: exam.exam_id,
+            title: exam.title,
+            duration: exam.duration,
+            instructions: exam.instructions,
+            total_questions: questions.length
+        },
+        questions: questionsWithOptions
+    };
+};
+
+// Register student for an exam (scheduled slot/metadata)
+const registerForExam = async ({ studentId, examId, startSlot, notifications, notes, startISO, endISO }) => {
+    // Ensure registration table exists (idempotent)
+   
+
+    const [result] = await client.execute(`
+        INSERT INTO exam_registrations (exam_id, student_id, start_slot, notifications, notes, start_iso, end_iso)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+          start_slot = VALUES(start_slot),
+          notifications = VALUES(notifications),
+          notes = VALUES(notes),
+          start_iso = VALUES(start_iso),
+          end_iso = VALUES(end_iso)`,
+        [examId, studentId, startSlot || null, notifications ? JSON.stringify(notifications) : null, notes || null, startISO || null, endISO || null]
+    );
+
+    return { registered: true };
+};
+
+// Helper function to transform exam data
+const transformExamData = (exam) => {
+    // Format date
+    const examDate = exam.scheduled_date || exam.start_date;
+    const formattedDate = examDate ? new Date(examDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    }) : 'TBD';
+    
+    // Format time
+    const formattedTime = examDate ? new Date(examDate).toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    }) : 'TBD';
+    
+    // Format duration
+    const durationHours = exam.duration ? Math.floor(exam.duration / 60) : 0;
+    const durationMinutes = exam.duration ? exam.duration % 60 : 0;
+    const formattedDuration = durationHours > 0 ? 
+        `${durationHours}h ${durationMinutes > 0 ? durationMinutes + 'm' : ''}`.trim() : 
+        `${durationMinutes}m`;
+    
+    // Get difficulty color
+    const getDifficultyColor = (difficulty) => {
+        switch (difficulty?.toLowerCase()) {
+            case "easy":
+                return "green";
+            case "medium":
+                return "yellow";
+            case "hard":
+                return "red";
+            default:
+                return "gray";
+        }
+    };
+    
+    return {
+        id: exam.id,
+        name: exam.name,
+        date: formattedDate,
+        time: formattedTime,
+        duration: formattedDuration,
+        questions: exam.questions || 0,
+        registered: Number(exam.is_registered) || 0,
+        difficulty: exam.difficulty || 'Medium',
+        color: getDifficultyColor(exam.difficulty),
+        type: "teacher", // Assuming all exams are created by teachers
+        subject_name: exam.subject_name,
+        status: exam.status,
+        instructions: exam.instructions
+    };
+};
+
+// Helper function to get exam count
+const getExamCount = async (studentId, statuses, search, difficulty, upcomingOnly = false) => {
+    let sql = `
+        SELECT COUNT(DISTINCT e.exam_id) as total 
+        FROM exams e
+        LEFT JOIN modules m ON e.subject_id = m.module_id
+        WHERE e.status IN (${statuses.map(() => '?').join(',')}) 
+        AND m.module_id IN (
+            SELECT se.module_id
+            FROM student_enrollments se
+            WHERE se.student_id = ? AND se.status = 'active'
+        )
+    `;
+    
+    let params = [...statuses, studentId];
+    
+    if (upcomingOnly) {
+        sql += ` AND (e.scheduled_date > NOW() OR e.start_date > NOW() OR e.end_date > NOW())`;
+    }
+    
+    if (search) {
+        sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
+        params.push(`%${search}%`, `%${search}%`);
+    }
+    
+    if (difficulty) {
+        sql += ` AND e.difficulty = ?`;
+        params.push(difficulty);
+    }
+    
+    const [countResult] = await client.execute(sql, params);
+    return countResult[0].total;
+};
+
+// Helper function to get exam results count
+const getExamResultsCount = async (studentId, search, difficulty) => {
+    let sql = `
+        SELECT COUNT(DISTINCT ea.exam_attempt_id) as total 
+        FROM exam_attempts ea
+        INNER JOIN exams e ON ea.exam_id = e.exam_id
+        LEFT JOIN modules m ON e.subject_id = m.module_id
+        WHERE ea.student_id = ? 
+        AND ea.status = 'submitted'
+        AND m.module_id IN (
+            SELECT se.module_id
+            FROM student_enrollments se
+            WHERE se.student_id = ? AND se.status = 'active'
+        )
+    `;
+    
+    let params = [studentId, studentId];
+    
+    if (search) {
+        sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
+        params.push(`%${search}%`, `%${search}%`);
+    }
+    
+    if (difficulty) {
+        sql += ` AND e.difficulty = ?`;
+        params.push(difficulty);
+    }
+    
+    const [countResult] = await client.execute(sql, params);
+    return countResult[0].total;
+};
 
 module.exports = {
     solveQuestion,
@@ -769,5 +1415,14 @@ module.exports = {
     getFlashcardsByMode,
     reviewFlashcard,
     listQbanks,
-    getAvailableQuestions
+    getAvailableQuestions,
+    getStudentExams,
+    getUpcomingExams,
+    getOnDemandExams,
+    getExamResults,
+    startExam,
+    submitExamAnswer,
+    submitExam,
+    getExamQuestions,
+    registerForExam
 }

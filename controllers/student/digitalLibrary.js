@@ -52,6 +52,7 @@ async function listModuleBooks(req, res) {
       page: Number(page),
       limit: Number(limit),
       search,
+      studentId
     });
     // selected_book: إن كان ebook_id موجود هنبحث عنه داخل نفس القائمة أولاً، ولو مش موجود نجيبه من التفاصيل
     let selected = null;
@@ -97,8 +98,35 @@ async function viewBook(req, res) {
   }
 }
 
+async function saveAnnotation(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+  const { ebook_id } = req.params;
+  const { ann_value } = req.body;
+  if (!ann_value || !String(ann_value).trim()) {
+    return responseBuilder.badRequest(res, "ann_value is required");
+  }
+  try {
+    const created = await repo.saveAnnotation({
+      annValue: String(ann_value),
+      bookId: Number(ebook_id),
+      studentId: Number(studentId),
+    });
+    return responseBuilder.success(res, {
+      data: created,
+      message: "Annotation saved",
+    });
+  } catch (error) {
+    console.error("Save annotation error:", error);
+    return responseBuilder.serverError(res, "Failed to save annotation");
+  }
+}
+
 module.exports = {
   listStudentModules,
   listModuleBooks,
   viewBook,
+  saveAnnotation,
 };

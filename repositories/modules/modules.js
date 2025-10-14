@@ -102,7 +102,7 @@ class ModulesRepository {
     query += ` WHERE unit_id = ?`;
     values.push(unitData.unit_id);
 
-   
+
 
     try {
       const [result] = await client.execute(query, values);
@@ -367,13 +367,13 @@ class ModulesRepository {
         tm.assigned_at,
         tm.status as assignment_status
       FROM teachers t
-      INNER JOIN teacher_modules tm ON t.teacher_id = tm.teacher_id
-      WHERE tm.module_id = ? AND tm.status = 'active'
+      LEFT JOIN teacher_modules tm ON t.teacher_id = tm.teacher_id
+      WHERE 1 = 1
       ORDER BY tm.assigned_at DESC
     `;
 
     try {
-      const [result] = await client.execute(query, [moduleId]);
+      const [result] = await client.execute(query);
       return result;
     } catch (error) {
       throw new Error(`Error fetching module teachers: ${error.message}`);
@@ -381,30 +381,45 @@ class ModulesRepository {
   }
 
   //  الطلاب المسجلين في المادة
-  async getModuleStudents(moduleId, filters = {}) {
+  async getModuleStudents() {
     let query = `
       SELECT 
         s.*,
-        se.enrolled_at,
-        se.status as enrollment_status,
-        se.grade
+        JSON_ARRAYAGG(
+          IF(m.module_id IS NOT NULL,
+            JSON_OBJECT(
+              'module_id', m.module_id,
+              'subject_name', m.subject_name,
+              'subject_code', m.subject_code,
+              'enrolled_at', se.enrolled_at,
+              'enrollment_status', se.status,
+              'grade', se.grade
+            ),
+            NULL
+          )
+        ) AS modules
       FROM students s
-      INNER JOIN student_enrollments se ON s.student_id = se.student_id
-      WHERE se.module_id = ?
+      LEFT JOIN student_enrollments se ON s.student_id = se.student_id
+      LEFT JOIN modules m ON se.module_id = m.module_id
+      GROUP BY s.student_id
+      ORDER BY s.full_name
     `;
 
-    const values = [moduleId];
-
-    // فلترة حسب حالة التسجيل
-    if (filters.enrollment_status) {
-      query += ` AND se.status = ?`;
-      values.push(filters.enrollment_status);
-    }
-
-    query += ` ORDER BY se.enrolled_at DESC`;
-
     try {
-      const [result] = await client.execute(query, values);
+      const [result] = await client.execute(query);
+      result?.forEach(item => {
+        try {
+          // Parse the modules JSON and filter out null values
+          item.modules = JSON.parse(item?.modules || '[]')?.filter(module => module && module.module_id);
+          
+          // If modules is null or undefined, set it to an empty array
+          if (!item.modules) {
+            item.modules = [];
+          }
+        } catch (err) {
+          item.modules = [];
+        }
+      });
       return result;
     } catch (error) {
       throw new Error(`Error fetching module students: ${error.message}`);

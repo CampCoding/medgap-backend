@@ -63,10 +63,151 @@ async function getStudyPlanById({ planId, studentId }) {
   if (rows.length === 0) return null;
 
   const plan = rows[0];
+  // Fetch qbanks created within plan period with progress for this student
+  const [qbanks] = await client.execute(
+    `SELECT 
+       q.*,
+       COUNT(DISTINCT qq.question_id) AS question_count,
+       COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL THEN sq.question_id END) AS solved_count,
+       COUNT(DISTINCT CASE WHEN sq.is_correct = '1' THEN sq.question_id END) AS correct_count,
+       CASE 
+         WHEN COUNT(DISTINCT qq.question_id) = 0 THEN 0
+         ELSE ROUND((COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL THEN sq.question_id END) / COUNT(DISTINCT qq.question_id)) * 100, 0)
+       END AS progress_percent,
+       CASE 
+         WHEN COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL THEN sq.question_id END) = 0 THEN 0
+         ELSE ROUND((COUNT(DISTINCT CASE WHEN sq.is_correct = '1' THEN sq.question_id END) / COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL THEN sq.question_id END)) * 100, 0)
+       END AS accuracy_percent
+     FROM qbank q
+     LEFT JOIN qbank_questions qq ON q.qbank_id = qq.qbank_id
+     LEFT JOIN solved_questions sq 
+       ON sq.qbank_id = q.qbank_id 
+      AND sq.question_id = qq.question_id 
+      AND sq.student_id = ?
+     WHERE q.deleted = '0' 
+       AND q.student_id = ?
+       AND q.created_at BETWEEN ? AND ?
+     GROUP BY q.qbank_id
+     ORDER BY q.qbank_id DESC`,
+    [studentId, studentId, plan.start_date, plan.end_date]
+  );
+
+  // Fetch exams within plan period with student progress (latest attempt in period)
+  const [exams] = await client.execute(
+    `SELECT 
+       e.exam_id as id,
+       e.title as name,
+       e.scheduled_date,
+       e.start_date,
+       e.end_date,
+       e.duration,
+       e.difficulty,
+       e.status,
+       m.subject_name as subject_name,
+       COUNT(DISTINCT eq.question_id) as questions,
+       ea.exam_attempt_id,
+       ea.status as attempt_status,
+       ea.total_score,
+       COUNT(DISTINCT ans.exam_answer_id) AS answered_count,
+       SUM(CASE WHEN ans.is_correct = 1 THEN 1 ELSE 0 END) AS correct_answers,
+       CASE 
+         WHEN COUNT(DISTINCT eq.question_id) = 0 THEN 0
+         WHEN ea.status = 'submitted' THEN ROUND((ea.total_score / COUNT(DISTINCT eq.question_id)) * 100, 0)
+         ELSE ROUND((COUNT(DISTINCT ans.exam_answer_id) / COUNT(DISTINCT eq.question_id)) * 100, 0)
+       END AS progress_percent
+     FROM exams e
+     LEFT JOIN modules m ON e.subject_id = m.module_id
+     LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+     LEFT JOIN (
+        SELECT ea1.*
+        FROM exam_attempts ea1
+        INNER JOIN (
+          SELECT exam_id, MAX(COALESCE(submitted_at, started_at)) AS latest_time
+          FROM exam_attempts
+          WHERE student_id = ?
+            AND (
+              (started_at IS NOT NULL AND started_at BETWEEN ? AND ?)
+              OR (submitted_at IS NOT NULL AND submitted_at BETWEEN ? AND ?)
+            )
+          GROUP BY exam_id
+        ) latest ON latest.exam_id = ea1.exam_id
+        AND COALESCE(ea1.submitted_at, ea1.started_at) = latest.latest_time
+        WHERE ea1.student_id = ?
+     ) ea ON ea.exam_id = e.exam_id
+     LEFT JOIN exam_answers ans ON ans.attempt_id = ea.exam_attempt_id
+     WHERE m.module_id IN (
+       SELECT se.module_id FROM student_enrollments se WHERE se.student_id = ? AND se.status = 'active'
+     )
+     AND (
+       (e.scheduled_date IS NOT NULL AND e.scheduled_date BETWEEN ? AND ?)
+       OR (e.start_date IS NOT NULL AND e.start_date BETWEEN ? AND ?)
+       OR (e.end_date IS NOT NULL AND e.end_date BETWEEN ? AND ?)
+     )
+     GROUP BY e.exam_id
+     ORDER BY COALESCE(e.scheduled_date, e.start_date, e.end_date) ASC`,
+    [
+      studentId,
+      plan.start_date,
+      plan.end_date,
+      plan.start_date,
+      plan.end_date,
+      studentId,
+      studentId,
+      plan.start_date,
+      plan.end_date,
+      plan.start_date,
+      plan.end_date,
+      plan.start_date,
+      plan.end_date,
+    ]
+  );
+
+  // Fetch flashcards solved within plan period (per deck and totals)
+  const [flashcardsByDeck] = await client.execute(
+    `SELECT 
+       sd.student_deck_id AS deck_id,
+       sd.deck_title,
+       COUNT(*) AS studied_count,
+       SUM(CASE WHEN sfc.card_solved = '1' THEN 1 ELSE 0 END) AS solved_count
+     FROM student_flash_cards sfc
+     INNER JOIN student_deck sd ON sd.student_deck_id = sfc.deck_id
+     WHERE sd.student_id = ?
+       AND sfc.solved_at IS NOT NULL
+       AND sfc.solved_at BETWEEN ? AND ?
+     GROUP BY sd.student_deck_id, sd.deck_title
+     ORDER BY MAX(sfc.solved_at) DESC`,
+    [studentId, plan.start_date, plan.end_date]
+  );
+
+  const [flashcardsTotalRow] = await client.execute(
+    `SELECT 
+       COUNT(*) AS total_studied,
+       SUM(CASE WHEN sfc.card_solved = '1' THEN 1 ELSE 0 END) AS total_solved
+     FROM student_flash_cards sfc
+     INNER JOIN student_deck sd ON sd.student_deck_id = sfc.deck_id
+     WHERE sd.student_id = ?
+       AND sfc.solved_at IS NOT NULL
+       AND sfc.solved_at BETWEEN ? AND ?`,
+    [studentId, plan.start_date, plan.end_date]
+  );
+
+  const flashcardsTotals = flashcardsTotalRow && flashcardsTotalRow[0]
+    ? {
+        total_studied: Number(flashcardsTotalRow[0].total_studied) || 0,
+        total_solved: Number(flashcardsTotalRow[0].total_solved) || 0,
+      }
+    : { total_studied: 0, total_solved: 0 };
+
   return {
     ...plan,
     study_days: JSON.parse(plan.study_days),
     daily_limits: plan.daily_limits ? JSON.parse(plan.daily_limits) : null,
+    qbanks_in_period: qbanks,
+    exams_in_period: exams,
+    flashcards_in_period: {
+      totals: flashcardsTotals,
+      by_deck: flashcardsByDeck,
+    },
   };
 }
 
@@ -163,11 +304,12 @@ async function addPlanContent({
   questionBankModules,
   questionBankTopics,
   questionBankQuizzes,
+  subjects,
 }) {
   const sql = `INSERT INTO student_plan_content 
                (plan_id, exams_modules, exams_topics, flashcards_modules, flashcards_topics, 
-                question_bank_modules, question_bank_topics, question_bank_quizzes)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                question_bank_modules, question_bank_topics, question_bank_quizzes, subjects)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   const params = [
     planId,
@@ -178,6 +320,7 @@ async function addPlanContent({
     questionBankModules ? JSON.stringify(questionBankModules) : null,
     questionBankTopics ? JSON.stringify(questionBankTopics) : null,
     questionBankQuizzes ? JSON.stringify(questionBankQuizzes) : null,
+    subjects ? JSON.stringify(subjects) : null,
   ];
 
   const [result] = await client.execute(sql, params);
@@ -214,6 +357,7 @@ async function getPlanContent({ planId }) {
     question_bank_quizzes: content.question_bank_quizzes
       ? JSON.parse(content.question_bank_quizzes)
       : [],
+    subjects: content.subjects ? JSON.parse(content.subjects) : [],
   };
 
   // Get detailed module and topic information
@@ -243,8 +387,7 @@ async function generatePlanSessions({ planId, studentId }) {
     throw new Error("No content added to plan");
   }
 
-  // Generate sessions for each study day between start and end date
-  const sessions = [];
+  // Only generate one session for the next valid study day
   const startDate = new Date(plan.start_date);
   const endDate = new Date(plan.end_date);
   const studyDays = plan.study_days; // [1,2,3,4,5] for Mon-Fri
@@ -283,6 +426,7 @@ async function generatePlanSessions({ planId, studentId }) {
       modules: content.question_bank_modules,
       topics: content.question_bank_topics || [],
       quizzes: content.question_bank_quizzes || [],
+      subjects: content.subjects || [],
     });
   }
 
@@ -290,73 +434,67 @@ async function generatePlanSessions({ planId, studentId }) {
     throw new Error("No content added to plan");
   }
 
+  // Convert string days to numbers if needed
+  let studyDaysNumbers = studyDays;
+  if (typeof studyDays[0] === "string") {
+    const dayMap = {
+      Sat: 0,
+      Saturday: 0,
+      Sun: 1,
+      Sunday: 1,
+      Mon: 2,
+      Monday: 2,
+      Tue: 3,
+      Tuesday: 3,
+      Wed: 4,
+      Wednesday: 4,
+      Thu: 5,
+      Thursday: 5,
+      Fri: 6,
+      Friday: 6,
+    };
+    studyDaysNumbers = studyDays.map((day) => dayMap[day] || day);
+  }
+
+  // Find the first upcoming valid study date within the range
+  let sessionDate = null;
   for (
     let date = new Date(startDate);
     date <= endDate;
     date.setDate(date.getDate() + 1)
   ) {
-    const dayOfWeek = date.getDay(); // 0=Sunday, 1=Monday, etc. (JavaScript default)
-
-    // Convert string days to numbers if needed
-    let studyDaysNumbers = studyDays;
-    if (typeof studyDays[0] === "string") {
-      const dayMap = {
-        Sat: 0,
-        Saturday: 0,
-        Sun: 1,
-        Sunday: 1,
-        Mon: 2,
-        Monday: 2,
-        Tue: 3,
-        Tuesday: 3,
-        Wed: 4,
-        Wednesday: 4,
-        Thu: 5,
-        Thursday: 5,
-        Fri: 6,
-        Friday: 6,
-      };
-      studyDaysNumbers = studyDays.map((day) => dayMap[day] || day);
-    }
-
+    const dayOfWeek = date.getDay();
     if (studyDaysNumbers.includes(dayOfWeek)) {
-      // Create sessions for each content type
-      for (const contentItem of contentItems) {
-        sessions.push({
-          plan_id: planId,
-          session_date: date.toISOString().split("T")[0],
-          session_type: contentItem.content_type,
-          content_id: contentItem.content_id,
-        });
-      }
+      sessionDate = date.toISOString().split("T")[0];
+      break;
     }
   }
 
-  // Insert sessions in batch
-  if (sessions.length > 0) {
-    console.log(`Generating ${sessions.length} sessions for plan ${planId}`);
+  if (!sessionDate) {
+    throw new Error("No valid study day found in the specified range");
+  }
 
+  // Just pick the first content item for this single session
+  const contentItem = contentItems[0];
+
+  let createdSessionId = null;
+  if (contentItem) {
     const sql = `INSERT INTO student_plan_sessions 
                  (plan_id, session_date, session_type, content_id)
                  VALUES (?, ?, ?, ?)`;
 
-    // Prepare all values for batch insert
-    const values = sessions.map((session) => [
-      session.plan_id,
-      session.session_date,
-      session.session_type,
-      session.content_id,
-    ]);
+    const valueSet = [
+      planId,
+      sessionDate,
+      contentItem.content_type,
+      contentItem.content_id,
+    ];
 
-    // Execute all inserts in parallel
-    const startTime = Date.now();
-    await Promise.all(values.map((valueSet) => client.execute(sql, valueSet)));
-    const endTime = Date.now();
-
-    console.log(`Sessions created in ${endTime - startTime}ms`);
+    const [result] = await client.execute(sql, valueSet);
+    createdSessionId = result && result.insertId ? result.insertId : null;
   }
 
-  return { sessions_created: sessions.length };
+  return { sessions_created: createdSessionId ? 1 : 0, session_id: createdSessionId };
 }
 
 async function getPlanSessions({
@@ -367,7 +505,7 @@ async function getPlanSessions({
 }) {
   let sql = `SELECT s.*, c.exams_modules, c.exams_topics, c.flashcards_modules, 
              c.flashcards_topics, c.question_bank_modules, c.question_bank_topics, 
-             c.question_bank_quizzes
+             c.question_bank_quizzes, c.subjects
              FROM student_plan_sessions s
              JOIN student_plan_content c ON c.content_id = s.content_id
              WHERE s.plan_id = ?`;
@@ -408,6 +546,7 @@ async function getPlanSessions({
     question_bank_quizzes: row.question_bank_quizzes
       ? JSON.parse(row.question_bank_quizzes)
       : [],
+    subjects: row.subjects ? JSON.parse(row.subjects) : [],
   }));
 
   // Get detailed information for each session
@@ -419,6 +558,323 @@ async function getPlanSessions({
   );
 
   return detailedSessions;
+}
+
+// Get a single session details (questions + flashcards + progress)
+async function getSessionDetails({ planId, studentId, sessionId }) {
+  // Verify session belongs to plan and student
+  const [sessions] = await client.execute(
+    `SELECT s.*, c.exams_modules, c.exams_topics, c.flashcards_modules, 
+            c.flashcards_topics, c.question_bank_modules, c.question_bank_topics, 
+            c.question_bank_quizzes
+     FROM student_plan_sessions s
+     JOIN student_plan_content c ON c.content_id = s.content_id
+     WHERE s.session_id = ? AND s.plan_id = ?`,
+    [sessionId, planId]
+  );
+  if (!sessions.length) return null;
+  const session = sessions[0];
+
+  // Fetch plan limits and per-session goals
+  const [planRows] = await client.execute(
+    `SELECT questions_per_session, daily_limits FROM student_study_plans WHERE plan_id = ? LIMIT 1`,
+    [planId]
+  );
+  const planRow = planRows && planRows[0] ? planRows[0] : { questions_per_session: 20, daily_limits: null };
+  const dailyLimits = planRow.daily_limits ? JSON.parse(planRow.daily_limits) : {};
+  const questionsGoalPerSession = Number(planRow.questions_per_session) || 20;
+  const flashcardsGoalPerSession = Number(dailyLimits.max_flashcards) || 50;
+
+  // Parse JSON arrays
+  const examsModules = session.exams_modules ? JSON.parse(session.exams_modules) : [];
+  const examsTopics = session.exams_topics ? JSON.parse(session.exams_topics) : [];
+  const qbModules = session.question_bank_modules ? JSON.parse(session.question_bank_modules) : [];
+  const qbTopics = session.question_bank_topics ? JSON.parse(session.question_bank_topics) : [];
+  const flashModules = session.flashcards_modules ? JSON.parse(session.flashcards_modules) : [];
+  const flashTopics = session.flashcards_topics ? JSON.parse(session.flashcards_topics) : [];
+
+  // Questions pool for this session
+  let whereQ = ["q.status = 'active'"];
+  const valuesQ = [];
+  if (qbTopics.length) {
+    whereQ.push(`q.topic_id IN (${qbTopics.map(() => '?').join(',')})`);
+    valuesQ.push(...qbTopics);
+  } else if (qbModules.length) {
+    whereQ.push(`u.module_id IN (${qbModules.map(() => '?').join(',')})`);
+    valuesQ.push(...qbModules);
+  }
+
+  const questionsSql = `
+    SELECT q.question_id,
+           q.question_text,
+           q.question_type,
+           q.difficulty_level,
+           t.topic_name,
+           u.unit_name,
+           m.subject_name AS module_name,
+           COALESCE(
+             JSON_ARRAYAGG(
+               CASE WHEN qo.option_id IS NOT NULL THEN JSON_OBJECT(
+                 'option_id', qo.option_id,
+                 'option_text', qo.option_text,
+                 'is_correct', qo.is_correct,
+                 'explanation', qo.explanation
+               ) END
+             ), JSON_ARRAY()
+           ) AS options,
+           MAX(CASE WHEN sq.student_id = ? THEN 1 ELSE 0 END) AS attempted,
+           MAX(CASE WHEN sq.student_id = ? AND sq.is_correct = '1' THEN 1 ELSE 0 END) AS correct
+    FROM questions q
+    LEFT JOIN question_options qo ON qo.question_id = q.question_id
+    LEFT JOIN topics t ON t.topic_id = q.topic_id
+    LEFT JOIN units u ON u.unit_id = t.unit_id
+    LEFT JOIN modules m ON m.module_id = u.module_id
+    LEFT JOIN solved_questions sq ON sq.question_id = q.question_id AND sq.student_id = ?
+    ${whereQ.length ? `WHERE ${whereQ.join(' AND ')}` : ''}
+    GROUP BY q.question_id
+    ORDER BY q.created_at DESC
+    LIMIT 50`;
+
+  const [questionRows] = await client.execute(questionsSql, [studentId, studentId, studentId, ...valuesQ]);
+
+  // Flashcards pool for this session
+  let whereF = ["f.status IN ('active','draft')"];
+  const valuesF = [];
+  if (flashTopics.length) {
+    whereF.push(`f.topic_id IN (${flashTopics.map(() => '?').join(',')})`);
+    valuesF.push(...flashTopics);
+  } else if (flashModules.length) {
+    whereF.push(`u.module_id IN (${flashModules.map(() => '?').join(',')})`);
+    valuesF.push(...flashModules);
+  }
+
+  const flashcardsSql = `
+    SELECT f.flashcard_id,
+           f.front_text,
+           f.back_text,
+           f.difficulty_level,
+           COALESCE(cp.attempts, 0) AS attempts,
+           COALESCE(cp.correct, 0) AS correct,
+           COALESCE(cp.status, 'new') AS card_status,
+           cp.last_seen
+    FROM flashcards f
+    LEFT JOIN topics t ON t.topic_id = f.topic_id
+    LEFT JOIN units u ON u.unit_id = t.unit_id
+    LEFT JOIN modules m ON m.module_id = u.module_id
+    LEFT JOIN student_flashcard_card_progress cp
+      ON cp.flashcard_id = f.flashcard_id AND cp.student_id = ?
+    ${whereF.length ? `WHERE ${whereF.join(' AND ')}` : ''}
+    ORDER BY f.card_order, f.flashcard_id
+    LIMIT 50`;
+
+  const [flashcardRows] = await client.execute(flashcardsSql, [studentId, ...valuesF]);
+
+  // Compute session progress
+  const questionsAttempted = questionRows.reduce((a, q) => a + (q.attempted ? 1 : 0), 0);
+  const questionsCorrect = questionRows.reduce((a, q) => a + (q.correct ? 1 : 0), 0);
+  const totalQuestions = questionRows.length;
+  const questionProgress = totalQuestions ? Math.round((questionsAttempted / totalQuestions) * 100) : 0;
+
+  const flashcardsStudied = flashcardRows.reduce((a, c) => a + (c.attempts > 0 ? 1 : 0), 0);
+  const flashcardsCorrect = flashcardRows.reduce((a, c) => a + (c.correct > 0 ? 1 : 0), 0);
+  const totalFlashcards = flashcardRows.length;
+  const flashcardsProgress = totalFlashcards ? Math.round((flashcardsStudied / totalFlashcards) * 100) : 0;
+
+  // Progress vs per-session goals
+  const questionsGoalPercent = questionsGoalPerSession > 0 ? Math.min(100, Math.round((questionsAttempted / questionsGoalPerSession) * 100)) : 0;
+  const flashcardsGoalPercent = flashcardsGoalPerSession > 0 ? Math.min(100, Math.round((flashcardsStudied / flashcardsGoalPerSession) * 100)) : 0;
+
+  // Plan totals progress across all sessions
+  const [totalsRows] = await client.execute(
+    `SELECT 
+       COUNT(*) AS sessions_count,
+       COALESCE(SUM(questions_attempted), 0) AS total_questions_attempted,
+       COALESCE(SUM(questions_correct), 0) AS total_questions_correct,
+       COALESCE(SUM(flashcards_studied), 0) AS total_flashcards_studied
+     FROM student_plan_sessions WHERE plan_id = ?`,
+    [planId]
+  );
+  const totals = totalsRows && totalsRows[0] ? totalsRows[0] : { sessions_count: 0, total_questions_attempted: 0, total_questions_correct: 0, total_flashcards_studied: 0 };
+  const totalQuestionsGoal = (Number(totals.sessions_count) || 0) * questionsGoalPerSession;
+  const totalFlashcardsGoal = (Number(totals.sessions_count) || 0) * flashcardsGoalPerSession;
+  const totalQuestionsPercent = totalQuestionsGoal > 0 ? Math.min(100, Math.round((Number(totals.total_questions_attempted) / totalQuestionsGoal) * 100)) : 0;
+  const totalFlashcardsPercent = totalFlashcardsGoal > 0 ? Math.min(100, Math.round((Number(totals.total_flashcards_studied) / totalFlashcardsGoal) * 100)) : 0;
+
+  return {
+    session: {
+      session_id: session.session_id,
+      session_date: session.session_date,
+      session_type: session.session_type,
+      status: session.status,
+    },
+    questions: questionRows.map((q) => ({
+      ...q,
+      options: typeof q.options === 'string' ? JSON.parse(q.options).filter(Boolean) : q.options,
+      attempted: !!q.attempted,
+      correct: !!q.correct,
+    })),
+    flashcards: flashcardRows,
+    progress: {
+      questions: {
+        attempted: questionsAttempted,
+        correct: questionsCorrect,
+        total: totalQuestions,
+        progress_percent: questionProgress,
+      },
+      flashcards: {
+        studied: flashcardsStudied,
+        correct: flashcardsCorrect,
+        total: totalFlashcards,
+        progress_percent: flashcardsProgress,
+      },
+      goals: {
+        per_session: {
+          questions_goal: questionsGoalPerSession,
+          flashcards_goal: flashcardsGoalPerSession,
+          questions_progress_percent: questionsGoalPercent,
+          flashcards_progress_percent: flashcardsGoalPercent,
+        },
+        totals: {
+          sessions_count: Number(totals.sessions_count) || 0,
+          questions_attempted: Number(totals.total_questions_attempted) || 0,
+          questions_correct: Number(totals.total_questions_correct) || 0,
+          questions_goal: totalQuestionsGoal,
+          questions_progress_percent: totalQuestionsPercent,
+          flashcards_studied: Number(totals.total_flashcards_studied) || 0,
+          flashcards_goal: totalFlashcardsGoal,
+          flashcards_progress_percent: totalFlashcardsPercent,
+        }
+      }
+    },
+  };
+}
+
+// Solve a question within a session and update progress
+async function solveSessionQuestion({ planId, sessionId, studentId, questionId, selectedOptionId = null, answerText = null }) {
+  // Validate session
+  const [sessions] = await client.execute(
+    `SELECT s.session_id, c.question_bank_modules, c.question_bank_topics
+     FROM student_plan_sessions s
+     JOIN student_plan_content c ON c.content_id = s.content_id
+     WHERE s.session_id = ? AND s.plan_id = ?
+     LIMIT 1`,
+    [sessionId, planId]
+  );
+  if (!sessions.length) return { success: false, message: 'Session not found' };
+  const session = sessions[0];
+
+  const qbModules = session.question_bank_modules ? JSON.parse(session.question_bank_modules) : [];
+  const qbTopics = session.question_bank_topics ? JSON.parse(session.question_bank_topics) : [];
+
+  // Ensure question belongs to allowed topics/modules (if filters exist)
+  let checkSql = `SELECT q.question_id FROM questions q`;
+  const checkWhere = [];
+  const checkVals = [questionId];
+  if (qbTopics.length) {
+    checkWhere.push(`q.topic_id IN (${qbTopics.map(() => '?').join(',')})`);
+    checkVals.push(...qbTopics);
+  } else if (qbModules.length) {
+    checkSql += ` INNER JOIN topics t ON t.topic_id = q.topic_id INNER JOIN units u ON u.unit_id = t.unit_id`;
+    checkWhere.push(`u.module_id IN (${qbModules.map(() => '?').join(',')})`);
+    checkVals.push(...qbModules);
+  }
+  const [qCheck] = await client.execute(
+    `${checkSql} WHERE q.question_id = ? ${checkWhere.length ? ' AND ' + checkWhere.join(' AND ') : ''} LIMIT 1`,
+    checkVals
+  );
+  if (!qCheck.length) return { success: false, message: 'Question not in session scope' };
+
+  // Determine correctness
+  let isCorrect = 0;
+  if (selectedOptionId) {
+    const [optRows] = await client.execute(
+      `SELECT is_correct FROM question_options WHERE option_id = ? AND question_id = ? LIMIT 1`,
+      [selectedOptionId, questionId]
+    );
+    isCorrect = optRows.length && (optRows[0].is_correct === 1 || optRows[0].is_correct === '1') ? 1 : 0;
+  } else if (answerText != null) {
+    const [optRows] = await client.execute(
+      `SELECT is_correct FROM question_options WHERE question_id = ? AND option_text = ? LIMIT 1`,
+      [questionId, answerText]
+    );
+    isCorrect = optRows.length && (optRows[0].is_correct === 1 || optRows[0].is_correct === '1') ? 1 : 0;
+  }
+
+  // Save global solved record
+  await client.execute(
+    `INSERT INTO solved_questions (question_id, student_id, answer, is_correct, created_at)
+     VALUES (?, ?, ?, ?, NOW())`,
+    [questionId, studentId, answerText || String(selectedOptionId || ''), isCorrect ? '1' : '0']
+  );
+
+  // Update session aggregates atomically
+  await client.execute(
+    `UPDATE student_plan_sessions 
+     SET questions_attempted = COALESCE(questions_attempted,0) + 1,
+         questions_correct = COALESCE(questions_correct,0) + ?
+     WHERE session_id = ? AND plan_id = ?`,
+    [isCorrect ? 1 : 0, sessionId, planId]
+  );
+
+  return { success: true, attempted: 1, correct: isCorrect };
+}
+
+// Review a flashcard within a session and update progress
+async function reviewSessionFlashcard({ planId, sessionId, studentId, flashcardId, correct = false, status = 'seen' }) {
+  // Validate session
+  const [sessions] = await client.execute(
+    `SELECT s.session_id, c.flashcards_modules, c.flashcards_topics
+     FROM student_plan_sessions s
+     JOIN student_plan_content c ON c.content_id = s.content_id
+     WHERE s.session_id = ? AND s.plan_id = ?
+     LIMIT 1`,
+    [sessionId, planId]
+  );
+  if (!sessions.length) return { success: false, message: 'Session not found' };
+  const session = sessions[0];
+
+  const flashModules = session.flashcards_modules ? JSON.parse(session.flashcards_modules) : [];
+  const flashTopics = session.flashcards_topics ? JSON.parse(session.flashcards_topics) : [];
+
+  // Ensure flashcard belongs to allowed topics/modules
+  let fCheckSql = `SELECT f.flashcard_id FROM flashcards f`;
+  const fWhere = [];
+  const fVals = [flashcardId];
+  if (flashTopics.length) {
+    fWhere.push(`f.topic_id IN (${flashTopics.map(() => '?').join(',')})`);
+    fVals.push(...flashTopics);
+  } else if (flashModules.length) {
+    fCheckSql += ` INNER JOIN topics t ON t.topic_id = f.topic_id INNER JOIN units u ON u.unit_id = t.unit_id`;
+    fWhere.push(`u.module_id IN (${flashModules.map(() => '?').join(',')})`);
+    fVals.push(...flashModules);
+  }
+  const [fCheck] = await client.execute(
+    `${fCheckSql} WHERE f.flashcard_id = ? ${fWhere.length ? ' AND ' + fWhere.join(' AND ') : ''} LIMIT 1`,
+    fVals
+  );
+  if (!fCheck.length) return { success: false, message: 'Flashcard not in session scope' };
+
+  // Save per-card progress
+  await client.execute(
+    `INSERT INTO student_flashcard_card_progress (student_id, flashcard_id, attempts, correct, status, last_seen)
+     VALUES (?, ?, ?, ?, ?, NOW())
+     ON DUPLICATE KEY UPDATE
+       attempts = attempts + VALUES(attempts),
+       correct = correct + VALUES(correct),
+       status = VALUES(status),
+       last_seen = NOW()`,
+    [studentId, flashcardId, 1, correct ? 1 : 0, status]
+  );
+
+  // Update session aggregates
+  await client.execute(
+    `UPDATE student_plan_sessions 
+     SET flashcards_studied = COALESCE(flashcards_studied,0) + 1
+     WHERE session_id = ? AND plan_id = ?`,
+    [sessionId, planId]
+  );
+
+  return { success: true, studied: 1, correct: correct ? 1 : 0 };
 }
 
 // Helper function to get sessions with daily schedule
@@ -476,6 +932,264 @@ async function getSessionsWithSchedule({ planId, studentId }) {
     summary: summary,
     daily_schedule: dailySchedule,
     total_sessions: sessions.length,
+  };
+}
+
+// Build "today" tasks and stats for the UI
+async function getTodayOverview({ studentId }) {
+  // Pick the most recent active plan that includes today
+  const today = new Date().toISOString().split('T')[0];
+  const [plans] = await client.execute(
+    `SELECT * FROM student_study_plans 
+     WHERE student_id = ? AND status = 'active' 
+       AND start_date <= ? AND end_date >= ?
+     ORDER BY updated_at DESC LIMIT 1`,
+    [studentId, today, today]
+  );
+  if (!plans.length) {
+    return { tasks: [],
+      stats: { study_time_minutes: 0, questions_today: { attempted: 0, correct: 0, goal: 0 }, flashcards_today: { studied: 0, accuracy_percent: 0 }, completion_percentage: 0 },
+      recent_sessions: [] };
+  }
+  const plan = plans[0];
+
+  // Sessions for today
+  const sessions = await getPlanSessions({ planId: plan.plan_id, studentId, date: today, status: null });
+
+  const dailyLimits = plan.daily_limits ? JSON.parse(plan.daily_limits) : {};
+  const questionsGoalPerSession = Number(plan.questions_per_session) || 20;
+  const flashcardsGoalPerSession = Number(dailyLimits.max_flashcards) || 50;
+
+  const sessionsCount = sessions.length || 1;
+  const minutesPerSession = Math.max(10, Math.round((Number(plan.daily_time_budget) || 60) / sessionsCount));
+
+  // Aggregate stats
+  let totalAttempted = 0;
+  let totalCorrect = 0;
+  let totalStudied = 0;
+  let totalFlashCorrect = 0;
+  let completedCount = 0;
+  let studyTimeMinutes = 0;
+
+  // Map sessions to UI tasks
+  const tasks = sessions.map((s, idx) => {
+    const isQuestions = s.session_type === 'question_bank' || s.session_type === 'questions';
+    const isFlashcards = s.session_type === 'flashcards';
+    const title = isQuestions ? 'Practice Questions' : isFlashcards ? 'Study Flashcards' : 'Study Content';
+    const subtitle = (s.question_bank_modules_detailed?.[0]?.name || s.flashcards_modules_detailed?.[0]?.name || s.exams_modules_detailed?.[0]?.name) || 'General';
+    const status = s.status || 'pending';
+    if (status === 'completed') completedCount += 1;
+
+    // Use stored aggregates if present (from session progress updates)
+    const questionsAttempted = Number(s.questions_attempted) || 0;
+    const questionsCorrect = Number(s.questions_correct) || 0;
+    const flashcardsStudied = Number(s.flashcards_studied) || 0;
+    const timeSpent = Number(s.time_spent) || 0;
+
+    totalAttempted += questionsAttempted;
+    totalCorrect += questionsCorrect;
+    totalStudied += flashcardsStudied;
+    studyTimeMinutes += Math.round(timeSpent / 60);
+
+    // Per-session progress vs content type
+    let progress = 0;
+    if (isQuestions) {
+      progress = Math.min(100, Math.round((questionsAttempted / questionsGoalPerSession) * 100));
+    } else if (isFlashcards) {
+      progress = Math.min(100, Math.round((flashcardsStudied / flashcardsGoalPerSession) * 100));
+    } else {
+      // content type - approximate by time share
+      progress = Math.min(100, Math.round(((timeSpent / 60) / minutesPerSession) * 100));
+    }
+
+    return {
+      id: s.session_id,
+      title,
+      subtitle,
+      type: isQuestions ? 'questions' : isFlashcards ? 'flashcards' : 'content',
+      duration: `${minutesPerSession}m`,
+      status,
+      priority: idx % 3 === 0 ? 'high' : (idx % 3 === 1 ? 'medium' : 'low'),
+      progress,
+      dueTime: null,
+      description: null,
+      notes: null,
+    };
+  });
+
+  const questionsGoalToday = sessions.filter(s => (s.session_type === 'question_bank' || s.session_type === 'questions')).length * questionsGoalPerSession;
+  const flashcardsGoalToday = sessions.filter(s => s.session_type === 'flashcards').length * flashcardsGoalPerSession;
+  const accuracyPercent = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
+  const completionPercentage = tasks.length ? Math.round((completedCount / tasks.length) * 100) : 0;
+
+  // Recent sessions (last 5 by date, any status)
+  const [recentRows] = await client.execute(
+    `SELECT s.session_id, s.session_date, s.session_type, s.status,
+            COALESCE(s.questions_attempted,0) AS questions_attempted,
+            COALESCE(s.flashcards_studied,0) AS flashcards_studied,
+            COALESCE(s.time_spent,0) AS time_spent
+     FROM student_plan_sessions s
+     WHERE s.plan_id = ?
+     ORDER BY s.session_date DESC, s.created_at DESC
+     LIMIT 5`,
+    [plan.plan_id]
+  );
+  const recent_sessions = recentRows.map(r => ({
+    id: r.session_id,
+    date: r.session_date,
+    type: r.session_type,
+    status: r.status,
+    questions_attempted: Number(r.questions_attempted) || 0,
+    flashcards_studied: Number(r.flashcards_studied) || 0,
+    time_spent_minutes: Math.round((Number(r.time_spent) || 0) / 60),
+  }));
+
+  return {
+    plan: { id: plan.plan_id, name: plan.plan_name },
+    tasks,
+    stats: {
+      study_time_minutes: studyTimeMinutes,
+      questions_today: { attempted: totalAttempted, correct: totalCorrect, goal: questionsGoalToday },
+      flashcards_today: { studied: totalStudied, goal: flashcardsGoalToday, accuracy_percent: accuracyPercent },
+      completion_percentage: completionPercentage,
+    },
+    recent_sessions,
+  };
+}
+
+// Study dashboard overview for UI widgets
+async function getDashboardOverview({ studentId }) {
+  const today = new Date().toISOString().split('T')[0];
+
+  // Active plan
+  const [plans] = await client.execute(
+    `SELECT * FROM student_study_plans 
+     WHERE student_id = ? AND status = 'active' 
+     AND start_date <= ? AND end_date >= ? 
+     ORDER BY updated_at DESC LIMIT 1`,
+    [studentId, today, today]
+  );
+  const plan = plans[0] || null;
+
+  // Current plan progress (completed sessions vs total sessions in window)
+  let currentPlan = { completed: 0, total: 0 };
+  if (plan) {
+    const [sess] = await client.execute(
+      `SELECT 
+         COUNT(*) AS total,
+         SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed
+       FROM student_plan_sessions
+       WHERE plan_id = ?`,
+      [plan.plan_id]
+    );
+    currentPlan = { completed: Number(sess[0].completed) || 0, total: Number(sess[0].total) || 0 };
+  }
+
+  // Overall healthcare mastered proxy (topics with any activity)
+  const [hc] = await client.execute(
+    `SELECT 
+       COUNT(DISTINCT t.topic_id) AS total_topics,
+       COUNT(DISTINCT sq.question_id) AS attempted_questions
+     FROM topics t
+     LEFT JOIN solved_questions sq ON sq.student_id = ?
+     LIMIT 1`,
+    [studentId]
+  );
+  const healthcareMastered = {
+    completed: Number(hc[0].attempted_questions) || 0,
+    total: Math.max(Number(hc[0].total_topics) || 0, Number(hc[0].attempted_questions) || 0)
+  };
+
+  // Study break (streak gap proxy): days since last activity
+  const [lastAct] = await client.execute(
+    `SELECT DATE(MAX(created_at)) AS last_day 
+     FROM student_activity_log WHERE student_id = ?`,
+    [studentId]
+  );
+  let studyBreak = 0;
+  if (lastAct[0]?.last_day) {
+    const last = new Date(lastAct[0].last_day + 'T00:00:00Z');
+    const now = new Date(today + 'T00:00:00Z');
+    studyBreak = Math.max(0, Math.round((now - last) / (1000 * 60 * 60 * 24)));
+  }
+
+  // Recent activity
+  const [recent] = await client.execute(
+    `SELECT activity_type, activity_description, score_percentage, points_earned, created_at
+     FROM student_activity_log
+     WHERE student_id = ?
+     ORDER BY created_at DESC
+     LIMIT 10`,
+    [studentId]
+  );
+  const recentActivity = recent.map(r => ({
+    title: r.activity_type,
+    details: r.activity_description,
+    time: new Date(r.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+    points: r.points_earned ? `+${r.points_earned} pts` : ''
+  }));
+
+  // Upcoming deadlines: upcoming exams within next 14 days and plan end date
+  const [upcomingExams] = await client.execute(
+    `SELECT e.title, DATE_FORMAT(COALESCE(e.scheduled_date, e.start_date, e.end_date), '%b %e') AS date_fmt,
+            m.subject_name
+     FROM exams e
+     LEFT JOIN modules m ON e.subject_id = m.module_id
+     WHERE (e.scheduled_date > NOW() OR e.start_date > NOW() OR e.end_date > NOW())
+       AND COALESCE(e.scheduled_date, e.start_date, e.end_date) <= DATE_ADD(NOW(), INTERVAL 14 DAY)
+       AND m.module_id IN (
+         SELECT se.module_id FROM student_enrollments se WHERE se.student_id = ? AND se.status = 'active'
+       )
+     ORDER BY COALESCE(e.scheduled_date, e.start_date, e.end_date) ASC
+     LIMIT 6`,
+    [studentId]
+  );
+  const upcomingDeadlines = [
+    ...(upcomingExams || []).map(e => ({ title: e.title, date: e.date_fmt, course: e.subject_name, urgent: true })),
+    ...(plan ? [{ title: `Complete ${plan.plan_name}`, date: new Date(plan.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), course: 'Personal Goal', urgent: false }] : [])
+  ].slice(0, 6);
+
+  // Stats
+  const [qStats] = await client.execute(
+    `SELECT COUNT(*) AS answered, SUM(CASE WHEN is_correct = '1' THEN 1 ELSE 0 END) AS correct
+     FROM solved_questions WHERE student_id = ?`,
+    [studentId]
+  );
+  const accuracy = (Number(qStats[0].answered) || 0) > 0
+    ? Math.round((Number(qStats[0].correct) / Number(qStats[0].answered)) * 100)
+    : 0;
+  const [hours] = await client.execute(
+    `SELECT COALESCE(SUM(time_spent),0) AS seconds
+     FROM student_plan_sessions WHERE plan_id IN (SELECT plan_id FROM student_study_plans WHERE student_id = ?)`,
+    [studentId]
+  );
+  const hoursStudied = Math.round((Number(hours[0].seconds) || 0) / 3600);
+  const [anyExam] = await client.execute(
+    `SELECT DATEDIFF(MIN(COALESCE(e.scheduled_date, e.start_date, e.end_date)), CURDATE()) AS days
+     FROM exams e
+     LEFT JOIN modules m ON e.subject_id = m.module_id
+     WHERE (e.scheduled_date > NOW() OR e.start_date > NOW() OR e.end_date > NOW())
+       AND m.module_id IN (
+         SELECT se.module_id FROM student_enrollments se WHERE se.student_id = ? AND se.status = 'active'
+       )
+     ORDER BY COALESCE(e.scheduled_date, e.start_date, e.end_date) ASC
+     LIMIT 1`,
+    [studentId]
+  );
+  const daysUntilExam = Math.max(0, Number(anyExam[0]?.days) || 0);
+
+  return {
+    currentPlan,
+    healthcareMastered,
+    studyBreak,
+    recentActivity,
+    upcomingDeadlines,
+    stats: {
+      questionsAnswered: Number(qStats[0].answered) || 0,
+      hoursStudied,
+      accuracy,
+      daysUntilExam,
+    },
   };
 }
 
@@ -575,6 +1289,47 @@ async function getDetailedContentInfo(content) {
     )
       .map((id) => modulesMap[id])
       .filter(Boolean);
+
+    // Get subjects (units) for these modules
+    const [unitsRows] = await client.execute(
+      `SELECT unit_id, unit_name, module_id, status, unit_order
+       FROM units 
+       WHERE module_id IN (${allModuleIds.map(() => "?").join(",")})
+         AND status = 'active'
+       ORDER BY unit_order ASC, created_at ASC`,
+      allModuleIds
+    );
+
+    // Aggregate subjects
+    const subjectsByModule = {};
+    unitsRows.forEach((unit) => {
+      if (!subjectsByModule[unit.module_id]) subjectsByModule[unit.module_id] = [];
+      subjectsByModule[unit.module_id].push({
+        id: unit.unit_id,
+        name: unit.unit_name,
+        module_id: unit.module_id,
+      });
+    });
+
+    // Add detailed subjects per content type and combined
+    detailedContent.exams_subjects_detailed = (content.exams_modules || [])
+      .flatMap((mid) => subjectsByModule[mid] || [])
+      .filter(Boolean);
+    detailedContent.flashcards_subjects_detailed = (
+      content.flashcards_modules || []
+    )
+      .flatMap((mid) => subjectsByModule[mid] || [])
+      .filter(Boolean);
+    detailedContent.question_bank_subjects_detailed = (
+      content.question_bank_modules || []
+    )
+      .flatMap((mid) => subjectsByModule[mid] || [])
+      .filter(Boolean);
+    detailedContent.subjects_detailed = unitsRows.map((u) => ({
+      id: u.unit_id,
+      name: u.unit_name,
+      module_id: u.module_id,
+    }));
   }
 
   // Get topics details
@@ -861,5 +1616,10 @@ module.exports = {
   getPlanSummary,
   getSessionsWithSchedule,
   getTopicsBySubject,
-  getSubjectsByModule
+  getSubjectsByModule,
+  getSessionDetails,
+  solveSessionQuestion,
+  reviewSessionFlashcard,
+  getTodayOverview,
+  getDashboardOverview
 };

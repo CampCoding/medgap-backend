@@ -35,13 +35,13 @@ function requireAuth(step) {
       }
       else if (step === "teacher") {
         req.user = {
-          id: decoded.teacher_id,
+          id: decoded?.user.teacher_id,
           type: "teacher",
-          teacher_id: decoded.teacher_id,
-          email: decoded.email,
-          role_id: decoded.role_id,
-          teacher_name: decoded.teacher_name,
-          roles: decoded.roles || []
+          teacher_id: decoded?.user?.teacher_id,
+          email: decoded?.user?.email,
+          role_id: decoded?.user?.role_id,
+          teacher_name: decoded?.user?.teacher_name,
+          roles: decoded?.user?.roles || []
         };
       } else if (step === "student") {
         req.user = {

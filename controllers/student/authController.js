@@ -1,7 +1,7 @@
 const responseBuilder = require("../../utils/responsebuilder");
 const repo = require("../../repositories/student/auth");
 const getTokenFromHeader = require("../../utils/getToken");
-const { verifyAccessToken, verifyRefreshToken } = require("../../utils/jwt");
+const { verifyAccessToken, verifyRefreshToken, signAccessToken, signRefreshToken } = require("../../utils/jwt");
 
 const login = async (req, res) => {
   try {
@@ -147,9 +147,103 @@ const refreshToken = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  try {
+    const { student_id, ...profileData } = req.body;
+    
+    if (!student_id) {
+      return responseBuilder.badRequest(res, "Student ID is required");
+    }
+    
+    const result = await repo.updateProfileRepo({ 
+      studentId: student_id, 
+      data: profileData 
+    });
+    
+    if (!result.success) {
+      return responseBuilder.badRequest(res, result.message);
+    }
+    
+    return responseBuilder.success(res, {
+      data: result,
+      message: "Profile updated successfully",
+    });
+  } catch (error) {
+    console.error("Update profile error:", error);
+    return responseBuilder.serverError(res, "Failed to update profile");
+  }
+};
+
+const addModules = async (req, res) => {
+  try {
+    const { student_id, modules } = req.body;
+    
+    if (!student_id) {
+      return responseBuilder.badRequest(res, "Student ID is required");
+    }
+    
+    if (!modules || !Array.isArray(modules) || modules.length === 0) {
+      return responseBuilder.badRequest(res, "Valid modules array is required");
+    }
+    
+    const result = await repo.addStudentModulesRepo({ 
+      studentId: student_id, 
+      modules 
+    });
+    
+    if (!result.success) {
+      return responseBuilder.badRequest(res, result.message);
+    }
+    
+    return responseBuilder.success(res, {
+      data: result,
+      message: "Modules added successfully",
+    });
+  } catch (error) {
+    console.error("Add modules error:", error);
+    return responseBuilder.serverError(res, "Failed to add modules");
+  }
+};
+
+const deleteModule = async (req, res) => {
+  try {
+    const { student_id } = req.body;
+    
+    if (!student_id) {
+      return responseBuilder.badRequest(res, "Student ID is required");
+    }
+    
+    const { moduleId } = req.params;
+    
+    if (!moduleId) {
+      return responseBuilder.badRequest(res, "Module ID is required");
+    }
+    
+    const result = await repo.deleteStudentModuleRepo({ 
+      studentId: student_id, 
+      moduleId 
+    });
+    
+    if (!result.success) {
+      return responseBuilder.badRequest(res, result.message);
+    }
+    
+    return responseBuilder.success(res, {
+      data: result,
+      message: "Module removed successfully",
+    });
+  } catch (error) {
+    console.error("Delete module error:", error);
+    return responseBuilder.serverError(res, "Failed to delete module");
+  }
+};
+
 module.exports = {
   login,
   register,
   profile,
   refreshToken,
+  updateProfile,
+  addModules,
+  deleteModule,
 };

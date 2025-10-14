@@ -25,7 +25,7 @@ async function getAllExams({
   `;
 
   let params = [teacherId];
-
+console.log("teacherId", teacherId)
   if (search) {
     sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
     params.push(`%${search}%`, `%${search}%`);
@@ -140,17 +140,14 @@ async function getExamQuestions(examId, teacherId) {
       eq.*,
       q.question_text,
       q.question_type,
-      q.difficulty as question_difficulty,
+      q.difficulty_level as question_difficulty,
       q.points as default_points,
-      q.time_limit as default_time_limit,
-      t.name as topic_name,
-      u.name as unit_name,
-      s.name as subject_name
+      t.topic_name as topic_name,
+      u.unit_name as subject_name
     FROM exam_questions eq
-    JOIN questions q ON eq.question_id = q.id
-    JOIN topics t ON q.topic_id = t.id
-    JOIN units u ON t.unit_id = u.id
-    JOIN subjects s ON u.subject_id = s.id
+    JOIN questions q ON eq.question_id = q.question_id
+    JOIN topics t ON q.topic_id = t.topic_id
+    JOIN units u ON t.unit_id = u.unit_id
     JOIN exams e ON eq.exam_id = e.exam_id
     WHERE eq.exam_id = ? AND e.teacher_id = ?
     ORDER BY eq.order_index
@@ -268,6 +265,8 @@ async function updateExam(updateData) {
     duration,
     instructions,
     settings,
+    total_points,
+    passing_score,
     updated_by,
   } = updateData;
 
@@ -291,7 +290,14 @@ async function updateExam(updateData) {
     fields.push("duration = ?");
     values.push(duration);
   }
- 
+  if (total_points !== undefined) {
+    fields.push("total_points = ?");
+    values.push(total_points);
+  }
+  if (passing_score !== undefined) {
+    fields.push("passing_score = ?");
+    values.push(passing_score);
+  }
 
   if (instructions !== undefined) {
     fields.push("instructions = ?");
@@ -314,8 +320,13 @@ async function updateExam(updateData) {
   const [result] = isMysql
     ? await client.execute(sql, values)
     : await client.query(sql, values);
-
-  return result.affectedRows > 0;
+  // In mysql2: affectedRows counts matched rows; changedRows counts actually changed rows
+  // In pg: rowCount indicates affected rows
+  if (isMysql) {
+    const changed = (result && typeof result.changedRows === 'number') ? result.changedRows : result?.affectedRows;
+    return changed > 0;
+  }
+  return (result && typeof result.rowCount === 'number') ? result.rowCount > 0 : false;
 }
 
 // Update exam status (only if owned by teacher)
@@ -488,13 +499,7 @@ async function unpublishExam(examId, teacherId) {
 
 // Delete exam (only if owned by teacher)
 async function deleteExam(examId, teacherId) {
-  const sql = `UPDATE exams SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP WHERE exam_id = ? AND teacher_id = ?`;
-
-  const [result] = isMysql
-    ? await client.execute(sql, [examId, teacherId])
-    : await client.query(sql, [examId, teacherId]);
-
-  return result.affectedRows > 0;
+await permanentDeleteExam(examId, teacherId)
 }
 
 // Permanent delete exam (only if owned by teacher)
@@ -505,16 +510,14 @@ async function permanentDeleteExam(examId, teacherId) {
     return false;
   }
 
-  // First delete related records
-  await client.execute("DELETE FROM exam_answers WHERE attempt_id IN (SELECT id FROM exam_attempts WHERE exam_id = ?)", [examId]);
-  await client.execute("DELETE FROM exam_attempts WHERE exam_id = ?", [examId]);
+
   await client.execute("DELETE FROM exam_questions WHERE exam_id = ?", [examId]);
   
   // Then delete the exam
-  const sql = `DELETE FROM exams WHERE exam_id = ? AND teacher_id = ?`;
+  const sql = `DELETE FROM exams WHERE exam_id = ?`;
   const [result] = isMysql
-    ? await client.execute(sql, [examId, teacherId])
-    : await client.query(sql, [examId, teacherId]);
+    ? await client.execute(sql, [examId])
+    : await client.query(sql, [examId]);
 
   return result.affectedRows > 0;
 }

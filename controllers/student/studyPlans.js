@@ -40,6 +40,7 @@ async function createPlan(req, res) {
     question_bank_modules,
     question_bank_topics,
     question_bank_quizzes,
+    subjects,
   } = req.body || {};
 
   // Validation
@@ -100,6 +101,7 @@ async function createPlan(req, res) {
       questionBankModules: question_bank_modules || [],
       questionBankTopics: question_bank_topics || [],
       questionBankQuizzes: question_bank_quizzes || [],
+      subjects: subjects || [],
     });
 
     return responseBuilder.success(res, {
@@ -263,8 +265,9 @@ async function addContent(req, res) {
       questionBankQuizzes: question_bank_quizzes || [],
     });
 
+    const content = await repo.getPlanContent({ planId: Number(plan_id) });
     return responseBuilder.success(res, {
-      data: created,
+      data: content,
       message: "Plan content added successfully",
     });
   } catch (error) {
@@ -355,7 +358,7 @@ async function generateSessions(req, res) {
       planId: Number(plan_id),
       studentId,
     });
-
+console.log(result)
     return responseBuilder.success(res, {
       data: result,
       message: "Study sessions generated successfully",
@@ -524,6 +527,40 @@ async function getSubjectsByModule(req, res) {
   }
 }
 
+// Get single session details
+async function getSessionDetails(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  const { plan_id, session_id } = req.params;
+
+  // Verify plan belongs to student
+  const plan = await repo.getStudyPlanById({
+    planId: Number(plan_id),
+    studentId,
+  });
+  if (!plan) {
+    return responseBuilder.notFound(res, "Study plan not found");
+  }
+
+  const details = await repo.getSessionDetails({
+    planId: Number(plan_id),
+    studentId,
+    sessionId: Number(session_id),
+  });
+
+  if (!details) {
+    return responseBuilder.notFound(res, "Session not found");
+  }
+
+  return responseBuilder.success(res, {
+    data: details,
+    message: "Session details retrieved successfully",
+  });
+}
+
 async function getTopicsBySubject(req, res) {
   const studentId = getStudentId(req, res);
   if (!studentId) {
@@ -546,6 +583,128 @@ async function getTopicsBySubject(req, res) {
   }
 }
 
+// Today overview
+async function getToday(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  try {
+    const overview = await repo.getTodayOverview({ studentId });
+    return responseBuilder.success(res, {
+      data: overview,
+      message: "Today's overview retrieved successfully",
+    });
+  } catch (error) {
+    console.error("getToday error:", error);
+    return responseBuilder.serverError(res, "Failed to get today's overview");
+  }
+}
+
+async function getDashboard(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
+  try {
+    const overview = await repo.getDashboardOverview({ studentId });
+    console.log(overview)
+    return responseBuilder.success(res, {
+      data: overview,
+      message: "Dashboard overview retrieved successfully",
+    });
+  } catch (error) {
+    console.error("getDashboard error:", error);
+    return responseBuilder.serverError(res, "Failed to get dashboard overview");
+  }
+}
+
+async function solveSessionQuestion(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+  const { plan_id, session_id, question_id } = req.params;
+  const { selected_option_id, answer_text } = req.body || {};
+
+  try {
+    const result = await repo.solveSessionQuestion({
+      planId: Number(plan_id),
+      sessionId: Number(session_id),
+      studentId,
+      questionId: Number(question_id),
+      selectedOptionId: selected_option_id,
+      answerText: answer_text,
+    });
+
+    if (!result.success) {
+      return responseBuilder.badRequest(res, result.message || "Unable to solve question");
+    }
+
+    // Return updated session progress snapshot
+    const details = await repo.getSessionDetails({
+      planId: Number(plan_id),
+      sessionId: Number(session_id),
+      studentId,
+    });
+
+    return responseBuilder.success(res, {
+      data: {
+        result,
+        progress: details?.progress,
+      },
+      message: "Question recorded and session progress updated",
+    });
+  } catch (error) {
+    console.error("solveSessionQuestion error:", error);
+    return responseBuilder.serverError(res, "Failed to solve question");
+  }
+}
+
+async function reviewSessionFlashcard(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+  const { plan_id, session_id, flashcard_id } = req.params;
+  const { correct, status } = req.body || {};
+
+  try {
+    const result = await repo.reviewSessionFlashcard({
+      planId: Number(plan_id),
+      sessionId: Number(session_id),
+      studentId,
+      flashcardId: Number(flashcard_id),
+      correct: !!correct,
+      status: status || 'seen',
+    });
+
+    if (!result.success) {
+      return responseBuilder.badRequest(res, result.message || "Unable to review flashcard");
+    }
+
+    // Return updated session progress snapshot
+    const details = await repo.getSessionDetails({
+      planId: Number(plan_id),
+      sessionId: Number(session_id),
+      studentId,
+    });
+
+    return responseBuilder.success(res, {
+      data: {
+        result,
+        progress: details?.progress,
+      },
+      message: "Flashcard recorded and session progress updated",
+    });
+  } catch (error) {
+    console.error("reviewSessionFlashcard error:", error);
+    return responseBuilder.serverError(res, "Failed to review flashcard");
+  }
+}
+
 module.exports = {
   createPlan,
   getPlans,
@@ -562,4 +721,9 @@ module.exports = {
   getTopicsByModule,
   getSubjectsByModule,
   getTopicsBySubject,
+  getSessionDetails,
+  solveSessionQuestion,
+  reviewSessionFlashcard,
+  getToday,
+  getDashboard,
 };

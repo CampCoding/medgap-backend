@@ -49,10 +49,17 @@ const loginRepo = async ({ data }) => {
 };
 
 const registerRepo = async ({ data }) => {
-  const { full_name, email, password, phone, date_of_birth, gender, address } =
+  const { full_name, email, password, phone, date_of_birth, gender, address, modules } =
     data;
 
-  // Check if email already exists
+  // Check if modules is an array
+  if (modules && !Array.isArray(modules)) {
+    throw new Error("Modules must be an array");
+  }
+
+
+
+
   const [existingUser] = await client.execute(
     "SELECT student_id FROM students WHERE email = ?",
     [email]
@@ -62,7 +69,6 @@ const registerRepo = async ({ data }) => {
     throw new Error("Email already exists");
   }
 
-  // Hash password
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const sql = `INSERT INTO students (full_name, email, password, phone, date_of_birth, gender, address, status, enrollment_date)
@@ -79,6 +85,17 @@ const registerRepo = async ({ data }) => {
   ];
 
   const [result] = await client.execute(sql, params);
+  if (result?.insertId) {
+    // Insert modules
+    if (modules && modules.length > 0) {
+      const moduleSql = `INSERT INTO student_enrollments (student_id, module_id, enrolled_at) VALUES (?, ?, ?)`;
+      await Promise.all(
+        modules.map(async (moduleId) => {
+          await client.execute(moduleSql, [result.insertId, moduleId, new Date()]);
+        })
+      );
+    }
+  }
   return { student_id: result.insertId };
 };
 
@@ -98,8 +115,108 @@ const getProfileRepo = async ({ studentId }) => {
   return user[0];
 };
 
+const updateProfileRepo = async ({ studentId, data }) => {
+  const { full_name, phone, date_of_birth, gender, address } = data;
+  
+  // Prepare update fields and values
+  const updateFields = [];
+  const params = [];
+  
+  if (full_name) {
+    updateFields.push("full_name = ?");
+    params.push(full_name);
+  }
+  
+  if (phone !== undefined) {
+    updateFields.push("phone = ?");
+    params.push(phone || null);
+  }
+  
+  if (date_of_birth !== undefined) {
+    updateFields.push("date_of_birth = ?");
+    params.push(date_of_birth || null);
+  }
+  
+  if (gender !== undefined) {
+    updateFields.push("gender = ?");
+    params.push(gender || null);
+  }
+  
+  if (address !== undefined) {
+    updateFields.push("address = ?");
+    params.push(address || null);
+  }
+  
+  // If no fields to update, return early
+  if (updateFields.length === 0) {
+    return { success: false, message: "No fields to update" };
+  }
+  
+  // Add student_id to params
+  params.push(studentId);
+  
+  const sql = `UPDATE students SET ${updateFields.join(", ")} WHERE student_id = ?`;
+  
+  try {
+    const [result] = await client.execute(sql, params);
+    
+    if (result.affectedRows > 0) {
+      return { success: true, message: "Profile updated successfully" };
+    } else {
+      return { success: false, message: "Student not found or no changes made" };
+    }
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+};
+
+const addStudentModulesRepo = async ({ studentId, modules }) => {
+  // Validate modules input
+  if (!modules || !Array.isArray(modules) || modules.length === 0) {
+    return { success: false, message: "Invalid modules data" };
+  }
+
+  try {
+    // Insert new modules
+    const moduleSql = `INSERT INTO student_enrollments (student_id, module_id, enrolled_at) VALUES (?, ?, ?)`;
+    await Promise.all(
+      modules.map(async (moduleId) => {
+        await client.execute(moduleSql, [studentId, moduleId, new Date()]);
+      })
+    );
+    
+    return { success: true, message: "Modules added successfully" };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+};
+
+const deleteStudentModuleRepo = async ({ studentId, moduleId }) => {
+  // Validate input
+  if (!moduleId) {
+    return { success: false, message: "Module ID is required" };
+  }
+
+  try {
+    // Delete the module enrollment
+    const sql = `DELETE FROM student_enrollments WHERE student_id = ? AND module_id = ?`;
+    const [result] = await client.execute(sql, [studentId, moduleId]);
+    
+    if (result.affectedRows > 0) {
+      return { success: true, message: "Module removed successfully" };
+    } else {
+      return { success: false, message: "Module enrollment not found" };
+    }
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+};
+
 module.exports = {
   loginRepo,
   registerRepo,
   getProfileRepo,
+  updateProfileRepo,
+  addStudentModulesRepo,
+  deleteStudentModuleRepo,
 };

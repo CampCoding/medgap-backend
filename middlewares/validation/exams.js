@@ -9,13 +9,6 @@ const createExamValidation = (req, res, next) => {
     return responseBuilder.badRequest(res, "Exam title is required");
   }
 
-  if (!subject_id || !subject_id.trim()) {
-    return responseBuilder.badRequest(res, "Subject ID is required");
-  }
-
-  if (!teacher_id || !teacher_id.trim()) {
-    return responseBuilder.badRequest(res, "Teacher ID is required");
-  }
 
   if (!difficulty) {
     return responseBuilder.badRequest(res, "Difficulty level is required");
@@ -121,10 +114,6 @@ const updateExamValidation = (req, res, next) => {
 const addQuestionValidation = (req, res, next) => {
   const { question_id, order_index, points, time_limit } = req.body;
 
-  // Required fields validation
-  if (!question_id || !question_id.trim()) {
-    return responseBuilder.badRequest(res, "Question ID is required");
-  }
 
   // Validate order_index if provided
   if (order_index !== undefined) {

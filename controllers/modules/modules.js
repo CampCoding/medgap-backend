@@ -382,8 +382,8 @@ class ModulesController {
       if (!existingModule) {
         return responseBuilder.notFound(res, "Module not found");
       }
-
-      const units = await modulesRepository.getModuleUnits(parseInt(id));
+      console.log("teacherId", req.user)
+      const units = await modulesRepository.getModuleUnits(parseInt(id), req?.user?.teacher_id);
 
       return responseBuilder.success(res, {
         message: "Module units retrieved successfully",
@@ -406,9 +406,6 @@ class ModulesController {
     try {
       const { id } = req.params;
 
-      if (!id || isNaN(id)) {
-        return responseBuilder.badRequest(res, "Invalid module ID");
-      }
 
       // التحقق من وجود المادة
       const existingModule = await modulesRepository.getModuleById(
@@ -441,49 +438,15 @@ class ModulesController {
 
   //  الطلاب المسجلين في المادة
   async getModuleStudents(req, res) {
-    try {
-      const { id } = req.params;
-      const { enrollment_status } = req.query;
+    const students = await modulesRepository.getModuleStudents();
 
-      if (!id || isNaN(id)) {
-        return responseBuilder.badRequest(res, "Invalid module ID");
-      }
+   
+    return responseBuilder.success(res, {
+      message: "Module students retrieved successfully",
+      students,
+      count: students.length
+    });
 
-      // التحقق من وجود المادة
-      const existingModule = await modulesRepository.getModuleById(
-        parseInt(id)
-      );
-      if (!existingModule) {
-        return responseBuilder.notFound(res, "Module not found");
-      }
-
-      const filters = {};
-      if (enrollment_status) {
-        filters.enrollment_status = enrollment_status;
-      }
-
-      const students = await modulesRepository.getModuleStudents(
-        parseInt(id),
-        filters
-      );
-
-      return responseBuilder.success(res, {
-        message: "Module students retrieved successfully",
-        module: {
-          module_id: existingModule.module_id,
-          subject_name: existingModule.subject_name,
-          subject_code: existingModule.subject_code
-        },
-        students,
-        count: students.length
-      });
-    } catch (error) {
-      console.error("Error fetching module students:", error);
-      return responseBuilder.serverError(
-        res,
-        "Failed to fetch module students"
-      );
-    }
   }
 
   //  إحصائيات المواد

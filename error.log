@@ -1,36 +1,1258 @@
-App 958426 output: [dotenv@17.2.2] injecting env (12) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
-App 958426 output: campcod3_medgap-user
-App 958426 output: [DB] Using Postgres driver
-App 958426 output: 🚀 Server is running on http://localhost:3120
-App 958426 output: Error fetching topics: Error: Error fetching topics: client.execute is not a function
-App 958426 output:     at TopicsRepository.getAllTopics (/home/campcod3/medgap/repositories/topics/topics.js:115:13)
-App 958426 output:     at getAllTopics (/home/campcod3/medgap/controllers/topics/topics.js:79:26)
-App 958426 output:     at Layer.handleRequest (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/layer.js:152:17)
-App 958426 output:     at next (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/route.js:157:13)
-App 958426 output:     at Route.dispatch (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/route.js:117:3)
-App 958426 output:     at handle (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:435:11)
-App 958426 output:     at Layer.handleRequest (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/layer.js:152:17)
-App 958426 output:     at /home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:295:15
-App 958426 output:     at processParams (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:582:12)
-App 958426 output:     at next (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:291:5)
-App 961784 output: [dotenv@17.2.2] injecting env (12) from .env -- tip: ⚙️  override existing env vars with { override: true }
-App 961784 output: campcod3_medgap-user
-App 961784 output: ENV production
-App 961784 output: [DB] Using Postgres driver
-App 961784 output: 🚀 Server is running on http://localhost:3120
-App 961784 output: Error fetching topics: Error: Error fetching topics: client.execute is not a function
-App 961784 output:     at TopicsRepository.getAllTopics (/home/campcod3/medgap/repositories/topics/topics.js:115:13)
-App 961784 output:     at getAllTopics (/home/campcod3/medgap/controllers/topics/topics.js:79:26)
-App 961784 output:     at Layer.handleRequest (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/layer.js:152:17)
-App 961784 output:     at next (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/route.js:157:13)
-App 961784 output:     at Route.dispatch (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/route.js:117:3)
-App 961784 output:     at handle (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:435:11)
-App 961784 output:     at Layer.handleRequest (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/lib/layer.js:152:17)
-App 961784 output:     at /home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:295:15
-App 961784 output:     at processParams (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:582:12)
-App 961784 output:     at next (/home/campcod3/nodevenv/medgap/20/lib/node_modules/router/index.js:291:5)
-App 964334 output: [dotenv@17.2.2] injecting env (12) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
-App 964334 output: campcod3_medgap-user
-App 964334 output: ENV development
-App 964334 output: [DB] Using MySQL driver
-App 964334 output: 🚀 Server is running on http://localhost:3120
+App 2805597 output: 4
+App 2805597 output: 4
+App 2805597 output: token {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: {
+App 2805597 output:   title: 'descriptive exam titles',
+App 2805597 output:   user: {
+App 2805597 output:     id: 7,
+App 2805597 output:     type: 'teacher',
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     role_id: undefined,
+App 2805597 output:     teacher_name: undefined,
+App 2805597 output:     roles: []
+App 2805597 output:   },
+App 2805597 output:   subject_id: 24,
+App 2805597 output:   teacher_id: 7,
+App 2805597 output:   difficulty: 'expert',
+App 2805597 output:   duration: 60,
+App 2805597 output:   instructions: '',
+App 2805597 output:   settings: '{}',
+App 2805597 output:   created_by: 7,
+App 2805597 output:   question_ids: [ 37 ],
+App 2805597 output:   question_selection_type: 'manual',
+App 2805597 output:   total_questions: 1,
+App 2805597 output:   questions_per_difficulty: { unknown: 1 },
+App 2805597 output:   topic_ids: [ 53 ],
+App 2805597 output:   question_types: [ 'multiple_choice' ]
+App 2805597 output: }
+App 2805597 output: token {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: ❌ Unhandled Error: question_id.trim is not a function
+App 2805597 output: 🔗 Request URL: /api/teacher/exams/14/questions
+App 2805597 output: 📦 Request Method: POST
+App 2805597 output: 📋 Stack: TypeError: question_id.trim is not a function
+App 2805597 output:     at addQuestionValidation (/home/campcod3/public_html/medgap/middlewares/validation/exams.js:125:36)
+App 2805597 output:     at Layer.handleRequest (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/lib/layer.js:152:17)
+App 2805597 output:     at next (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/lib/route.js:157:13)
+App 2805597 output:     at Route.dispatch (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/lib/route.js:117:3)
+App 2805597 output:     at handle (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/index.js:435:11)
+App 2805597 output:     at Layer.handleRequest (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/lib/layer.js:152:17)
+App 2805597 output:     at /home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/index.js:295:15
+App 2805597 output:     at param (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/index.js:600:14)
+App 2805597 output:     at param (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/index.js:610:14)
+App 2805597 output:     at processParams (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/index.js:664:3)
+App 2805597 output: {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: token {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: req.user {
+App 2805597 output:   id: 7,
+App 2805597 output:   type: 'teacher',
+App 2805597 output:   teacher_id: 7,
+App 2805597 output:   email: 'mmoh33650@gmail.com',
+App 2805597 output:   role_id: undefined,
+App 2805597 output:   teacher_name: undefined,
+App 2805597 output:   roles: []
+App 2805597 output: }
+App 2805597 output: teacherId 7
+App 2805597 output: Get teacher exams SQL: 
+App 2805597 output:     SELECT 
+App 2805597 output:       e.*,
+App 2805597 output:       u.unit_name as subject_name,
+App 2805597 output:       COUNT(eq.question_id) as question_count
+App 2805597 output:     FROM exams e
+App 2805597 output:     LEFT JOIN units u ON e.subject_id = u.unit_id
+App 2805597 output:     LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+App 2805597 output:     WHERE e.teacher_id = ?
+App 2805597 output:    AND e.subject_id = ? GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ? [ 7, '24', 20, 0 ]
+App 2805597 output: token {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: req.user {
+App 2805597 output:   id: 7,
+App 2805597 output:   type: 'teacher',
+App 2805597 output:   teacher_id: 7,
+App 2805597 output:   email: 'mmoh33650@gmail.com',
+App 2805597 output:   role_id: undefined,
+App 2805597 output:   teacher_name: undefined,
+App 2805597 output:   roles: []
+App 2805597 output: }
+App 2805597 output: teacherId 7
+App 2805597 output: Get teacher exams SQL: 
+App 2805597 output:     SELECT 
+App 2805597 output:       e.*,
+App 2805597 output:       u.unit_name as subject_name,
+App 2805597 output:       COUNT(eq.question_id) as question_count
+App 2805597 output:     FROM exams e
+App 2805597 output:     LEFT JOIN units u ON e.subject_id = u.unit_id
+App 2805597 output:     LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+App 2805597 output:     WHERE e.teacher_id = ?
+App 2805597 output:    AND e.subject_id = ? GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ? [ 7, '24', 20, 0 ]
+App 2805597 output: token {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: token {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: req.user {
+App 2805597 output:   id: 7,
+App 2805597 output:   type: 'teacher',
+App 2805597 output:   teacher_id: 7,
+App 2805597 output:   email: 'mmoh33650@gmail.com',
+App 2805597 output:   role_id: undefined,
+App 2805597 output:   teacher_name: undefined,
+App 2805597 output:   roles: []
+App 2805597 output: }
+App 2805597 output: teacherId 7
+App 2805597 output: Get teacher exams SQL: 
+App 2805597 output:     SELECT 
+App 2805597 output:       e.*,
+App 2805597 output:       u.unit_name as subject_name,
+App 2805597 output:       COUNT(eq.question_id) as question_count
+App 2805597 output:     FROM exams e
+App 2805597 output:     LEFT JOIN units u ON e.subject_id = u.unit_id
+App 2805597 output:     LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+App 2805597 output:     WHERE e.teacher_id = ?
+App 2805597 output:    AND e.subject_id = ? GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ? [ 7, '24', 20, 0 ]
+App 2805597 output: {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: token {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: req.user {
+App 2805597 output:   id: 7,
+App 2805597 output:   type: 'teacher',
+App 2805597 output:   teacher_id: 7,
+App 2805597 output:   email: 'mmoh33650@gmail.com',
+App 2805597 output:   role_id: undefined,
+App 2805597 output:   teacher_name: undefined,
+App 2805597 output:   roles: []
+App 2805597 output: }
+App 2805597 output: teacherId 7
+App 2805597 output: Get teacher exams SQL: 
+App 2805597 output:     SELECT 
+App 2805597 output:       e.*,
+App 2805597 output:       u.unit_name as subject_name,
+App 2805597 output:       COUNT(eq.question_id) as question_count
+App 2805597 output:     FROM exams e
+App 2805597 output:     LEFT JOIN units u ON e.subject_id = u.unit_id
+App 2805597 output:     LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+App 2805597 output:     WHERE e.teacher_id = ?
+App 2805597 output:    AND e.subject_id = ? GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ? [ 7, '24', 20, 0 ]
+App 2805597 output: token {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: token {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: req.user {
+App 2805597 output:   id: 7,
+App 2805597 output:   type: 'teacher',
+App 2805597 output:   teacher_id: 7,
+App 2805597 output:   email: 'mmoh33650@gmail.com',
+App 2805597 output:   role_id: undefined,
+App 2805597 output:   teacher_name: undefined,
+App 2805597 output:   roles: []
+App 2805597 output: }
+App 2805597 output: teacherId 7
+App 2805597 output: Get teacher exams SQL: 
+App 2805597 output:     SELECT 
+App 2805597 output:       e.*,
+App 2805597 output:       u.unit_name as subject_name,
+App 2805597 output:       COUNT(eq.question_id) as question_count
+App 2805597 output:     FROM exams e
+App 2805597 output:     LEFT JOIN units u ON e.subject_id = u.unit_id
+App 2805597 output:     LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+App 2805597 output:     WHERE e.teacher_id = ?
+App 2805597 output:    AND e.subject_id = ? GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ? [ 7, '24', 20, 0 ]
+App 2805597 output: {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: token {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: req.user {
+App 2805597 output:   id: 7,
+App 2805597 output:   type: 'teacher',
+App 2805597 output:   teacher_id: 7,
+App 2805597 output:   email: 'mmoh33650@gmail.com',
+App 2805597 output:   role_id: undefined,
+App 2805597 output:   teacher_name: undefined,
+App 2805597 output:   roles: []
+App 2805597 output: }
+App 2805597 output: teacherId 7
+App 2805597 output: Get teacher exams SQL: 
+App 2805597 output:     SELECT 
+App 2805597 output:       e.*,
+App 2805597 output:       u.unit_name as subject_name,
+App 2805597 output:       COUNT(eq.question_id) as question_count
+App 2805597 output:     FROM exams e
+App 2805597 output:     LEFT JOIN units u ON e.subject_id = u.unit_id
+App 2805597 output:     LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+App 2805597 output:     WHERE e.teacher_id = ?
+App 2805597 output:    AND e.subject_id = ? GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ? [ 7, '24', 20, 0 ]
+App 2805597 output: {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: teacherId undefined
+App 2805597 output: teacherId undefined
+App 2805597 output: 4
+App 2805597 output: 4
+App 2805597 output: token {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: {
+App 2805597 output:   title: 'descriptive exam titles',
+App 2805597 output:   user: {
+App 2805597 output:     id: 7,
+App 2805597 output:     type: 'teacher',
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     role_id: undefined,
+App 2805597 output:     teacher_name: undefined,
+App 2805597 output:     roles: []
+App 2805597 output:   },
+App 2805597 output:   subject_id: 24,
+App 2805597 output:   teacher_id: 7,
+App 2805597 output:   difficulty: 'medium',
+App 2805597 output:   duration: 60,
+App 2805597 output:   instructions: '',
+App 2805597 output:   settings: '{}',
+App 2805597 output:   created_by: 7,
+App 2805597 output:   question_ids: [ 37 ],
+App 2805597 output:   question_selection_type: 'manual',
+App 2805597 output:   total_questions: 1,
+App 2805597 output:   questions_per_difficulty: { unknown: 1 },
+App 2805597 output:   topic_ids: [ 53 ],
+App 2805597 output:   question_types: [ 'multiple_choice' ]
+App 2805597 output: }
+App 2805597 output: token {
+App 2805597 output:   user: {
+App 2805597 output:     teacher_id: 7,
+App 2805597 output:     full_name: 'Mohammed Reda',
+App 2805597 output:     email: 'mmoh33650@gmail.com',
+App 2805597 output:     phone: '+201212745939',
+App 2805597 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2805597 output:     experience_years: 3,
+App 2805597 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2805597 output:     role: 'teacher',
+App 2805597 output:     status: 'approved',
+App 2805597 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2805597 output:     qualification: 'موجه عام رياضيات',
+App 2805597 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2805597 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2805597 output:     created_by: null,
+App 2805597 output:     updated_by: null,
+App 2805597 output:     document_url: ''
+App 2805597 output:   },
+App 2805597 output:   iat: 1760220719,
+App 2805597 output:   exp: 1760226119
+App 2805597 output: }
+App 2805597 output: ❌ Unhandled Error: question_id.trim is not a function
+App 2805597 output: 🔗 Request URL: /api/teacher/exams/15/questions
+App 2805597 output: 📦 Request Method: POST
+App 2805597 output: 📋 Stack: TypeError: question_id.trim is not a function
+App 2805597 output:     at addQuestionValidation (/home/campcod3/public_html/medgap/middlewares/validation/exams.js:125:36)
+App 2805597 output:     at Layer.handleRequest (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/lib/layer.js:152:17)
+App 2805597 output:     at next (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/lib/route.js:157:13)
+App 2805597 output:     at Route.dispatch (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/lib/route.js:117:3)
+App 2805597 output:     at handle (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/index.js:435:11)
+App 2805597 output:     at Layer.handleRequest (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/lib/layer.js:152:17)
+App 2805597 output:     at /home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/index.js:295:15
+App 2805597 output:     at param (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/index.js:600:14)
+App 2805597 output:     at param (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/index.js:610:14)
+App 2805597 output:     at processParams (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/router/index.js:664:3)
+App 2911674 output: [dotenv@17.2.2] injecting env (12) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+App 2911674 output: [DB] Using MySQL driver
+App 2911674 output: 🚀 Server is running on http://localhost:3120
+App 2911674 output: {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 7,
+App 2911674 output:     full_name: 'Mohammed Reda',
+App 2911674 output:     email: 'mmoh33650@gmail.com',
+App 2911674 output:     phone: '+201212745939',
+App 2911674 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2911674 output:     experience_years: 3,
+App 2911674 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2911674 output:     qualification: 'موجه عام رياضيات',
+App 2911674 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2911674 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760220719,
+App 2911674 output:   exp: 1760226119
+App 2911674 output: }
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 7,
+App 2911674 output:     full_name: 'Mohammed Reda',
+App 2911674 output:     email: 'mmoh33650@gmail.com',
+App 2911674 output:     phone: '+201212745939',
+App 2911674 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2911674 output:     experience_years: 3,
+App 2911674 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2911674 output:     qualification: 'موجه عام رياضيات',
+App 2911674 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2911674 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760220719,
+App 2911674 output:   exp: 1760226119
+App 2911674 output: }
+App 2911674 output: req.user {
+App 2911674 output:   id: 7,
+App 2911674 output:   type: 'teacher',
+App 2911674 output:   teacher_id: 7,
+App 2911674 output:   email: 'mmoh33650@gmail.com',
+App 2911674 output:   role_id: undefined,
+App 2911674 output:   teacher_name: undefined,
+App 2911674 output:   roles: []
+App 2911674 output: }
+App 2911674 output: teacherId 7
+App 2911674 output: Get teacher exams SQL: 
+App 2911674 output:     SELECT 
+App 2911674 output:       e.*,
+App 2911674 output:       u.unit_name as subject_name,
+App 2911674 output:       COUNT(eq.question_id) as question_count
+App 2911674 output:     FROM exams e
+App 2911674 output:     LEFT JOIN units u ON e.subject_id = u.unit_id
+App 2911674 output:     LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+App 2911674 output:     WHERE e.teacher_id = ?
+App 2911674 output:    AND e.subject_id = ? GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ? [ 7, '24', 20, 0 ]
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 7,
+App 2911674 output:     full_name: 'Mohammed Reda',
+App 2911674 output:     email: 'mmoh33650@gmail.com',
+App 2911674 output:     phone: '+201212745939',
+App 2911674 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2911674 output:     experience_years: 3,
+App 2911674 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2911674 output:     qualification: 'موجه عام رياضيات',
+App 2911674 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2911674 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760220719,
+App 2911674 output:   exp: 1760226119
+App 2911674 output: }
+App 2911674 output: req.user {
+App 2911674 output:   id: 7,
+App 2911674 output:   type: 'teacher',
+App 2911674 output:   teacher_id: 7,
+App 2911674 output:   email: 'mmoh33650@gmail.com',
+App 2911674 output:   role_id: undefined,
+App 2911674 output:   teacher_name: undefined,
+App 2911674 output:   roles: []
+App 2911674 output: }
+App 2911674 output: teacherId 7
+App 2911674 output: Get teacher exams SQL: 
+App 2911674 output:     SELECT 
+App 2911674 output:       e.*,
+App 2911674 output:       u.unit_name as subject_name,
+App 2911674 output:       COUNT(eq.question_id) as question_count
+App 2911674 output:     FROM exams e
+App 2911674 output:     LEFT JOIN units u ON e.subject_id = u.unit_id
+App 2911674 output:     LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+App 2911674 output:     WHERE e.teacher_id = ?
+App 2911674 output:    AND e.subject_id = ? GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ? [ 7, '24', 20, 0 ]
+App 2911674 output: {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 7,
+App 2911674 output:     full_name: 'Mohammed Reda',
+App 2911674 output:     email: 'mmoh33650@gmail.com',
+App 2911674 output:     phone: '+201212745939',
+App 2911674 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2911674 output:     experience_years: 3,
+App 2911674 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2911674 output:     qualification: 'موجه عام رياضيات',
+App 2911674 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2911674 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760220719,
+App 2911674 output:   exp: 1760226119
+App 2911674 output: }
+App 2911674 output: teacherId undefined
+App 2911674 output: teacherId undefined
+App 2911674 output: 4
+App 2911674 output: 4
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 7,
+App 2911674 output:     full_name: 'Mohammed Reda',
+App 2911674 output:     email: 'mmoh33650@gmail.com',
+App 2911674 output:     phone: '+201212745939',
+App 2911674 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2911674 output:     experience_years: 3,
+App 2911674 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2911674 output:     qualification: 'موجه عام رياضيات',
+App 2911674 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2911674 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760220719,
+App 2911674 output:   exp: 1760226119
+App 2911674 output: }
+App 2911674 output: {
+App 2911674 output:   title: 'descriptive exam titles',
+App 2911674 output:   user: {
+App 2911674 output:     id: 7,
+App 2911674 output:     type: 'teacher',
+App 2911674 output:     teacher_id: 7,
+App 2911674 output:     email: 'mmoh33650@gmail.com',
+App 2911674 output:     role_id: undefined,
+App 2911674 output:     teacher_name: undefined,
+App 2911674 output:     roles: []
+App 2911674 output:   },
+App 2911674 output:   subject_id: 24,
+App 2911674 output:   teacher_id: 7,
+App 2911674 output:   difficulty: 'medium',
+App 2911674 output:   duration: 60,
+App 2911674 output:   instructions: '',
+App 2911674 output:   settings: '{}',
+App 2911674 output:   created_by: 7,
+App 2911674 output:   question_ids: [ 37 ],
+App 2911674 output:   question_selection_type: 'manual',
+App 2911674 output:   total_questions: 1,
+App 2911674 output:   questions_per_difficulty: { unknown: 1 },
+App 2911674 output:   topic_ids: [ 53 ],
+App 2911674 output:   question_types: [ 'multiple_choice' ]
+App 2911674 output: }
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 7,
+App 2911674 output:     full_name: 'Mohammed Reda',
+App 2911674 output:     email: 'mmoh33650@gmail.com',
+App 2911674 output:     phone: '+201212745939',
+App 2911674 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2911674 output:     experience_years: 3,
+App 2911674 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2911674 output:     qualification: 'موجه عام رياضيات',
+App 2911674 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2911674 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760220719,
+App 2911674 output:   exp: 1760226119
+App 2911674 output: }
+App 2911674 output: Add question to exam error: Error: Unknown column 'time_limit' in 'INSERT INTO'
+App 2911674 output:     at PromisePool.execute (/home/campcod3/nodevenv/public_html/medgap/20/lib/node_modules/mysql2/lib/promise/pool.js:54:22)
+App 2911674 output:     at Object.addQuestionToExam (/home/campcod3/public_html/medgap/repositories/teacher/exams.js:347:20)
+App 2911674 output:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+App 2911674 output:     at async addQuestionToExam (/home/campcod3/public_html/medgap/controllers/teacher/exams.js:270:26) {
+App 2911674 output:   code: 'ER_BAD_FIELD_ERROR',
+App 2911674 output:   errno: 1054,
+App 2911674 output:   sql: '\n' +
+App 2911674 output:     '    INSERT INTO exam_questions (exam_id, question_id, order_index, points, time_limit)\n' +
+App 2911674 output:     '    VALUES (?, ?, ?, ?, ?)\n' +
+App 2911674 output:     '    ON DUPLICATE KEY UPDATE \n' +
+App 2911674 output:     '      order_index = VALUES(order_index),\n' +
+App 2911674 output:     '      points = VALUES(points),\n' +
+App 2911674 output:     '      time_limit = VALUES(time_limit)\n' +
+App 2911674 output:     '  ',
+App 2911674 output:   sqlState: '42S22',
+App 2911674 output:   sqlMessage: "Unknown column 'time_limit' in 'INSERT INTO'"
+App 2911674 output: }
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 7,
+App 2911674 output:     full_name: 'Mohammed Reda',
+App 2911674 output:     email: 'mmoh33650@gmail.com',
+App 2911674 output:     phone: '+201212745939',
+App 2911674 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2911674 output:     experience_years: 3,
+App 2911674 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2911674 output:     qualification: 'موجه عام رياضيات',
+App 2911674 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2911674 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760220719,
+App 2911674 output:   exp: 1760226119
+App 2911674 output: }
+App 2911674 output: req.user {
+App 2911674 output:   id: 7,
+App 2911674 output:   type: 'teacher',
+App 2911674 output:   teacher_id: 7,
+App 2911674 output:   email: 'mmoh33650@gmail.com',
+App 2911674 output:   role_id: undefined,
+App 2911674 output:   teacher_name: undefined,
+App 2911674 output:   roles: []
+App 2911674 output: }
+App 2911674 output: teacherId 7
+App 2911674 output: Get teacher exams SQL: 
+App 2911674 output:     SELECT 
+App 2911674 output:       e.*,
+App 2911674 output:       u.unit_name as subject_name,
+App 2911674 output:       COUNT(eq.question_id) as question_count
+App 2911674 output:     FROM exams e
+App 2911674 output:     LEFT JOIN units u ON e.subject_id = u.unit_id
+App 2911674 output:     LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+App 2911674 output:     WHERE e.teacher_id = ?
+App 2911674 output:    AND e.subject_id = ? GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ? [ 7, '24', 20, 0 ]
+App 2911674 output: {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 7,
+App 2911674 output:     full_name: 'Mohammed Reda',
+App 2911674 output:     email: 'mmoh33650@gmail.com',
+App 2911674 output:     phone: '+201212745939',
+App 2911674 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2911674 output:     experience_years: 3,
+App 2911674 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2911674 output:     qualification: 'موجه عام رياضيات',
+App 2911674 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2911674 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760220719,
+App 2911674 output:   exp: 1760226119
+App 2911674 output: }
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 7,
+App 2911674 output:     full_name: 'Mohammed Reda',
+App 2911674 output:     email: 'mmoh33650@gmail.com',
+App 2911674 output:     phone: '+201212745939',
+App 2911674 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2911674 output:     experience_years: 3,
+App 2911674 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2911674 output:     qualification: 'موجه عام رياضيات',
+App 2911674 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2911674 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760220719,
+App 2911674 output:   exp: 1760226119
+App 2911674 output: }
+App 2911674 output: req.user {
+App 2911674 output:   id: 7,
+App 2911674 output:   type: 'teacher',
+App 2911674 output:   teacher_id: 7,
+App 2911674 output:   email: 'mmoh33650@gmail.com',
+App 2911674 output:   role_id: undefined,
+App 2911674 output:   teacher_name: undefined,
+App 2911674 output:   roles: []
+App 2911674 output: }
+App 2911674 output: teacherId 7
+App 2911674 output: Get teacher exams SQL: 
+App 2911674 output:     SELECT 
+App 2911674 output:       e.*,
+App 2911674 output:       u.unit_name as subject_name,
+App 2911674 output:       COUNT(eq.question_id) as question_count
+App 2911674 output:     FROM exams e
+App 2911674 output:     LEFT JOIN units u ON e.subject_id = u.unit_id
+App 2911674 output:     LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+App 2911674 output:     WHERE e.teacher_id = ?
+App 2911674 output:    AND e.subject_id = ? GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ? [ 7, '24', 20, 0 ]
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 7,
+App 2911674 output:     full_name: 'Mohammed Reda',
+App 2911674 output:     email: 'mmoh33650@gmail.com',
+App 2911674 output:     phone: '+201212745939',
+App 2911674 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2911674 output:     experience_years: 3,
+App 2911674 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2911674 output:     qualification: 'موجه عام رياضيات',
+App 2911674 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2911674 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760220719,
+App 2911674 output:   exp: 1760226119
+App 2911674 output: }
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 7,
+App 2911674 output:     full_name: 'Mohammed Reda',
+App 2911674 output:     email: 'mmoh33650@gmail.com',
+App 2911674 output:     phone: '+201212745939',
+App 2911674 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2911674 output:     experience_years: 3,
+App 2911674 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2911674 output:     qualification: 'موجه عام رياضيات',
+App 2911674 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2911674 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760220719,
+App 2911674 output:   exp: 1760226119
+App 2911674 output: }
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 7,
+App 2911674 output:     full_name: 'Mohammed Reda',
+App 2911674 output:     email: 'mmoh33650@gmail.com',
+App 2911674 output:     phone: '+201212745939',
+App 2911674 output:     notes: 'خبير في الرياضيات التطبيقية',
+App 2911674 output:     experience_years: 3,
+App 2911674 output:     join_date: '2025-09-23T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/uploads/teachers/image-1758707220427.jpg',
+App 2911674 output:     qualification: 'موجه عام رياضيات',
+App 2911674 output:     created_at: '2025-09-23T08:55:37.000Z',
+App 2911674 output:     updated_at: '2025-10-04T18:51:52.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760220719,
+App 2911674 output:   exp: 1760226119
+App 2911674 output: }
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 13,
+App 2911674 output:     full_name: 'moahmed abo Elqasem',
+App 2911674 output:     email: 'abwalkasem123@gmail.com',
+App 2911674 output:     phone: '01228448173',
+App 2911674 output:     notes: '',
+App 2911674 output:     experience_years: 1,
+App 2911674 output:     join_date: '2025-10-04T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/null',
+App 2911674 output:     qualification: 'Anatomy',
+App 2911674 output:     created_at: '2025-10-04T18:54:33.000Z',
+App 2911674 output:     updated_at: '2025-10-11T18:43:56.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760214228,
+App 2911674 output:   exp: 1760219628
+App 2911674 output: }
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 13,
+App 2911674 output:     full_name: 'moahmed abo Elqasem',
+App 2911674 output:     email: 'abwalkasem123@gmail.com',
+App 2911674 output:     phone: '01228448173',
+App 2911674 output:     notes: '',
+App 2911674 output:     experience_years: 1,
+App 2911674 output:     join_date: '2025-10-04T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/null',
+App 2911674 output:     qualification: 'Anatomy',
+App 2911674 output:     created_at: '2025-10-04T18:54:33.000Z',
+App 2911674 output:     updated_at: '2025-10-11T18:43:56.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760214228,
+App 2911674 output:   exp: 1760219628
+App 2911674 output: }
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 13,
+App 2911674 output:     full_name: 'moahmed abo Elqasem',
+App 2911674 output:     email: 'abwalkasem123@gmail.com',
+App 2911674 output:     phone: '01228448173',
+App 2911674 output:     notes: '',
+App 2911674 output:     experience_years: 1,
+App 2911674 output:     join_date: '2025-10-04T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/null',
+App 2911674 output:     qualification: 'Anatomy',
+App 2911674 output:     created_at: '2025-10-04T18:54:33.000Z',
+App 2911674 output:     updated_at: '2025-10-11T18:43:56.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760214228,
+App 2911674 output:   exp: 1760219628
+App 2911674 output: }
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 13,
+App 2911674 output:     full_name: 'moahmed abo Elqasem',
+App 2911674 output:     email: 'abwalkasem123@gmail.com',
+App 2911674 output:     phone: '01228448173',
+App 2911674 output:     notes: '',
+App 2911674 output:     experience_years: 1,
+App 2911674 output:     join_date: '2025-10-04T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/null',
+App 2911674 output:     qualification: 'Anatomy',
+App 2911674 output:     created_at: '2025-10-04T18:54:33.000Z',
+App 2911674 output:     updated_at: '2025-10-11T18:43:56.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760214228,
+App 2911674 output:   exp: 1760219628
+App 2911674 output: }
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 13,
+App 2911674 output:     full_name: 'moahmed abo Elqasem',
+App 2911674 output:     email: 'abwalkasem123@gmail.com',
+App 2911674 output:     phone: '01228448173',
+App 2911674 output:     notes: '',
+App 2911674 output:     experience_years: 1,
+App 2911674 output:     join_date: '2025-10-04T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/null',
+App 2911674 output:     qualification: 'Anatomy',
+App 2911674 output:     created_at: '2025-10-04T18:54:33.000Z',
+App 2911674 output:     updated_at: '2025-10-11T18:43:56.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760214228,
+App 2911674 output:   exp: 1760219628
+App 2911674 output: }
+App 2911674 output: token {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 13,
+App 2911674 output:     full_name: 'moahmed abo Elqasem',
+App 2911674 output:     email: 'abwalkasem123@gmail.com',
+App 2911674 output:     phone: '01228448173',
+App 2911674 output:     notes: '',
+App 2911674 output:     experience_years: 1,
+App 2911674 output:     join_date: '2025-10-04T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/null',
+App 2911674 output:     qualification: 'Anatomy',
+App 2911674 output:     created_at: '2025-10-04T18:54:33.000Z',
+App 2911674 output:     updated_at: '2025-10-11T18:43:56.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760214228,
+App 2911674 output:   exp: 1760219628
+App 2911674 output: }
+App 2911674 output: req.user {
+App 2911674 output:   id: 13,
+App 2911674 output:   type: 'teacher',
+App 2911674 output:   teacher_id: 13,
+App 2911674 output:   email: 'abwalkasem123@gmail.com',
+App 2911674 output:   role_id: undefined,
+App 2911674 output:   teacher_name: undefined,
+App 2911674 output:   roles: []
+App 2911674 output: }
+App 2911674 output: teacherId 13
+App 2911674 output: Get teacher exams SQL: 
+App 2911674 output:     SELECT 
+App 2911674 output:       e.*,
+App 2911674 output:       u.unit_name as subject_name,
+App 2911674 output:       COUNT(eq.question_id) as question_count
+App 2911674 output:     FROM exams e
+App 2911674 output:     LEFT JOIN units u ON e.subject_id = u.unit_id
+App 2911674 output:     LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
+App 2911674 output:     WHERE e.teacher_id = ?
+App 2911674 output:    AND e.subject_id = ? GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ? [ 13, '23', 20, 0 ]
+App 2911674 output: {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 13,
+App 2911674 output:     full_name: 'moahmed abo Elqasem',
+App 2911674 output:     email: 'abwalkasem123@gmail.com',
+App 2911674 output:     phone: '01228448173',
+App 2911674 output:     notes: '',
+App 2911674 output:     experience_years: 1,
+App 2911674 output:     join_date: '2025-10-04T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/null',
+App 2911674 output:     qualification: 'Anatomy',
+App 2911674 output:     created_at: '2025-10-04T18:54:33.000Z',
+App 2911674 output:     updated_at: '2025-10-11T18:43:56.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760214228,
+App 2911674 output:   exp: 1760219628
+App 2911674 output: }
+App 2911674 output: {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 13,
+App 2911674 output:     full_name: 'moahmed abo Elqasem',
+App 2911674 output:     email: 'abwalkasem123@gmail.com',
+App 2911674 output:     phone: '01228448173',
+App 2911674 output:     notes: '',
+App 2911674 output:     experience_years: 1,
+App 2911674 output:     join_date: '2025-10-04T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/null',
+App 2911674 output:     qualification: 'Anatomy',
+App 2911674 output:     created_at: '2025-10-04T18:54:33.000Z',
+App 2911674 output:     updated_at: '2025-10-11T18:43:56.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760214228,
+App 2911674 output:   exp: 1760219628
+App 2911674 output: }
+App 2911674 output: {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 13,
+App 2911674 output:     full_name: 'moahmed abo Elqasem',
+App 2911674 output:     email: 'abwalkasem123@gmail.com',
+App 2911674 output:     phone: '01228448173',
+App 2911674 output:     notes: '',
+App 2911674 output:     experience_years: 1,
+App 2911674 output:     join_date: '2025-10-04T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/null',
+App 2911674 output:     qualification: 'Anatomy',
+App 2911674 output:     created_at: '2025-10-04T18:54:33.000Z',
+App 2911674 output:     updated_at: '2025-10-11T18:43:56.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760214228,
+App 2911674 output:   exp: 1760219628
+App 2911674 output: }
+App 2911674 output: teacherId undefined
+App 2911674 output: {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 13,
+App 2911674 output:     full_name: 'moahmed abo Elqasem',
+App 2911674 output:     email: 'abwalkasem123@gmail.com',
+App 2911674 output:     phone: '01228448173',
+App 2911674 output:     notes: '',
+App 2911674 output:     experience_years: 1,
+App 2911674 output:     join_date: '2025-10-04T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/null',
+App 2911674 output:     qualification: 'Anatomy',
+App 2911674 output:     created_at: '2025-10-04T18:54:33.000Z',
+App 2911674 output:     updated_at: '2025-10-11T18:43:56.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760214228,
+App 2911674 output:   exp: 1760219628
+App 2911674 output: }
+App 2911674 output: {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 13,
+App 2911674 output:     full_name: 'moahmed abo Elqasem',
+App 2911674 output:     email: 'abwalkasem123@gmail.com',
+App 2911674 output:     phone: '01228448173',
+App 2911674 output:     notes: '',
+App 2911674 output:     experience_years: 1,
+App 2911674 output:     join_date: '2025-10-04T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/null',
+App 2911674 output:     qualification: 'Anatomy',
+App 2911674 output:     created_at: '2025-10-04T18:54:33.000Z',
+App 2911674 output:     updated_at: '2025-10-11T18:43:56.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760214228,
+App 2911674 output:   exp: 1760219628
+App 2911674 output: }
+App 2911674 output: teacherId undefined
+App 2911674 output: {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 13,
+App 2911674 output:     full_name: 'moahmed abo Elqasem',
+App 2911674 output:     email: 'abwalkasem123@gmail.com',
+App 2911674 output:     phone: '01228448173',
+App 2911674 output:     notes: '',
+App 2911674 output:     experience_years: 1,
+App 2911674 output:     join_date: '2025-10-04T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/null',
+App 2911674 output:     qualification: 'Anatomy',
+App 2911674 output:     created_at: '2025-10-04T18:54:33.000Z',
+App 2911674 output:     updated_at: '2025-10-11T18:43:56.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760214228,
+App 2911674 output:   exp: 1760219628
+App 2911674 output: }
+App 2911674 output: {
+App 2911674 output:   user: {
+App 2911674 output:     teacher_id: 13,
+App 2911674 output:     full_name: 'moahmed abo Elqasem',
+App 2911674 output:     email: 'abwalkasem123@gmail.com',
+App 2911674 output:     phone: '01228448173',
+App 2911674 output:     notes: '',
+App 2911674 output:     experience_years: 1,
+App 2911674 output:     join_date: '2025-10-04T04:00:00.000Z',
+App 2911674 output:     role: 'teacher',
+App 2911674 output:     status: 'approved',
+App 2911674 output:     image_url: 'https://camp-coding.site/medgap/null',
+App 2911674 output:     qualification: 'Anatomy',
+App 2911674 output:     created_at: '2025-10-04T18:54:33.000Z',
+App 2911674 output:     updated_at: '2025-10-11T18:43:56.000Z',
+App 2911674 output:     created_by: null,
+App 2911674 output:     updated_by: null,
+App 2911674 output:     document_url: ''
+App 2911674 output:   },
+App 2911674 output:   iat: 1760214228,
+App 2911674 output:   exp: 1760219628
+App 2911674 output: }

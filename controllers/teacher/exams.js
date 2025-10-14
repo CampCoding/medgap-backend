@@ -4,6 +4,7 @@ const repo = require("../../repositories/teacher/exams");
 // Get all exams for the current teacher with pagination and filters
 async function getAllExams(req, res) {
   try {
+      console.log("req.user", req.user)
     const teacherId = req.user?.teacher_id;
     const { 
       page = 1, 
@@ -222,8 +223,9 @@ async function updateExam(req, res) {
       return responseBuilder.notFound(res, "Exam not found or you don't have permission to update it");
     }
 
+    const exam = await repo.getExamById(id, teacherId);
     return responseBuilder.success(res, {
-      data: { updated: true },
+      data: exam,
       message: "Exam updated successfully",
     });
   } catch (error) {

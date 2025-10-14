@@ -15,9 +15,6 @@ async function getStudentModules({ studentId }) {
   return rows;
 }
 
-
-
-
 async function countApprovedBooksByModule({ moduleId }) {
   const sql = `
     SELECT COUNT(*) AS total
@@ -34,6 +31,7 @@ async function listBooksByModule({
   page = 1,
   limit = 12,
   search = "",
+  studentId
 }) {
   const where = ["u.module_id = ?", "e.is_deleted = 0", "e.status = 'active'"];
   const params = [moduleId];
@@ -64,11 +62,13 @@ async function listBooksByModule({
       m.module_id,
       m.subject_name AS module_name,
       e.file,
-      e.thumbnail
+      e.thumbnail,
+      ann.*
     FROM ebooks e
     INNER JOIN units u ON u.unit_id = e.subject_id
     INNER JOIN modules m ON m.module_id = u.module_id
     LEFT JOIN ebook_views v ON v.ebook_id = e.ebook_id
+    LEFT JOIN annotations ann ON ann.book_id = e.ebook_id AND ann.student_id = '${studentId}'
     WHERE ${where.join(" AND ")}
     ORDER BY e.created_at DESC
     LIMIT ? OFFSET ?
@@ -96,11 +96,12 @@ async function listBooksByModule({
       module: { id: r.module_id, name: r.module_name },
       file: r.file,
       thumbnail: r.thumbnail,
+      ann_value: r.ann_value
     })),
     page,
     limit,
     total,
-    totalPages: Math.ceil(total / limit),
+    totalPages: Math.ceil(total / limit)
   };
 }
 
@@ -130,7 +131,7 @@ async function getBookDetails({ ebookId }) {
     unit: { id: f.unit_id, name: f.unit_name },
     module: { id: f.module_id, name: f.module_name },
     file: f.file,
-    thumbnail: f.thumbnail,
+    thumbnail: f.thumbnail
   };
 }
 
@@ -148,10 +149,25 @@ async function incrementView({ ebookId }) {
   return getBookDetails({ ebookId });
 }
 
+async function saveAnnotation({ annValue, bookId, studentId }) {
+  const sql = `
+    INSERT INTO annotations (ann_value, book_id, student_id)
+    VALUES (?, ?, ?)
+    ON DUPLICATE KEY UPDATE ann_value = VALUES(ann_value), updated_at = CURRENT_TIMESTAMP
+  `;
+  const [result] = await client.execute(sql, [annValue, bookId, studentId]);
+  const [rows] = await client.execute(
+    `SELECT ann_id, ann_value, book_id, student_id, created_at, updated_at FROM annotations WHERE book_id = ? AND student_id = ?`,
+    [bookId, studentId]
+  );
+  return rows?.[0] || null;
+}
+
 module.exports = {
   getStudentModules,
   countApprovedBooksByModule,
   listBooksByModule,
   getBookDetails,
   incrementView,
+  saveAnnotation
 };

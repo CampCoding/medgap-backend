@@ -1,0 +1,50 @@
+# Force HTTPS
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Enable CORS for all origins
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Headers "*"
+Header set Access-Control-Allow-Methods "*"
+# Header set Access-Control-Allow-Headers "Access-Control-Allow-Headers, Content-Type, Authorization"
+# Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+Header set Access-Control-Allow-Credentials "true"
+# Handle preflight requests for OPTIONS method
+<IfModule mod_rewrite.c>
+  RewriteCond %{REQUEST_METHOD} OPTIONS
+  RewriteRule ^(.*)$ $1 [L]
+</IfModule>
+
+# PHP settings for cPanel (Keep your settings intact)
+<IfModule php7_module>
+   php_flag display_errors Off
+   php_value max_execution_time 3000
+   php_value max_input_time 6000
+   php_value max_input_vars 10000
+   php_value memory_limit 900M
+   php_value post_max_size 1200M
+   php_value session.gc_maxlifetime 1440
+   php_value session.save_path "/var/cpanel/php/sessions/ea-php74"
+   php_value upload_max_filesize 900M
+   php_flag zlib.output_compression Off
+</IfModule>
+
+<IfModule lsapi_module>
+   php_flag display_errors Off
+   php_value max_execution_time 3000
+   php_value max_input_time 6000
+   php_value max_input_vars 10000
+   php_value memory_limit 900M
+   php_value post_max_size 1200M
+   php_value session.gc_maxlifetime 1440
+   php_value session.save_path "/var/cpanel/php/sessions/ea-php74"
+   php_value upload_max_filesize 900M
+   php_flag zlib.output_compression Off
+</IfModule>
+
+# END cPanel-generated php.ini directives
+
+# BEGIN PHP handler (do not edit)
+# This domain inherits the “PHP” package.
+# END PHP handler (do not edit)

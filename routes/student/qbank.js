@@ -10,6 +10,7 @@ router.get("/category/list", ctrl.listCategories);
 router.post("/category/assign/create", ctrl.assignToCategory);
 router.post("/note/create", ctrl.createNote);
 router.get("/note/list", ctrl.listNotes);
+router.get("/qbank/list", ctrl.listQbank);
 router.post("/deck/create", ctrl.createDeck);
 router.get("/deck/list", ctrl.listDecks);
 router.post("/flashcard/create", ctrl.createFlashCard);
@@ -20,5 +21,16 @@ router.post("/flashcard/:student_flash_card_id/review", ctrl.reviewFlashcard);
 router.get("/deck/:deck_id/flashcards", ctrl.listFlashcardsByDeck);
 router.delete("/category/unassign/delete", ctrl.unAssignFromCategory);
 router.delete("/note/delete", ctrl.deleteNote);
+
+// Exam routes
+router.get("/exams", ctrl.getStudentExams);
+router.get("/exams/upcoming", ctrl.getUpcomingExams);
+router.get("/exams/on-demand", ctrl.getOnDemandExams);
+router.get("/exams/results", ctrl.getExamResults);
+router.get("/exams/:examId/questions", ctrl.getExamQuestions);
+router.post("/exams/:examId/start", ctrl.startExamAttempt);
+router.post("/exams/answers/submit", ctrl.submitExamAnswer);
+router.post("/exams/:attemptId/submit", ctrl.submitExamAttempt);
+router.post("/exams/register", ctrl.registerExam);
 
 module.exports = router;
