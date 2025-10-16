@@ -170,7 +170,7 @@ const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filt
     const topicIds = explicitTopicIds.length ? explicitTopicIds : topics.map(t => t.topic_id);
 
     const questions = await fetchQuestionsByTopicIds(topicIds, filters);
-    console.log({modules, subjects, topics, questions})
+    console.log({ modules, subjects, topics, questions })
     return { modules, subjects, topics, questions };
 }
 
@@ -339,6 +339,9 @@ const listQuestion = async ({ qbank_id, studentId }) => {
 		  ),
 		  JSON_ARRAY()
 		) AS options,
+         JSON_OBJECT(
+         'is_correct', sq.is_correct
+         ) AS your_answer,
 		COALESCE(
 		  JSON_ARRAYAGG(
 			DISTINCT CASE WHEN sfc.student_flash_card_id IS NOT NULL THEN  JSON_OBJECT(
@@ -384,6 +387,12 @@ const listQuestion = async ({ qbank_id, studentId }) => {
             r.options = JSON.parse(r.options).filter(Boolean);
             if (typeof r.keywords === 'string') r.keywords = JSON.parse(r.keywords).filter(Boolean);
             if (typeof r.notes === 'string') r.notes = JSON.parse(r.notes).filter(Boolean);
+                const answerParsed = JSON.parse(r.your_answer);
+                    answerParsed.solved = false
+                if(answerParsed?.is_correct != null){
+                    answerParsed.solved = true
+                }
+              r.your_answer = answerParsed
             if (typeof r.flashcards === 'string') {
                 const parsed = JSON.parse(r.flashcards).filter(Boolean);
 
@@ -759,7 +768,7 @@ const getAvailableQuestions = async ({ page = 1, limit = 50, search = "", subjec
 
 const getStudentExams = async ({ studentId, page = 1, limit = 20, search = "", status = "published", difficulty = "" }) => {
     const offset = (page - 1) * limit;
-    
+
     let sql = `
         SELECT 
             e.exam_id as id,
@@ -784,27 +793,27 @@ const getStudentExams = async ({ studentId, page = 1, limit = 20, search = "", s
             WHERE se.student_id = ? AND se.status = 'active'
         )
     `;
-    
+
     let params = [status, studentId];
-    
+
     if (search) {
         sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
         params.push(`%${search}%`, `%${search}%`);
     }
-    
+
     if (difficulty) {
         sql += ` AND e.difficulty = ?`;
         params.push(difficulty);
     }
-    
+
     sql += ` GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ?`;
     params.push(limit, offset);
-    
+
     const [rows] = await client.execute(sql, params);
-    
+
     // Transform the data
     const transformedExams = rows.map(exam => transformExamData(exam));
-    
+
     // Get total count
     let countSql = `
         SELECT COUNT(DISTINCT e.exam_id) as total 
@@ -818,20 +827,20 @@ const getStudentExams = async ({ studentId, page = 1, limit = 20, search = "", s
         )
     `;
     let countParams = [status, studentId];
-    
+
     if (search) {
         countSql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
         countParams.push(`%${search}%`, `%${search}%`);
     }
-    
+
     if (difficulty) {
         countSql += ` AND e.difficulty = ?`;
         countParams.push(difficulty);
     }
-    
+
     const [countResult] = await client.execute(countSql, countParams);
     const total = countResult[0].total;
-    
+
     return {
         exams: transformedExams,
         pagination: {
@@ -846,7 +855,7 @@ const getStudentExams = async ({ studentId, page = 1, limit = 20, search = "", s
 // Get upcoming exams for student (scheduled or published)
 const getUpcomingExams = async ({ studentId, page = 1, limit = 20, search = "", difficulty = "" }) => {
     const offset = (page - 1) * limit;
-    
+
     let sql = `
         SELECT 
             e.exam_id as id,
@@ -874,30 +883,30 @@ const getUpcomingExams = async ({ studentId, page = 1, limit = 20, search = "", 
             WHERE se.student_id = ?
         )
     `;
-    
+
     let params = [studentId, studentId];
-    
+
     if (search) {
         sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
         params.push(`%${search}%`, `%${search}%`);
     }
-    
+
     if (difficulty) {
         sql += ` AND e.difficulty = ?`;
         params.push(difficulty);
     }
-    
+
     sql += ` GROUP BY e.exam_id ORDER BY e.scheduled_date ASC, e.start_date ASC LIMIT ? OFFSET ?`;
     params.push(limit, offset);
     console.log(sql, params)
     const [rows] = await client.execute(sql, params);
-    
+
     // Transform the data
     const transformedExams = rows.map(exam => transformExamData(exam));
-    
+
     // Get total count
     const total = await getExamCount(studentId, ['published', 'scheduled'], search, difficulty, true);
-    
+
     return {
         exams: transformedExams,
         pagination: {
@@ -912,7 +921,7 @@ const getUpcomingExams = async ({ studentId, page = 1, limit = 20, search = "", 
 // Get on-demand exams for student (published and available now)
 const getOnDemandExams = async ({ studentId, page = 1, limit = 20, search = "", difficulty = "" }) => {
     const offset = (page - 1) * limit;
-    
+
     let sql = `
         SELECT 
             e.exam_id as id,
@@ -939,30 +948,30 @@ const getOnDemandExams = async ({ studentId, page = 1, limit = 20, search = "", 
             WHERE se.student_id = ? 
         )
     `;
-    
+
     let params = [studentId];
-    
+
     if (search) {
         sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
         params.push(`%${search}%`, `%${search}%`);
     }
-    
+
     if (difficulty) {
         sql += ` AND e.difficulty = ?`;
         params.push(difficulty);
     }
-    
+
     sql += ` GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ?`;
     params.push(limit, offset);
-    
+
     const [rows] = await client.execute(sql, params);
-    
+
     // Transform the data
     const transformedExams = rows.map(exam => transformExamData(exam));
-    
+
     // Get total count
     const total = await getExamCount(studentId, ['published'], search, difficulty, false);
-    
+
     return {
         exams: transformedExams,
         pagination: {
@@ -977,7 +986,7 @@ const getOnDemandExams = async ({ studentId, page = 1, limit = 20, search = "", 
 // Get past exam results for student
 const getExamResults = async ({ studentId, page = 1, limit = 20, search = "", difficulty = "" }) => {
     const offset = (page - 1) * limit;
-    
+
     let sql = `
         SELECT 
             e.exam_id as id,
@@ -1002,24 +1011,24 @@ const getExamResults = async ({ studentId, page = 1, limit = 20, search = "", di
             WHERE se.student_id = ? AND se.status = 'active'
         )
     `;
-    
+
     let params = [studentId, studentId];
-    
+
     if (search) {
         sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
         params.push(`%${search}%`, `%${search}%`);
     }
-    
+
     if (difficulty) {
         sql += ` AND e.difficulty = ?`;
         params.push(difficulty);
     }
-    
+
     sql += ` GROUP BY ea.exam_id, ea.started_at ORDER BY ea.submitted_at DESC LIMIT ? OFFSET ?`;
     params.push(limit, offset);
-    
+
     const [rows] = await client.execute(sql, params);
-    
+
     // Transform the data for results
     const transformedResults = rows.map(result => {
         const examDate = result.submitted_at || result.started_at;
@@ -1028,17 +1037,17 @@ const getExamResults = async ({ studentId, page = 1, limit = 20, search = "", di
             month: 'short',
             day: 'numeric'
         }) : 'TBD';
-        
+
         const durationHours = result.time_spent ? Math.floor(result.time_spent / 3600) : 0;
         const durationMinutes = result.time_spent ? Math.floor((result.time_spent % 3600) / 60) : 0;
-        const formattedDuration = durationHours > 0 ? 
-            `${durationHours}h ${durationMinutes}m` : 
+        const formattedDuration = durationHours > 0 ?
+            `${durationHours}h ${durationMinutes}m` :
             `${durationMinutes}m`;
-        
+
         // Calculate percentage score
         const totalQuestions = result.questions || 1;
         const percentage = Math.round((result.total_score / totalQuestions) * 100);
-        
+
         return {
             id: result.id,
             name: result.name,
@@ -1052,10 +1061,10 @@ const getExamResults = async ({ studentId, page = 1, limit = 20, search = "", di
             attempt_status: result.attempt_status
         };
     });
-    
+
     // Get total count
     const total = await getExamResultsCount(studentId, search, difficulty);
-    
+
     return {
         results: transformedResults,
         pagination: {
@@ -1082,27 +1091,27 @@ const startExam = async ({ studentId, examId }) => {
             WHERE se.student_id = ? AND se.status = 'active'
         )
     `, [examId, studentId]);
-    
+
     if (examCheck[0].length === 0) {
         throw new Error('Exam not found or access denied');
     }
-    
+
     // Check if student already has an active attempt
     const activeAttempt = await client.execute(`
         SELECT exam_attempt_id FROM exam_attempts 
         WHERE exam_id = ? AND student_id = ? AND status = 'in_progress'
     `, [examId, studentId]);
-    
+
     if (activeAttempt[0].length > 0) {
         return activeAttempt[0][0].exam_attempt_id; // Return existing attempt
     }
-    
+
     // Create new exam attempt
     const [result] = await client.execute(`
         INSERT INTO exam_attempts (exam_id, student_id, status, started_at)
         VALUES (?, ?, 'in_progress', NOW())
     `, [examId, studentId]);
-    
+
     return result.insertId;
 };
 
@@ -1194,13 +1203,13 @@ const getExamQuestions = async ({ examId, studentId }) => {
             WHERE se.student_id = ? AND se.status = 'active'
         )
     `, [examId, studentId]);
-    
+
     if (examCheck[0].length === 0) {
         throw new Error('Exam not found or access denied');
     }
-    
+
     const exam = examCheck[0][0];
-    
+
     // Get exam questions with options
     const [questions] = await client.execute(`
         SELECT 
@@ -1229,13 +1238,13 @@ const getExamQuestions = async ({ examId, studentId }) => {
         GROUP BY eq.id, q.question_id
         ORDER BY eq.order_index
     `, [examId]);
-    
+
     // Parse options for each question
     const questionsWithOptions = questions.map(q => ({
         ...q,
         options: JSON.parse(q.options).filter(Boolean)
     }));
-    
+
     return {
         exam: {
             exam_id: exam.exam_id,
@@ -1251,7 +1260,7 @@ const getExamQuestions = async ({ examId, studentId }) => {
 // Register student for an exam (scheduled slot/metadata)
 const registerForExam = async ({ studentId, examId, startSlot, notifications, notes, startISO, endISO }) => {
     // Ensure registration table exists (idempotent)
-   
+
 
     const [result] = await client.execute(`
         INSERT INTO exam_registrations (exam_id, student_id, start_slot, notifications, notes, start_iso, end_iso)
@@ -1277,21 +1286,21 @@ const transformExamData = (exam) => {
         month: 'short',
         day: 'numeric'
     }) : 'TBD';
-    
+
     // Format time
     const formattedTime = examDate ? new Date(examDate).toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
         hour12: true
     }) : 'TBD';
-    
+
     // Format duration
     const durationHours = exam.duration ? Math.floor(exam.duration / 60) : 0;
     const durationMinutes = exam.duration ? exam.duration % 60 : 0;
-    const formattedDuration = durationHours > 0 ? 
-        `${durationHours}h ${durationMinutes > 0 ? durationMinutes + 'm' : ''}`.trim() : 
+    const formattedDuration = durationHours > 0 ?
+        `${durationHours}h ${durationMinutes > 0 ? durationMinutes + 'm' : ''}`.trim() :
         `${durationMinutes}m`;
-    
+
     // Get difficulty color
     const getDifficultyColor = (difficulty) => {
         switch (difficulty?.toLowerCase()) {
@@ -1305,7 +1314,7 @@ const transformExamData = (exam) => {
                 return "gray";
         }
     };
-    
+
     return {
         id: exam.id,
         name: exam.name,
@@ -1336,23 +1345,23 @@ const getExamCount = async (studentId, statuses, search, difficulty, upcomingOnl
             WHERE se.student_id = ? AND se.status = 'active'
         )
     `;
-    
+
     let params = [...statuses, studentId];
-    
+
     if (upcomingOnly) {
         sql += ` AND (e.scheduled_date > NOW() OR e.start_date > NOW() OR e.end_date > NOW())`;
     }
-    
+
     if (search) {
         sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
         params.push(`%${search}%`, `%${search}%`);
     }
-    
+
     if (difficulty) {
         sql += ` AND e.difficulty = ?`;
         params.push(difficulty);
     }
-    
+
     const [countResult] = await client.execute(sql, params);
     return countResult[0].total;
 };
@@ -1372,19 +1381,19 @@ const getExamResultsCount = async (studentId, search, difficulty) => {
             WHERE se.student_id = ? AND se.status = 'active'
         )
     `;
-    
+
     let params = [studentId, studentId];
-    
+
     if (search) {
         sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
         params.push(`%${search}%`, `%${search}%`);
     }
-    
+
     if (difficulty) {
         sql += ` AND e.difficulty = ?`;
         params.push(difficulty);
     }
-    
+
     const [countResult] = await client.execute(sql, params);
     return countResult[0].total;
 };

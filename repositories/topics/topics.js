@@ -46,7 +46,9 @@ class TopicsRepository {
 
   // جميع الموضوعات مع الإحصائيات
   async getAllTopics(filters = {}) {
-    let query = `
+       let query = null;
+      if(filters?.teacher_id){
+      query = `
       SELECT
         t.*,
         u.unit_name,
@@ -64,8 +66,30 @@ class TopicsRepository {
       LEFT JOIN digital_library dl ON t.topic_id = dl.topic_id
       WHERE t.teacher_id = ?
     `;
+      }else{
+       query = `
+      SELECT
+        t.*,
+        u.unit_name,
+        m.subject_name as module_name,
+        a1.full_name as created_by_name,
+        COUNT(DISTINCT q.question_id) as questions_count,
+        COUNT(DISTINCT f.flashcard_id) as flashcards_count,
+        COUNT(DISTINCT dl.library_id) as library_files_count
+      FROM topics t
+      LEFT JOIN units u ON t.unit_id = u.unit_id
+      LEFT JOIN modules m ON u.module_id = m.module_id
+      LEFT JOIN teachers a1 ON t.created_by = a1.teacher_id
+      LEFT JOIN questions q ON t.topic_id = q.topic_id
+      LEFT JOIN flashcards f ON t.topic_id = f.topic_id
+      LEFT JOIN digital_library dl ON t.topic_id = dl.topic_id
+    `;    
+      }
 
-    const values = [filters?.teacher_id];
+    let values = [filters?.teacher_id];
+    if(!filters?.teacher_id){
+         values = []
+    }
 
     if (filters.status) {
       query += ` AND t.status = ?`;

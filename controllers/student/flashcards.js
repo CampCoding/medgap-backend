@@ -37,6 +37,32 @@ async function listLibraries(req, res) {
   }
 }
 
+
+
+async function listLibrariesByBulkModules(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId)
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  const { module_id } = req.params;
+  const { page = 1, limit = 12, search = "" } = req.query;
+  console.log(JSON.parse(module_id))
+  // try {
+    const result = await repo.listLibrariesByBulkModules({
+      moduleId: JSON.parse(module_id),
+      studentId,
+      page: Number(page),
+      limit: Number(limit),
+      search,
+    });
+    return responseBuilder.success(res, {
+      data: result,
+      message: "Flashcard libraries retrieved successfully",
+    });
+  // } catch (e) {
+  //   return responseBuilder.serverError(res, "Failed to get libraries");
+  // }
+}
+
 async function getLibrary(req, res) {
   const studentId = getStudentId(req, res);
   if (!studentId)
@@ -117,4 +143,5 @@ module.exports = {
   getLibrary,
   updateLibraryProgress,
   updateCardProgress,
+  listLibrariesByBulkModules
 };

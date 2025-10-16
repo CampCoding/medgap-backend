@@ -70,13 +70,16 @@ class TopicsController {
         offset: offset,
 
       };
-
+ if(!filters?.teacher_id){
+          delete filters?.teacher_id
+      }
       // إزالة القيم الفارغة
       Object.keys(filters).forEach((key) => {
         if (filters[key] === undefined || filters[key] === "") {
           delete filters[key];
         }
       });
+     
 
       // الحصول على البيانات والعدد الإجمالي
       const [topics, totalCount] = await Promise.all([

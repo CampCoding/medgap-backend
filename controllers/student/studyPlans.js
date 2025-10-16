@@ -566,12 +566,13 @@ async function getTopicsBySubject(req, res) {
   if (!studentId) {
     return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
   }
-
+console.log(studentId)
   const { module_id } = req.params;
   console.log(JSON.parse(module_id))
   try {
     const topics = await repo.getTopicsBySubject({
       moduleId: JSON.parse(module_id)?.join(","),
+      studentId
     });
     return responseBuilder.success(res, {
       data: topics,
@@ -726,4 +727,5 @@ module.exports = {
   reviewSessionFlashcard,
   getToday,
   getDashboard,
+  getStudentId
 };

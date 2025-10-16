@@ -4,6 +4,7 @@ const ctrl = require("../../controllers/student/flashcards");
 
 // List libraries for a module
 router.get("/modules/:module_id/libraries", ctrl.listLibraries);
+router.get("/bulk/:module_id/libraries", ctrl.listLibrariesByBulkModules);
 
 // Get library with cards
 router.get("/libraries/:library_id", ctrl.getLibrary);

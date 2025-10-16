@@ -1533,39 +1533,154 @@ async function getTopicsByModule({ moduleId }) {
 
 
 
-async function getTopicsBySubject({ moduleId }) {
+async function getTopicsBySubject({ moduleId, studentId }) {
   console.log("moduleId", moduleId);
 
+  // Normalize unit IDs
   let unitIds = moduleId;
   if (typeof unitIds === "string") {
-    unitIds = unitIds.split(",").map((id) => id.trim()).filter(Boolean);
-  }
-  if (!Array.isArray(unitIds)) {
+    unitIds = unitIds.split(",").map(id => id.trim()).filter(Boolean);
+  } else if (!Array.isArray(unitIds)) {
     unitIds = [unitIds];
   }
-
-  if (!unitIds.length) return [];
+  
+  // Ensure unitIds is an array and not null/undefined
+  if (!unitIds || !unitIds.length) return [];
 
   const placeholders = unitIds.map(() => "?").join(",");
-
-  const [rows] = await client.execute(
+  const params = [...unitIds];
+  console.log("placeholders, params", placeholders, params);
+  
+  // --- 1. Get topics with aggregated counts ---
+  const [topicRows] = await client.execute(
     `
-    SELECT t.topic_id, t.topic_name, t.short_description,
-           u.unit_id, u.unit_name,
-           COUNT(DISTINCT q.question_id) as questions_count,
-           COUNT(DISTINCT f.flashcard_id) as flashcards_count
+    SELECT 
+      t.topic_id, 
+      t.topic_name, 
+      t.short_description,
+      u.unit_id, 
+      u.unit_name,
+      COUNT(DISTINCT q.question_id) AS questions_count,
+      COUNT(DISTINCT f.flashcard_id) AS flashcards_count,
+      ${studentId ? `
+        COUNT(DISTINCT sq.question_id) AS attempted_count,
+        COUNT(DISTINCT CASE WHEN sq.is_correct = '1' THEN sq.question_id END) AS correct_count,
+        COUNT(DISTINCT CASE WHEN sq.is_correct = '0' THEN sq.question_id END) AS wrong_count,
+        COUNT(DISTINCT CASE WHEN q.question_id IS NOT NULL AND sq.question_id IS NULL THEN q.question_id END) AS unsolved_count,
+        COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL THEN q.question_id END) AS marked_count
+      ` : `
+        0 AS attempted_count,
+        0 AS correct_count,
+        0 AS wrong_count,
+        COUNT(DISTINCT q.question_id) AS unsolved_count,
+        0 AS marked_count
+      `}
     FROM topics t
     LEFT JOIN units u ON u.unit_id = t.unit_id
     LEFT JOIN questions q ON q.topic_id = t.topic_id
     LEFT JOIN flashcards f ON f.topic_id = t.topic_id
-    WHERE u.unit_id IN (${placeholders}) AND t.status = 'active' AND u.status = 'active'
-    GROUP BY t.topic_id, t.topic_name, t.short_description, u.unit_id, u.unit_name
+    ${studentId ? `
+      LEFT JOIN solved_questions sq ON sq.question_id = q.question_id AND sq.student_id = ?
+      LEFT JOIN mark_category_question mcq ON mcq.question_id = q.question_id
+      LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?
+    ` : ''}
+    WHERE u.unit_id IN (${placeholders})
+      AND t.status = 'active'
+      AND u.status = 'active'
+    GROUP BY 
+      t.topic_id, t.topic_name, t.short_description,
+      u.unit_id, u.unit_name
     ORDER BY u.unit_order, t.topic_order, t.topic_name
-  `,
-    unitIds
+    `,
+    studentId ? [studentId, studentId, ...params] : params
   );
-  return rows;
+
+  console.log("topicRows length:", `
+    SELECT 
+      t.topic_id, 
+      t.topic_name, 
+      t.short_description,
+      u.unit_id, 
+      u.unit_name,
+      COUNT(DISTINCT q.question_id) AS questions_count,
+      COUNT(DISTINCT f.flashcard_id) AS flashcards_count,
+      ${studentId ? `
+        COUNT(DISTINCT sq.question_id) AS attempted_count,
+        COUNT(DISTINCT CASE WHEN sq.is_correct = '1' THEN sq.question_id END) AS correct_count,
+        COUNT(DISTINCT CASE WHEN sq.is_correct = '0' THEN sq.question_id END) AS wrong_count,
+        COUNT(DISTINCT CASE WHEN q.question_id IS NOT NULL AND sq.question_id IS NULL THEN q.question_id END) AS unsolved_count,
+        COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL THEN q.question_id END) AS marked_count
+      ` : `
+        0 AS attempted_count,
+        0 AS correct_count,
+        0 AS wrong_count,
+        COUNT(DISTINCT q.question_id) AS unsolved_count,
+        0 AS marked_count
+      `}
+    FROM topics t
+    LEFT JOIN units u ON u.unit_id = t.unit_id
+    LEFT JOIN questions q ON q.topic_id = t.topic_id
+    LEFT JOIN flashcards f ON f.topic_id = t.topic_id
+    ${studentId ? `
+      LEFT JOIN solved_questions sq ON sq.question_id = q.question_id AND sq.student_id = ?
+      LEFT JOIN mark_category_question mcq ON mcq.question_id = q.question_id
+      LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?
+    ` : ''}
+    WHERE u.unit_id IN (?)
+      AND t.status = 'active'
+      AND u.status = 'active'
+    GROUP BY 
+      t.topic_id, t.topic_name, t.short_description,
+      u.unit_id, u.unit_name
+    ORDER BY u.unit_order, t.topic_order, t.topic_name
+    `,studentId ? [studentId, studentId, params?.join(", ")] : params?.join(", "));
+
+  if (!studentId || !topicRows.length) return topicRows;
+
+  // --- 2. Get per-question student details ---
+  const topicIds = topicRows.map(row => row.topic_id);
+  const topicPlaceholders = topicIds.map(() => "?").join(",");
+
+  const [questionRows] = await client.execute(
+    `
+    SELECT 
+      q.topic_id,
+      q.question_id,
+      CASE WHEN sq.question_id IS NOT NULL THEN 1 ELSE 0 END AS attempted,
+      CASE WHEN sq.is_correct = '1' THEN 1 ELSE 0 END AS correct,
+      CASE WHEN mcq.question_id IS NOT NULL AND smc.student_mark_category_id IS NOT NULL THEN 1 ELSE 0 END AS marked
+    FROM questions q
+    LEFT JOIN solved_questions sq ON sq.question_id = q.question_id AND sq.student_id = ?
+    LEFT JOIN mark_category_question mcq ON mcq.question_id = q.question_id
+    LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?
+    WHERE q.topic_id IN (${topicPlaceholders})
+    `,
+    [studentId, studentId, ...topicIds]
+  );
+
+  console.log("questionRows length:", questionRows.length);
+
+  // --- 3. Group questions by topic ---
+  const questionsByTopic = {};
+  questionRows.forEach(q => {
+    if (!questionsByTopic[q.topic_id]) {
+      questionsByTopic[q.topic_id] = [];
+    }
+    questionsByTopic[q.topic_id].push({
+      question_id: q.question_id,
+      attempted: !!q.attempted,
+      correct: !!q.correct,
+      marked: !!q.marked
+    });
+  });
+
+  // --- 4. Combine and return ---
+  return topicRows.map(topic => ({
+    ...topic,
+    questions: questionsByTopic[topic.topic_id] || []
+  }));
 }
+
 async function getSubjectsByModule({ moduleId }) {
   console.log("moduleId", moduleId);
 
@@ -1599,6 +1714,44 @@ async function getSubjectsByModule({ moduleId }) {
   return rows;
 }
 
+// Get marked categories and questions for a student
+async function getMarkedCategoriesAndQuestions(studentId) {
+  const sql = `
+    SELECT 
+      mcq.category_id,
+      mcq.question_id,
+      CASE WHEN smc.id IS NOT NULL THEN 1 ELSE 0 END AS is_marked
+    FROM 
+      mark_category_question mcq
+    LEFT JOIN 
+      student_mark_categories smc ON mcq.category_id = smc.category_id 
+      AND smc.student_id = ?
+    ORDER BY 
+      mcq.category_id, mcq.question_id
+  `;
+
+  const [rows] = await client.execute(sql, [studentId]);
+  
+  // Group by category
+  const categoriesMap = {};
+  
+  rows.forEach(row => {
+    if (!categoriesMap[row.category_id]) {
+      categoriesMap[row.category_id] = {
+        categoryId: row.category_id,
+        questions: []
+      };
+    }
+    
+    categoriesMap[row.category_id].questions.push({
+      questionId: row.question_id,
+      isMarked: row.is_marked === 1
+    });
+  });
+  
+  return Object.values(categoriesMap);
+}
+
 module.exports = {
   createStudyPlan,
   getStudyPlans,
@@ -1621,5 +1774,6 @@ module.exports = {
   solveSessionQuestion,
   reviewSessionFlashcard,
   getTodayOverview,
-  getDashboardOverview
+  getDashboardOverview,
+  getMarkedCategoriesAndQuestions
 };

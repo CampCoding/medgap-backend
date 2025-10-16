@@ -48,31 +48,41 @@ async function listBooksByModule({
   }
 
   const offset = (Math.max(1, page) - 1) * Math.max(1, limit);
+  const whereSql = `WHERE ${where.join(" AND ")}`;
+  const orderBy = "e.created_at";
+  const orderDir = "DESC";
+  
   const listSql = `
-    SELECT
-      e.ebook_id,
-      e.book_title,
-      e.book_description,
-      e.pages,
-      e.size,
-      e.created_at,
-      COALESCE(v.views, 0) AS views,
+    SELECT 
+      e.*,
       u.unit_id,
       u.unit_name,
       m.module_id,
       m.subject_name AS module_name,
-      e.file,
-      e.thumbnail,
-      ann.*
+      COALESCE(v.views, 0) AS views,
+      ann.*,
+      JSON_ARRAYAGG(
+        JSON_OBJECT(
+          'index_id', ei.ebook_index_id,
+          'title', ei.index_title,
+          'page', ei.page_number,
+          'order', ei.order_index
+        )
+      ) AS indeces,
+      CONCAT('', e.thumbnail) AS thumbnail_url,
+      CONCAT('', e.file) AS file_url
     FROM ebooks e
     INNER JOIN units u ON u.unit_id = e.subject_id
     INNER JOIN modules m ON m.module_id = u.module_id
     LEFT JOIN ebook_views v ON v.ebook_id = e.ebook_id
     LEFT JOIN annotations ann ON ann.book_id = e.ebook_id AND ann.student_id = '${studentId}'
-    WHERE ${where.join(" AND ")}
-    ORDER BY e.created_at DESC
+    LEFT JOIN ebook_indeces ei ON ei.ebook_id = e.ebook_id
+    ${whereSql}
+    GROUP BY e.ebook_id
+    ORDER BY ${orderBy} ${orderDir}
     LIMIT ? OFFSET ?
   `;
+  
   const countSql = `
     SELECT COUNT(*) AS total
     FROM ebooks e
@@ -83,6 +93,7 @@ async function listBooksByModule({
   const [rows] = await client.execute(listSql, [...params, limit, offset]);
   const [countRows] = await client.execute(countSql, params);
   const total = countRows?.[0]?.total || 0;
+  
   return {
     data: rows.map((r) => ({
       ebook_id: r.ebook_id,
@@ -94,9 +105,10 @@ async function listBooksByModule({
       created_at: r.created_at,
       unit: { id: r.unit_id, name: r.unit_name },
       module: { id: r.module_id, name: r.module_name },
-      file: r.file,
-      thumbnail: r.thumbnail,
-      ann_value: r.ann_value
+      file: r.file_url || r.file,
+      thumbnail: r.thumbnail_url || r.thumbnail,
+      ann_value: r.ann_value,
+      indeces: r.indeces && r.indeces !== 'null' ? JSON.parse(r.indeces) : []
     })),
     page,
     limit,
@@ -104,6 +116,101 @@ async function listBooksByModule({
     totalPages: Math.ceil(total / limit)
   };
 }
+
+async function listBooksByModuleByBulk({
+  moduleId,
+  page = 1,
+  limit = 12,
+  search = "",
+  studentId
+}) {
+  // Create placeholders for the IN clause based on the number of module IDs
+  const placeholders = moduleId.map(() => '?').join(',');
+  const where = [`u.module_id IN (${placeholders})`, "e.is_deleted = 0", "e.status = 'active'"];
+  const params = [...moduleId];
+
+  if (search && search.trim()) {
+    where.push(
+      "(e.book_title LIKE ? OR e.book_description LIKE ? OR e.author LIKE ?)"
+    );
+    params.push(
+      `%${search.trim()}%`,
+      `%${search.trim()}%`,
+      `%${search.trim()}%`
+    );
+  }
+
+  const offset = (Math.max(1, page) - 1) * Math.max(1, limit);
+  const whereSql = `WHERE ${where.join(" AND ")}`;
+  const orderBy = "e.created_at";
+  const orderDir = "DESC";
+  
+  const listSql = `
+    SELECT 
+      e.*,
+      u.unit_id,
+      u.unit_name,
+      m.module_id,
+      m.subject_name AS module_name,
+      COALESCE(v.views, 0) AS views,
+      ann.*,
+      JSON_ARRAYAGG(
+        JSON_OBJECT(
+          'index_id', ei.ebook_index_id,
+          'title', ei.index_title,
+          'page', ei.page_number,
+          'order', ei.order_index
+        )
+      ) AS indeces,
+      CONCAT('', e.thumbnail) AS thumbnail_url,
+      CONCAT('', e.file) AS file_url
+    FROM ebooks e
+    INNER JOIN units u ON u.unit_id = e.subject_id
+    INNER JOIN modules m ON m.module_id = u.module_id
+    LEFT JOIN ebook_views v ON v.ebook_id = e.ebook_id
+    LEFT JOIN annotations ann ON ann.book_id = e.ebook_id AND ann.student_id = '${studentId}'
+    LEFT JOIN ebook_indeces ei ON ei.ebook_id = e.ebook_id
+    ${whereSql}
+    GROUP BY e.ebook_id
+    ORDER BY ${orderBy} ${orderDir}
+    LIMIT ? OFFSET ?
+  `;
+  
+  const countSql = `
+    SELECT COUNT(*) AS total
+    FROM ebooks e
+    INNER JOIN units u ON u.unit_id = e.subject_id
+    WHERE ${where.join(" AND ")}
+  `;
+
+  const [rows] = await client.execute(listSql, [...params, limit, offset]);
+  const [countRows] = await client.execute(countSql, params);
+  const total = countRows?.[0]?.total || 0;
+  
+  return {
+    data: rows.map((r) => ({
+      ebook_id: r.ebook_id,
+      title: r.book_title,
+      description: r.book_description,
+      pages: r.pages,
+      views: r.views,
+      size_bytes: r.size,
+      created_at: r.created_at,
+      unit: { id: r.unit_id, name: r.unit_name },
+      module: { id: r.module_id, name: r.module_name },
+      file: r.file_url || r.file,
+      thumbnail: r.thumbnail_url || r.thumbnail,
+      ann_value: r.ann_value,
+      indeces: r.indeces && r.indeces !== 'null' ? JSON.parse(r.indeces) : []
+    })),
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit)
+  };
+}
+
+
 
 async function getBookDetails({ ebookId }) {
   const sql = `
@@ -169,5 +276,6 @@ module.exports = {
   listBooksByModule,
   getBookDetails,
   incrementView,
-  saveAnnotation
+  saveAnnotation,
+  listBooksByModuleByBulk
 };

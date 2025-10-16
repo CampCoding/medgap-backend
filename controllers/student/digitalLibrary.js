@@ -38,17 +38,52 @@ async function listStudentModules(req, res) {
     return responseBuilder.serverError(res, "Failed to get student modules");
   }
 }
-
 async function listModuleBooks(req, res) {
   const studentId = getStudentId(req, res);
   if (!studentId) {
     return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
   }
   const { module_id } = req.params;
-  const { page = 1, limit = 12, search = "", ebook_id } = req.query;
+  const { page = 1, limit = 1200, search = "", ebook_id } = req.query;
   try {
     const result = await repo.listBooksByModule({
       moduleId: Number(module_id),
+      page: Number(page),
+      limit: Number(limit),
+      search,
+      studentId
+    });
+    // selected_book: إن كان ebook_id موجود هنبحث عنه داخل نفس القائمة أولاً، ولو مش موجود نجيبه من التفاصيل
+    let selected = null;
+    if (ebook_id) {
+      selected =
+        result.data.find((b) => Number(b.ebook_id) === Number(ebook_id)) ||
+        null;
+      if (!selected) {
+        selected = await repo.getBookDetails({ ebookId: Number(ebook_id) });
+      }
+    }
+    return responseBuilder.success(res, {
+      data: {
+        list: result,
+        selected_book: selected,
+      },
+      message: "Module books retrieved successfully",
+    });
+  } catch (error) {
+    return responseBuilder.serverError(res, "Failed to get module books");
+  }
+}
+async function listBooksByModuleByBulk(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+  const { module_id } = req.params;
+  const { page = 1, limit = 1200, search = "", ebook_id } = req.query;
+  try {
+    const result = await repo.listBooksByModuleByBulk({
+      moduleId: JSON.parse(module_id),
       page: Number(page),
       limit: Number(limit),
       search,
@@ -129,4 +164,5 @@ module.exports = {
   listModuleBooks,
   viewBook,
   saveAnnotation,
+  listBooksByModuleByBulk
 };

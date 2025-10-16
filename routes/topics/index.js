@@ -36,6 +36,11 @@ router.get("/", (req, res) => {
   topicsController.getAllTopics(req, res);
 });
 
+router.get("/all", (req, res) => {
+   topicsController.getAllTopics(req, res);
+});
+
+
 // Get topic by ID
 router.get("/:id", (req, res) => {
   if (!req?.query?.teacher_id) {
