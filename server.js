@@ -4,6 +4,11 @@ const express = require("express");
 const app = express();
 const port = 3120;
 const client = require("./config/db-connect").client;
+
+// Environment logging for debugging
+console.log("Environment:", process.env.NODE_ENV || "development");
+console.log("Vercel:", process.env.VERCEL ? "Yes" : "No");
+console.log("Database type:", process.env.ENV !== "development" ? "PostgreSQL" : "MySQL");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const responseBuilder = require("./utils/responsebuilder");
@@ -149,6 +154,11 @@ app.use((err, req, res, next) => {
 //   );
 // });
 
-app.listen(port, () => {
-  console.log(`🚀 Server is running on http://localhost:${port}`);
-});
+// For Vercel deployment, export the app instead of listening
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  app.listen(port, () => {
+    console.log(`🚀 Server is running on http://localhost:${port}`);
+  });
+}

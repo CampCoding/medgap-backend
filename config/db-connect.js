@@ -7,7 +7,7 @@ const ENV = (process.env.ENV || process.env.NODE_ENV || "development")
   .trim()
   .toLowerCase();
   // console.log("ENV",ENV)
-const USING_PG = ENV !== "development";
+const USING_PG = false;
 
 // --------- POSTGRES -------------
 const pgClient = new Pool({
