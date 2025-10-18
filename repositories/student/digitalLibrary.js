@@ -124,9 +124,7 @@ async function listBooksByModuleByBulk({
   search = "",
   studentId
 }) {
-  // Create placeholders for the IN clause based on the number of module IDs
-  const placeholders = moduleId.map(() => '?').join(',');
-  const where = [`u.module_id IN (${placeholders})`, "e.is_deleted = 0", "e.status = 'active'"];
+  const where = ["u.module_id = ?", "e.is_deleted = 0", "e.status = 'active'"];
   const params = [...moduleId];
 
   if (search && search.trim()) {

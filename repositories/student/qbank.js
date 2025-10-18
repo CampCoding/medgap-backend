@@ -315,6 +315,9 @@ const listQuestion = async ({ qbank_id, studentId }) => {
 		qq.qbank_id,
 		mcq.mark_category_question_id AS marked,
 		mcq.category_id,
+        top.*,
+        unit.*,
+        module.*,
 		smc.*,
 		q.*,
 		 COALESCE(
@@ -366,6 +369,9 @@ const listQuestion = async ({ qbank_id, studentId }) => {
 	  FROM qbank_questions qq
 	  JOIN questions q ON q.question_id = qq.question_id
 	  LEFT JOIN question_options qo ON qo.question_id = q.question_id
+	  LEFT JOIN topics top ON top.topic_id = q.topic_id
+	  LEFT JOIN units unit ON unit.unit_id = top.unit_id
+	  LEFT JOIN modules module ON module.module_id = unit.module_id
 	  LEFT JOIN mark_category_question mcq ON mcq.question_id = q.question_id AND mcq.qbank_id = qq.qbank_id
 	  LEFT JOIN student_mark_categories smc ON smc.student_mark_category_id = mcq.category_id
 	  
