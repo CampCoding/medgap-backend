@@ -679,7 +679,7 @@ LIMIT ${questionsGoalPerSession}`;  // ✅ apply question limit here
       const answerParsed = JSON.parse(q.your_answer || '{}');
       answerParsed.solved = answerParsed?.is_correct != null;
       q.your_answer = answerParsed;
-
+q.tags = JSON.parse(q.tags).filter(Boolean);
       if (typeof q.flashcards === 'string') {
         const parsed = JSON.parse(q.flashcards).filter(Boolean);
         for (const fc of parsed) {
