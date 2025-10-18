@@ -49,15 +49,8 @@ const loginRepo = async ({ data }) => {
 };
 
 const registerRepo = async ({ data }) => {
-  const { full_name, email, password, phone, date_of_birth, gender, address, modules } =
+  const { full_name, email, password, phone, date_of_birth, gender, address, university, grade, modules } =
     data;
-
-  // Check if modules is an array
-  if (modules && !Array.isArray(modules)) {
-    throw new Error("Modules must be an array");
-  }
-
-
 
 
   const [existingUser] = await client.execute(
@@ -71,8 +64,8 @@ const registerRepo = async ({ data }) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const sql = `INSERT INTO students (full_name, email, password, phone, date_of_birth, gender, address, status, enrollment_date)
-               VALUES (?, ?, ?, ?, ?, ?, ?, 'active', CURDATE())`;
+  const sql = `INSERT INTO students (full_name, email, password, phone, date_of_birth, gender, address, university, grade, status, enrollment_date)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', CURDATE())`;
 
   const params = [
     full_name,
@@ -82,18 +75,40 @@ const registerRepo = async ({ data }) => {
     date_of_birth || null,
     gender || null,
     address || null,
+    university || null,
+    grade || null,
   ];
 
   const [result] = await client.execute(sql, params);
+  console.log(result);
   if (result?.insertId) {
-    // Insert modules
+    // Determine modules to enroll based on grade
+    let modulesToEnroll = [];
+    console.log(grade)
+    if (grade == "1") {
+      modulesToEnroll = [23, 24];
+    } else if (grade == "2") {
+      modulesToEnroll = [25];
+    }
+    
+    // Add any additional modules from the request
     if (modules && modules.length > 0) {
+      modulesToEnroll = [...modulesToEnroll, ...modules];
+    }
+    console.log(modulesToEnroll);
+    
+    // Remove duplicates
+    modulesToEnroll = [...new Set(modulesToEnroll)];
+    
+    // Insert modules
+    if (modulesToEnroll.length > 0) {
       const moduleSql = `INSERT INTO student_enrollments (student_id, module_id, enrolled_at) VALUES (?, ?, ?)`;
       await Promise.all(
-        modules.map(async (moduleId) => {
+        modulesToEnroll.map(async (moduleId) => {
           await client.execute(moduleSql, [result.insertId, moduleId, new Date()]);
         })
       );
+      console.log("modules enrolled successfully");
     }
   }
   return { student_id: result.insertId };
@@ -101,7 +116,7 @@ const registerRepo = async ({ data }) => {
 
 const getProfileRepo = async ({ studentId }) => {
   const [user] = await client.execute(
-    "SELECT student_id, full_name, email, phone, date_of_birth, gender, address, status, enrollment_date, image_url, created_at FROM students WHERE student_id = ?",
+    "SELECT student_id, full_name, email, phone, date_of_birth, gender, address, university, grade, status, enrollment_date, image_url, created_at FROM students WHERE student_id = ?",
     [studentId]
   );
 
@@ -116,7 +131,7 @@ const getProfileRepo = async ({ studentId }) => {
 };
 
 const updateProfileRepo = async ({ studentId, data }) => {
-  const { full_name, phone, date_of_birth, gender, address } = data;
+  const { full_name, phone, date_of_birth, gender, address, university, grade } = data;
   
   // Prepare update fields and values
   const updateFields = [];
@@ -145,6 +160,16 @@ const updateProfileRepo = async ({ studentId, data }) => {
   if (address !== undefined) {
     updateFields.push("address = ?");
     params.push(address || null);
+  }
+  
+  if (university !== undefined) {
+    updateFields.push("university = ?");
+    params.push(university || null);
+  }
+  
+  if (grade !== undefined) {
+    updateFields.push("grade = ?");
+    params.push(grade || null);
   }
   
   // If no fields to update, return early

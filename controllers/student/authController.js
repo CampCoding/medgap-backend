@@ -55,6 +55,7 @@ const register = async (req, res) => {
 
     const result = await repo.registerRepo({
       data: {
+        ...req.body,
         full_name,
         email,
         password,
