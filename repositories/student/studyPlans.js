@@ -1080,140 +1080,7 @@ async function getTodayOverview({ studentId }) {
 }
 
 // Study dashboard overview for UI widgets
-async function getDashboardOverview({ studentId }) {
-  const today = new Date().toISOString().split('T')[0];
 
-  // Active plan
-  const [plans] = await client.execute(
-    `SELECT * FROM student_study_plans 
-     WHERE student_id = ? AND status = 'active' 
-     AND start_date <= ? AND end_date >= ? 
-     ORDER BY updated_at DESC LIMIT 1`,
-    [studentId, today, today]
-  );
-  const plan = plans[0] || null;
-
-  // Current plan progress (completed sessions vs total sessions in window)
-  let currentPlan = { completed: 0, total: 0 };
-  if (plan) {
-    const [sess] = await client.execute(
-      `SELECT 
-         COUNT(*) AS total,
-         SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed
-       FROM student_plan_sessions
-       WHERE plan_id = ?`,
-      [plan.plan_id]
-    );
-    currentPlan = { completed: Number(sess[0].completed) || 0, total: Number(sess[0].total) || 0 };
-  }
-
-  // Overall healthcare mastered proxy (topics with any activity)
-  const [hc] = await client.execute(
-    `SELECT 
-       COUNT(DISTINCT t.topic_id) AS total_topics,
-       COUNT(DISTINCT sq.question_id) AS attempted_questions
-     FROM topics t
-     LEFT JOIN solved_questions sq ON sq.student_id = ?
-     LIMIT 1`,
-    [studentId]
-  );
-  const healthcareMastered = {
-    completed: Number(hc[0].attempted_questions) || 0,
-    total: Math.max(Number(hc[0].total_topics) || 0, Number(hc[0].attempted_questions) || 0)
-  };
-
-  // Study break (streak gap proxy): days since last activity
-  const [lastAct] = await client.execute(
-    `SELECT DATE(MAX(created_at)) AS last_day 
-     FROM student_activity_log WHERE student_id = ?`,
-    [studentId]
-  );
-  let studyBreak = 0;
-  if (lastAct[0]?.last_day) {
-    const last = new Date(lastAct[0].last_day + 'T00:00:00Z');
-    const now = new Date(today + 'T00:00:00Z');
-    studyBreak = Math.max(0, Math.round((now - last) / (1000 * 60 * 60 * 24)));
-  }
-
-  // Recent activity
-  const [recent] = await client.execute(
-    `SELECT activity_type, activity_description, score_percentage, points_earned, created_at
-     FROM student_activity_log
-     WHERE student_id = ?
-     ORDER BY created_at DESC
-     LIMIT 10`,
-    [studentId]
-  );
-  const recentActivity = recent.map(r => ({
-    title: r.activity_type,
-    details: r.activity_description,
-    time: new Date(r.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
-    points: r.points_earned ? `+${r.points_earned} pts` : ''
-  }));
-
-  // Upcoming deadlines: upcoming exams within next 14 days and plan end date
-  const [upcomingExams] = await client.execute(
-    `SELECT e.title, DATE_FORMAT(COALESCE(e.scheduled_date, e.start_date, e.end_date), '%b %e') AS date_fmt,
-            m.subject_name
-     FROM exams e
-     LEFT JOIN modules m ON e.subject_id = m.module_id
-     WHERE (e.scheduled_date > NOW() OR e.start_date > NOW() OR e.end_date > NOW())
-       AND COALESCE(e.scheduled_date, e.start_date, e.end_date) <= DATE_ADD(NOW(), INTERVAL 14 DAY)
-       AND m.module_id IN (
-         SELECT se.module_id FROM student_enrollments se WHERE se.student_id = ? AND se.status = 'active'
-       )
-     ORDER BY COALESCE(e.scheduled_date, e.start_date, e.end_date) ASC
-     LIMIT 6`,
-    [studentId]
-  );
-  const upcomingDeadlines = [
-    ...(upcomingExams || []).map(e => ({ title: e.title, date: e.date_fmt, course: e.subject_name, urgent: true })),
-    ...(plan ? [{ title: `Complete ${plan.plan_name}`, date: new Date(plan.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), course: 'Personal Goal', urgent: false }] : [])
-  ].slice(0, 6);
-
-  // Stats
-  const [qStats] = await client.execute(
-    `SELECT COUNT(*) AS answered, SUM(CASE WHEN is_correct = '1' THEN 1 ELSE 0 END) AS correct
-     FROM solved_questions WHERE student_id = ?`,
-    [studentId]
-  );
-  const accuracy = (Number(qStats[0].answered) || 0) > 0
-    ? Math.round((Number(qStats[0].correct) / Number(qStats[0].answered)) * 100)
-    : 0;
-  const [hours] = await client.execute(
-    `SELECT COALESCE(SUM(time_spent),0) AS seconds
-     FROM student_plan_sessions WHERE plan_id IN (SELECT plan_id FROM student_study_plans WHERE student_id = ?)`,
-    [studentId]
-  );
-  const hoursStudied = Math.round((Number(hours[0].seconds) || 0) / 3600);
-  const [anyExam] = await client.execute(
-    `SELECT DATEDIFF(MIN(COALESCE(e.scheduled_date, e.start_date, e.end_date)), CURDATE()) AS days
-     FROM exams e
-     LEFT JOIN modules m ON e.subject_id = m.module_id
-     WHERE (e.scheduled_date > NOW() OR e.start_date > NOW() OR e.end_date > NOW())
-       AND m.module_id IN (
-         SELECT se.module_id FROM student_enrollments se WHERE se.student_id = ? AND se.status = 'active'
-       )
-     ORDER BY COALESCE(e.scheduled_date, e.start_date, e.end_date) ASC
-     LIMIT 1`,
-    [studentId]
-  );
-  const daysUntilExam = Math.max(0, Number(anyExam[0]?.days) || 0);
-
-  return {
-    currentPlan,
-    healthcareMastered,
-    studyBreak,
-    recentActivity,
-    upcomingDeadlines,
-    stats: {
-      questionsAnswered: Number(qStats[0].answered) || 0,
-      hoursStudied,
-      accuracy,
-      daysUntilExam,
-    },
-  };
-}
 
 async function updateSessionProgress({
   sessionId,
@@ -1780,6 +1647,239 @@ async function getMarkedCategoriesAndQuestions(studentId) {
   });
 
   return Object.values(categoriesMap);
+}
+
+// Study dashboard overview for UI widgets
+async function getDashboardOverview({ studentId }) {
+  // Get active study plan
+  const today = new Date().toISOString().split('T')[0];
+  const [plans] = await client.execute(
+    `SELECT * FROM student_study_plans 
+     WHERE student_id = ? AND status = 'active' 
+     ORDER BY updated_at DESC LIMIT 1`,
+    [studentId]
+  );
+  
+  const activePlan = plans.length > 0 ? plans[0] : null;
+  
+  // Get questions answered stats
+  const [questionsStats] = await client.execute(
+    `SELECT 
+       COUNT(*) as total_answered,
+       SUM(CASE WHEN is_correct = '1' THEN 1 ELSE 0 END) as total_correct
+     FROM solved_questions
+     WHERE student_id = ?`,
+    [studentId]
+  );
+  
+  // Get study time stats
+  const [studyTimeStats] = await client.execute(
+    `SELECT 
+       SUM(time_spent) as total_time_spent
+     FROM student_plan_sessions
+     WHERE plan_id IN (SELECT plan_id FROM student_study_plans WHERE student_id = ?)`,
+    [studentId]
+  );
+  
+  // Get exam date (if available)
+  const [examInfo] = await client.execute(
+    `SELECT 
+       MIN(scheduled_date) as next_exam_date
+     FROM exams e
+     INNER JOIN student_enrollments se ON se.module_id = e.subject_id
+     WHERE se.student_id = ? 
+       AND e.scheduled_date >= CURRENT_DATE()
+       AND e.status = 'active'
+     LIMIT 1`,
+    [studentId]
+  );
+  
+  // Get current plan progress
+  const currentPlanProgress = activePlan ? {
+    completed: 0,
+    total: 0
+  } : { completed: 0, total: 0 };
+  
+  if (activePlan) {
+    const [sessionStats] = await client.execute(
+      `SELECT 
+         COUNT(*) as total_sessions,
+         SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_sessions
+       FROM student_plan_sessions
+       WHERE plan_id = ?`,
+      [activePlan.plan_id]
+    );
+    
+    if (sessionStats.length > 0) {
+      currentPlanProgress.completed = Number(sessionStats[0].completed_sessions) || 0;
+      currentPlanProgress.total = Number(sessionStats[0].total_sessions) || 0;
+    }
+  }
+  
+  // Get healthcare mastery stats
+  const [healthcareStats] = await client.execute(
+    `SELECT 
+       COUNT(DISTINCT t.topic_id) as total_topics,
+       COUNT(DISTINCT CASE WHEN sq.is_correct = '1' THEN t.topic_id END) as mastered_topics
+     FROM topics t
+     INNER JOIN questions q ON q.topic_id = t.topic_id
+     LEFT JOIN solved_questions sq ON sq.question_id = q.question_id AND sq.student_id = ?
+     INNER JOIN units u ON u.unit_id = t.unit_id
+     INNER JOIN modules m ON m.module_id = u.module_id
+     WHERE m.status = 'active' AND t.status = 'active'`,
+    [studentId]
+  );
+  
+  // Get recent activity from solved questions, flashcards, and exam attempts
+  // First, get recent solved questions
+  const [recentQuestions] = await client.execute(
+    `SELECT 
+       'Answered Question' as title,
+       CONCAT(m.subject_name, ' - ', t.topic_name) as details,
+       DATE_FORMAT(sq.created_at, '%h:%i %p') as time,
+       CASE WHEN sq.is_correct = '1' THEN '10' ELSE '5' END as points,
+       sq.created_at as activity_time
+     FROM solved_questions sq
+     INNER JOIN questions q ON q.question_id = sq.question_id
+     INNER JOIN topics t ON t.topic_id = q.topic_id
+     INNER JOIN units u ON u.unit_id = t.unit_id
+     INNER JOIN modules m ON m.module_id = u.module_id
+     WHERE sq.student_id = ?
+     ORDER BY sq.created_at DESC
+     LIMIT 5`,
+    [studentId]
+  );
+  
+  // Get recent flashcard activity
+  const [recentFlashcards] = await client.execute(
+    `SELECT 
+       'Studied Flashcard' as title,
+       CONCAT(m.subject_name, ' - ', t.topic_name) as details,
+       DATE_FORMAT(sfc.solved_at, '%h:%i %p') as time,
+       CASE WHEN sfc.card_solved = '1' THEN '5' ELSE '2' END as points,
+       sfc.solved_at as activity_time
+     FROM student_flash_cards sfc
+     INNER JOIN flashcards f ON f.flashcard_id = sfc.student_flash_card_id
+     INNER JOIN student_deck sd ON sd.student_deck_id = sfc.deck_id
+     INNER JOIN topics t ON t.topic_id = f.topic_id
+     INNER JOIN units u ON u.unit_id = t.unit_id
+     INNER JOIN modules m ON m.module_id = u.module_id
+     WHERE sd.student_id = ?
+     ORDER BY sfc.solved_at DESC
+     LIMIT 5`,
+    [studentId]
+  );
+  
+  // Get recent exam attempts
+  const [recentExams] = await client.execute(
+    `SELECT 
+       'Took Exam' as title,
+       e.title as details,
+       DATE_FORMAT(ea.submitted_at, '%h:%i %p') as time,
+       ROUND(ea.total_score * 10) as points,
+       ea.submitted_at as activity_time
+     FROM exam_attempts ea
+     INNER JOIN exams e ON e.exam_id = ea.exam_id
+     WHERE ea.student_id = ? AND ea.submitted_at IS NOT NULL
+     ORDER BY ea.submitted_at DESC
+     LIMIT 5`,
+    [studentId]
+  );
+  
+  // Get recent study sessions
+  const [recentSessions] = await client.execute(
+    `SELECT 
+       'Study Session' as title,
+       CASE 
+         WHEN s.session_type = 'question_bank' THEN 'Practice Questions'
+         WHEN s.session_type = 'flashcards' THEN 'Flashcard Study'
+         ELSE 'General Study'
+       END as details,
+       DATE_FORMAT(s.updated_at, '%h:%i %p') as time,
+       ROUND(s.time_spent / 60) as points,
+       s.updated_at as activity_time
+     FROM student_plan_sessions s
+     WHERE s.plan_id IN (SELECT plan_id FROM student_study_plans WHERE student_id = ?)
+       AND s.status = 'completed'
+     ORDER BY s.updated_at DESC
+     LIMIT 5`,
+    [studentId]
+  );
+  
+  // Combine all activities, sort by time, and take the 5 most recent
+  const allActivities = [
+    ...recentQuestions,
+    ...recentFlashcards,
+    ...recentExams,
+    ...recentSessions
+  ]
+  .sort((a, b) => new Date(b.activity_time) - new Date(a.activity_time))
+  .slice(0, 5)
+  .map(a => ({
+    title: a.title || "",
+    details: a.details || "",
+    time: a.time || "",
+    points: a.points || ""
+  }));
+  
+  // Get upcoming deadlines
+  const [upcomingDeadlines] = await client.execute(
+    `SELECT 
+       e.title,
+       DATE_FORMAT(e.scheduled_date, '%Y-%m-%d') as date,
+       m.subject_name as course,
+       CASE WHEN DATEDIFF(e.scheduled_date, CURRENT_DATE()) <= 3 THEN 1 ELSE 0 END as urgent
+     FROM exams e
+     INNER JOIN modules m ON m.module_id = e.subject_id
+     INNER JOIN student_enrollments se ON se.module_id = e.subject_id
+     WHERE se.student_id = ? 
+       AND e.scheduled_date >= CURRENT_DATE()
+       AND e.status = 'active'
+     ORDER BY e.scheduled_date ASC
+     LIMIT 5`,
+    [studentId]
+  );
+  
+  // Calculate days until exam
+  const nextExamDate = examInfo.length > 0 && examInfo[0].next_exam_date 
+    ? new Date(examInfo[0].next_exam_date) 
+    : null;
+  
+  const daysUntilExam = nextExamDate 
+    ? Math.max(0, Math.ceil((nextExamDate - new Date()) / (1000 * 60 * 60 * 24))) 
+    : 30; // Default to 30 days if no exam scheduled
+  
+  // Calculate accuracy
+  const questionsAnswered = Number(questionsStats[0]?.total_answered) || 0;
+  const questionsCorrect = Number(questionsStats[0]?.total_correct) || 0;
+  const accuracy = questionsAnswered > 0 ? Math.round((questionsCorrect / questionsAnswered) * 100) : 0;
+  
+  // Calculate hours studied
+  const totalMinutesStudied = Math.round((Number(studyTimeStats[0]?.total_time_spent) || 0) / 60);
+  const hoursStudied = Math.round(totalMinutesStudied / 60 * 10) / 10; // Round to 1 decimal place
+  
+  // Build response object
+  return {
+    currentPlan: currentPlanProgress,
+    healthcareMastered: {
+      completed: Number(healthcareStats[0]?.mastered_topics) || 0,
+      total: Number(healthcareStats[0]?.total_topics) || 0
+    },
+    studyBreak: null, // This could be calculated based on session gaps if needed
+    recentActivity: allActivities,
+    upcomingDeadlines: upcomingDeadlines.map(d => ({
+      title: d.title || "",
+      date: d.date || "",
+      course: d.course || "",
+      urgent: Boolean(d.urgent)
+    })),
+    stats: {
+      questionsAnswered,
+      hoursStudied,
+      accuracy,
+      daysUntilExam
+    }
+  };
 }
 
 module.exports = {
