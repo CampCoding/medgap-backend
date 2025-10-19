@@ -1584,9 +1584,9 @@ async function getTopicsBySubject({ moduleId, studentId }) {
       u.unit_name,
       COUNT(DISTINCT q.question_id) AS questions_count,
       COUNT(DISTINCT f.flashcard_id) AS flashcards_count,
-      COUNT(DISTINCT CASE WHEN q.difficulty = 'easy' THEN q.question_id END) AS easy_count,
-      COUNT(DISTINCT CASE WHEN q.difficulty = 'medium' THEN q.question_id END) AS medium_count,
-      COUNT(DISTINCT CASE WHEN q.difficulty = 'hard' THEN q.question_id END) AS difficult_count,
+      COUNT(DISTINCT CASE WHEN q.difficulty_level = 'easy' THEN q.question_id END) AS easy_count,
+      COUNT(DISTINCT CASE WHEN q.difficulty_level = 'medium' THEN q.question_id END) AS medium_count,
+      COUNT(DISTINCT CASE WHEN q.difficulty_level = 'hard' THEN q.question_id END) AS difficult_count,
       ${studentId ? `
         COUNT(DISTINCT sq.question_id) AS attempted_count,
         COUNT(DISTINCT CASE WHEN sq.is_correct = '1' THEN sq.question_id END) AS correct_count,
@@ -1629,9 +1629,9 @@ async function getTopicsBySubject({ moduleId, studentId }) {
       u.unit_name,
       COUNT(DISTINCT q.question_id) AS questions_count,
       COUNT(DISTINCT f.flashcard_id) AS flashcards_count,
-      COUNT(DISTINCT CASE WHEN q.difficulty = 'easy' THEN q.question_id END) AS easy_count,
-      COUNT(DISTINCT CASE WHEN q.difficulty = 'medium' THEN q.question_id END) AS medium_count,
-      COUNT(DISTINCT CASE WHEN q.difficulty = 'hard' THEN q.question_id END) AS difficult_count,
+      COUNT(DISTINCT CASE WHEN q.difficulty_level = 'easy' THEN q.question_id END) AS easy_count,
+      COUNT(DISTINCT CASE WHEN q.difficulty_level = 'medium' THEN q.question_id END) AS medium_count,
+      COUNT(DISTINCT CASE WHEN q.difficulty_level = 'hard' THEN q.question_id END) AS difficult_count,
       ${studentId ? `
         COUNT(DISTINCT sq.question_id) AS attempted_count,
         COUNT(DISTINCT CASE WHEN sq.is_correct = '1' THEN sq.question_id END) AS correct_count,
@@ -1674,7 +1674,7 @@ async function getTopicsBySubject({ moduleId, studentId }) {
     SELECT 
       q.topic_id,
       q.question_id,
-      q.difficulty,
+      q.difficulty_level,
       CASE WHEN sq.question_id IS NOT NULL THEN 1 ELSE 0 END AS attempted,
       CASE WHEN sq.is_correct = '1' THEN 1 ELSE 0 END AS correct,
       CASE WHEN mcq.question_id IS NOT NULL AND smc.student_mark_category_id IS NOT NULL THEN 1 ELSE 0 END AS marked
