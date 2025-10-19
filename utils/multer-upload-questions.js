@@ -2,20 +2,35 @@ const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
 
-const uploadDir = path.resolve(process.cwd(), "uploads/questions");
-fs.mkdirSync(uploadDir, { recursive: true });
+// Check if we're in a serverless environment (Vercel)
+const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const ext = (path.extname(file.originalname || "") || "").toLowerCase();
-    const base = path
-      .basename(file.originalname || "questions", ext)
-      .replace(/[^a-z0-9-_]+/gi, "_")
-      .toLowerCase();
-    cb(null, `${base}-${Date.now()}${ext}`);
+let storage;
+
+if (isServerless) {
+  // Use memory storage for serverless environments
+  storage = multer.memoryStorage();
+} else {
+  // Use disk storage for local development
+  const uploadDir = path.resolve(process.cwd(), "uploads/questions");
+  try {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  } catch (error) {
+    console.warn("Could not create upload directory:", error.message);
   }
-});
+
+  storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename: (req, file, cb) => {
+      const ext = (path.extname(file.originalname || "") || "").toLowerCase();
+      const base = path
+        .basename(file.originalname || "questions", ext)
+        .replace(/[^a-z0-9-_]+/gi, "_")
+        .toLowerCase();
+      cb(null, `${base}-${Date.now()}${ext}`);
+    }
+  });
+}
 
 const allowed = new Set([
   "text/plain",

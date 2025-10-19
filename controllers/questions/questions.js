@@ -508,7 +508,7 @@ class QuestionsController {
     }
   }
 
-  // رفع ملف أسئلة وإنشاءها (محسن للأداء)
+  // رفع ملف أسئلة وإنشاءها (محسن للأداء ومتوافق مع Vercel)
   async uploadQuestionsFromFile(req, res) {
     const startTime = Date.now();
     
@@ -517,15 +517,25 @@ class QuestionsController {
         return responseBuilder.badRequest(res, "No file uploaded. Please upload a .txt file.");
       }
 
-      const filePath = req.file.path;
       const createdBy = req.user?.admin_id || 1; // TODO: Get from JWT
       const topicId = req.body.topic_id ? parseInt(req.body.topic_id) : null;
+      const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
 
       console.log(`Starting file processing: ${req.file.originalname} (${req.file.size} bytes)`);
+      console.log(`Serverless environment: ${isServerless ? 'Yes' : 'No'}`);
 
-      // Parse questions from file
+      // Parse questions from file (handle both file path and buffer)
       const parseStartTime = Date.now();
-      const parseResult = parseQuestionsFromText(filePath);
+      let parseResult;
+      
+      if (isServerless) {
+        // In serverless, file is in memory as buffer
+        parseResult = parseQuestionsFromText(req.file.buffer);
+      } else {
+        // In local development, file is on disk
+        parseResult = parseQuestionsFromText(req.file.path);
+      }
+      
       const parseTime = Date.now() - parseStartTime;
 
       console.log(`Parsing completed in ${parseTime}ms: ${parseResult.successCount} questions, ${parseResult.errorCount} errors`);
@@ -535,8 +545,6 @@ class QuestionsController {
       }
 
       if (parseResult.questions.length === 0) {
-        // Clean up uploaded file
-        fs.unlinkSync(filePath);
         return responseBuilder.badRequest(res, "No valid questions found in the file");
       }
 
@@ -557,11 +565,13 @@ class QuestionsController {
 
       console.log(`Database creation completed in ${createTime}ms: ${createResult.successCount} created, ${createResult.failureCount} failed`);
 
-      // Clean up uploaded file
-      try {
-        fs.unlinkSync(filePath);
-      } catch (cleanupError) {
-        console.warn("Failed to clean up uploaded file:", cleanupError.message);
+      // Clean up uploaded file (only in non-serverless environments)
+      if (!isServerless && req.file.path) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (cleanupError) {
+          console.warn("Failed to clean up uploaded file:", cleanupError.message);
+        }
       }
 
       const totalTime = Date.now() - startTime;
@@ -573,12 +583,14 @@ class QuestionsController {
           total_processing_time_ms: totalTime,
           parsing_time_ms: parseTime,
           database_time_ms: createTime,
-          questions_per_second: Math.round((createResult.successCount / totalTime) * 1000)
+          questions_per_second: Math.round((createResult.successCount / totalTime) * 1000),
+          environment: isServerless ? 'serverless' : 'local'
         },
         file_info: {
           original_name: req.file.originalname,
           file_size: req.file.size,
-          uploaded_at: new Date().toISOString()
+          uploaded_at: new Date().toISOString(),
+          processing_method: isServerless ? 'memory' : 'disk'
         },
         topic_info: {
           topic_id: topicId,
@@ -607,8 +619,8 @@ class QuestionsController {
     } catch (error) {
       console.error("Error uploading questions file:", error);
       
-      // Clean up uploaded file if it exists
-      if (req.file && req.file.path) {
+      // Clean up uploaded file if it exists (only in non-serverless environments)
+      if (!isServerless && req.file && req.file.path) {
         try {
           fs.unlinkSync(req.file.path);
         } catch (cleanupError) {

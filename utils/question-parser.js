@@ -1,13 +1,21 @@
 const fs = require("fs");
 
 /**
- * Parse questions from .txt file content
+ * Parse questions from .txt file content or buffer
  * Expected format:
  * Question Text: What is the capital of France? | Type: multiple_choice | Options: A) Paris B) London C) Berlin D) Madrid | Correct Option: A | Difficulty: easy | Tags: geography, Europe | Keywords: capital, city, France | Hint: Think about the most famous city in France | Help: This is a basic geography question about European capitals
  */
-function parseQuestionsFromText(filePath) {
+function parseQuestionsFromText(filePathOrBuffer) {
   try {
-    const content = fs.readFileSync(filePath, "utf8");
+    let content;
+    
+    // Handle both file path (local) and buffer (serverless)
+    if (Buffer.isBuffer(filePathOrBuffer)) {
+      content = filePathOrBuffer.toString('utf8');
+    } else {
+      content = fs.readFileSync(filePathOrBuffer, "utf8");
+    }
+    
     const lines = content.split("\n").filter(line => line.trim() !== "");
     
     const questions = [];
