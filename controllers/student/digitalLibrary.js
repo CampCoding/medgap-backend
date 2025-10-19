@@ -1,5 +1,6 @@
 const responseBuilder = require("../../utils/responsebuilder");
 const repo = require("../../repositories/student/digitalLibrary");
+const repo2 = require("../../repositories/student/studyPlans");
 const getTokenFromHeader = require("../../utils/getToken");
 const { verifyAccessToken } = require("../../utils/jwt");
 
@@ -20,7 +21,7 @@ async function listStudentModules(req, res) {
     return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
   }
   try {
-    const modules = await repo.getStudentModules({ studentId });
+    const modules = await repo2.getModulesWithStats({ studentId });
     // Attach counts per module
     const withCounts = await Promise.all(
       modules.map(async (m) => ({
@@ -30,6 +31,8 @@ async function listStudentModules(req, res) {
         }),
       }))
     );
+
+  
     return responseBuilder.success(res, {
       data: withCounts,
       message: "Student modules retrieved successfully",

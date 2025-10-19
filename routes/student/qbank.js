@@ -4,7 +4,7 @@ const ctrl = require("../../controllers/student/qbank");
 
 router.post("/questions/solve", ctrl.solveQuestion);
 router.get("/:qbank_id/questions/list", ctrl.listQuestion);
-router.post("/create", ctrl.createQbankController);
+router.post("/create", ctrl.createQbankController); 
 router.post("/category/create", ctrl.createCategory);
 router.get("/category/list", ctrl.listCategories);
 router.post("/category/assign/create", ctrl.assignToCategory);
