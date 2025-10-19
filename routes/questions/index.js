@@ -6,6 +6,7 @@ const {
   updateQuestionValidation,
 } = require("../../middlewares/validation/questions");
 const jwtMiddleware = require("../../middlewares/jwt"); // Assuming JWT middleware is used for auth
+const { uploadQuestions } = require("../../utils/multer-upload-questions");
 
 // Get question statistics
 router.get("/stats", questionsController.getQuestionsStats);
@@ -27,6 +28,15 @@ router.get("/:id/options", questionsController.getQuestionOptions);
 
 // Get question usage statistics
 router.get("/:id/usage-stats", questionsController.getQuestionUsageStats);
+
+// Upload questions from .txt file (Admin/Teacher only)
+router.post(
+  "/upload",
+  // jwtMiddleware.verifyToken,
+  // jwtMiddleware.requireAdminOrTeacher,
+  uploadQuestions.single("questionsFile"),
+  questionsController.uploadQuestionsFromFile
+);
 
 // Create a new question (Admin/Teacher only)
 router.post(

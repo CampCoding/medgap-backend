@@ -1,6 +1,8 @@
 const questionsRepository = require("../../repositories/questions/questions");
 const responseBuilder = require("../../utils/responsebuilder");
 const { validationResult } = require("express-validator");
+const { parseQuestionsFromText } = require("../../utils/question-parser");
+const fs = require("fs");
 
 class QuestionsController {
   // إنشاء سؤال جديد
@@ -38,7 +40,7 @@ class QuestionsController {
         status,
         search,
         tags,
-        limit = 10,
+        limit = 10000000000000000000,
         page = 1,
       } = req.query;
 
@@ -503,6 +505,118 @@ class QuestionsController {
         res,
         "Failed to update question usage"
       );
+    }
+  }
+
+  // رفع ملف أسئلة وإنشاءها (محسن للأداء)
+  async uploadQuestionsFromFile(req, res) {
+    const startTime = Date.now();
+    
+    try {
+      if (!req.file) {
+        return responseBuilder.badRequest(res, "No file uploaded. Please upload a .txt file.");
+      }
+
+      const filePath = req.file.path;
+      const createdBy = req.user?.admin_id || 1; // TODO: Get from JWT
+      const topicId = req.body.topic_id ? parseInt(req.body.topic_id) : null;
+
+      console.log(`Starting file processing: ${req.file.originalname} (${req.file.size} bytes)`);
+
+      // Parse questions from file
+      const parseStartTime = Date.now();
+      const parseResult = parseQuestionsFromText(filePath);
+      const parseTime = Date.now() - parseStartTime;
+
+      console.log(`Parsing completed in ${parseTime}ms: ${parseResult.successCount} questions, ${parseResult.errorCount} errors`);
+
+      if (parseResult.errors.length > 0) {
+        console.warn(`Parsing errors found: ${parseResult.errors.length} errors`);
+      }
+
+      if (parseResult.questions.length === 0) {
+        // Clean up uploaded file
+        fs.unlinkSync(filePath);
+        return responseBuilder.badRequest(res, "No valid questions found in the file");
+      }
+
+      // Add topic_id to all questions if provided
+      if (topicId && !isNaN(topicId)) {
+        parseResult.questions.forEach(question => {
+          question.topic_id = topicId;
+        });
+      }
+
+      // Create questions in database with optimized batch processing
+      const createStartTime = Date.now();
+      const createResult = await questionsRepository.createQuestionsFromFile(
+        parseResult.questions,
+        createdBy
+      );
+      const createTime = Date.now() - createStartTime;
+
+      console.log(`Database creation completed in ${createTime}ms: ${createResult.successCount} created, ${createResult.failureCount} failed`);
+
+      // Clean up uploaded file
+      try {
+        fs.unlinkSync(filePath);
+      } catch (cleanupError) {
+        console.warn("Failed to clean up uploaded file:", cleanupError.message);
+      }
+
+      const totalTime = Date.now() - startTime;
+
+      // Prepare response with performance metrics
+      const response = {
+        message: `File processed successfully. ${createResult.successCount} questions created, ${createResult.failureCount} failed.`,
+        performance_metrics: {
+          total_processing_time_ms: totalTime,
+          parsing_time_ms: parseTime,
+          database_time_ms: createTime,
+          questions_per_second: Math.round((createResult.successCount / totalTime) * 1000)
+        },
+        file_info: {
+          original_name: req.file.originalname,
+          file_size: req.file.size,
+          uploaded_at: new Date().toISOString()
+        },
+        topic_info: {
+          topic_id: topicId,
+          applied_to_all_questions: topicId ? true : false
+        },
+        parsing_results: {
+          total_lines: parseResult.totalLines,
+          parsing_errors: parseResult.errors,
+          parsing_error_count: parseResult.errorCount
+        },
+        creation_results: {
+          total_processed: createResult.totalProcessed,
+          successful: createResult.successful,
+          failed: createResult.failed,
+          success_count: createResult.successCount,
+          failure_count: createResult.failureCount
+        }
+      };
+
+      if (createResult.successCount > 0) {
+        return responseBuilder.success(res, response, 201);
+      } else {
+        return responseBuilder.badRequest(res, "No questions could be created from the file", response);
+      }
+
+    } catch (error) {
+      console.error("Error uploading questions file:", error);
+      
+      // Clean up uploaded file if it exists
+      if (req.file && req.file.path) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (cleanupError) {
+          console.warn("Failed to clean up uploaded file after error:", cleanupError.message);
+        }
+      }
+
+      return responseBuilder.serverError(res, "Failed to process questions file");
     }
   }
 

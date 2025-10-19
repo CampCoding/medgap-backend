@@ -772,6 +772,178 @@ class QuestionsRepository {
     }
   }
 
+  // إنشاء عدة أسئلة من ملف (محسن للأداء)
+  async createQuestionsFromFile(questionsData, createdBy = null) {
+    try {
+      const results = {
+        successful: [],
+        failed: [],
+        totalProcessed: questionsData.length,
+        successCount: 0,
+        failureCount: 0
+      };
+
+      // استخدام المعاملات لتحسين الأداء
+      await client.execute("START TRANSACTION");
+
+      try {
+        // معالجة الأسئلة في مجموعات لتحسين الأداء
+        const batchSize = 50; // معالجة 50 سؤال في كل مرة
+        const batches = [];
+        
+        for (let i = 0; i < questionsData.length; i += batchSize) {
+          batches.push(questionsData.slice(i, i + batchSize));
+        }
+
+        // معالجة كل مجموعة بالتوازي
+        for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+          const batch = batches[batchIndex];
+          const batchPromises = batch.map(async (questionData, index) => {
+            const globalIndex = batchIndex * batchSize + index + 1;
+            try {
+              const question = await this.createQuestionInBatch(questionData, createdBy);
+              return {
+                success: true,
+                index: globalIndex,
+                question: question
+              };
+            } catch (error) {
+              return {
+                success: false,
+                index: globalIndex,
+                questionData: questionData,
+                error: error.message
+              };
+            }
+          });
+
+          const batchResults = await Promise.all(batchPromises);
+          
+          batchResults.forEach(result => {
+            if (result.success) {
+              results.successful.push({
+                index: result.index,
+                question_id: result.question.question_id,
+                question_text: result.question.question_text,
+                question_type: result.question.question_type
+              });
+              results.successCount++;
+            } else {
+              results.failed.push({
+                index: result.index,
+                question_data: result.questionData,
+                error: result.error
+              });
+              results.failureCount++;
+            }
+          });
+        }
+
+        await client.execute("COMMIT");
+        return results;
+
+      } catch (error) {
+        await client.execute("ROLLBACK");
+        throw error;
+      }
+
+    } catch (error) {
+      throw new Error(`Error creating questions from file: ${error.message}`);
+    }
+  }
+
+  // إنشاء سؤال في مجموعة (بدون معاملات منفصلة)
+  async createQuestionInBatch(questionData, createdBy = null) {
+    const {
+      question_text,
+      question_type,
+      topic_id,
+      model_answer,
+      difficulty_level = "medium",
+      hint,
+      keywords = [],
+      tags = [],
+      help_guidance,
+      points = 1,
+      status = "draft",
+      options
+    } = questionData;
+
+    // إنشاء السؤال
+    const questionQuery = `
+      INSERT INTO questions (
+        question_text, question_type, topic_id, model_answer, 
+        difficulty_level, hint, keywords, tags, help_guidance, 
+        points, status, usage_count, acceptance_rate, created_by, updated_by
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const questionValues = [
+      question_text,
+      question_type,
+      topic_id || null,
+      model_answer || null,
+      difficulty_level,
+      hint || null,
+      JSON.stringify(keywords),
+      JSON.stringify(tags),
+      help_guidance || null,
+      points,
+      status,
+      0, // usage_count
+      0.0, // acceptance_rate
+      createdBy,
+      createdBy
+    ];
+
+    const [questionResult] = await client.execute(questionQuery, questionValues);
+    const questionId = questionResult.insertId;
+
+    // إنشاء خيارات السؤال إذا كان من نوع multiple_choice أو true_false
+    if (
+      (question_type === "multiple_choice" || question_type === "true_false") &&
+      options && options.length > 0
+    ) {
+      await this.createQuestionOptionsInBatch(questionId, options, createdBy);
+    }
+
+    return {
+      question_id: questionId,
+      question_text,
+      question_type,
+      topic_id,
+      difficulty_level,
+      status
+    };
+  }
+
+  // إنشاء خيارات السؤال في مجموعة
+  async createQuestionOptionsInBatch(questionId, options, createdBy = null) {
+    if (!options || options.length === 0) return;
+
+    // إنشاء جميع الخيارات في استعلام واحد
+    const optionQuery = `
+      INSERT INTO question_options (
+        question_id, option_text, is_correct, explanation, 
+        video_explanation_url, option_order
+      ) VALUES ${options.map(() => '(?, ?, ?, ?, ?, ?)').join(', ')}
+    `;
+
+    const optionValues = [];
+    options.forEach((option, index) => {
+      optionValues.push(
+        questionId,
+        option.option_text,
+        option.is_correct ? 1 : 0,
+        option.explanation || null,
+        option.video_explanation_url || null,
+        index + 1 // option_order
+      );
+    });
+
+    await client.execute(optionQuery, optionValues);
+  }
+
   // تنسيق بيانات السؤال
   formatQuestion(question) {
     if (!question) return null;
