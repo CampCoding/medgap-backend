@@ -12,6 +12,8 @@ router.post("/note/create", ctrl.createNote);
 router.get("/note/list", ctrl.listNotes);
 router.get("/qbank/list", ctrl.listQbank);
 router.post("/deck/create", ctrl.createDeck);
+router.put("/deck/update", ctrl.updateDeck);
+router.delete("/deck/delete", ctrl.deleteDeck);
 router.get("/deck/list", ctrl.listDecks);
 router.post("/flashcard/create", ctrl.createFlashCard);
 router.put("/flashcard/:student_flash_card_id/update", ctrl.updateFlashCard);

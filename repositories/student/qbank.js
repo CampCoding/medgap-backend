@@ -250,6 +250,40 @@ const createDeck = async ({ studentId, qbank_id, question_id, deck_title, deck_d
     return result.insertId;
 }
 
+const updateDeck = async ({ deckId, deck_title, deck_description }) => {
+    let query = `UPDATE student_deck SET `;
+    const params = [];
+    const updates = [];
+    
+    if (deck_title !== undefined) {
+        updates.push(`deck_title = ?`);
+        params.push(deck_title);
+    }
+    
+    if (deck_description !== undefined) {
+        updates.push(`deck_description = ?`);
+        params.push(deck_description || null);
+    }
+    
+    if (updates.length === 0) {
+        return false; // No fields to update
+    }
+    
+    query += updates.join(', ') + ` WHERE student_deck_id = ?`;
+    params.push(deckId);
+    
+    const [result] = await client.execute(query, params);
+    return result.affectedRows > 0;
+}
+
+const deleteDeck = async ({ deckId }) => {
+    const [result] = await client.execute(
+        `DELETE FROM student_deck WHERE student_deck_id = ?`,
+        [deckId]
+    );
+    return result.affectedRows > 0;
+}
+
 const listDecks = async ({ studentId }) => {
     const [rows] = await client.execute(
         `SELECT 
@@ -1439,5 +1473,7 @@ module.exports = {
     submitExamAnswer,
     submitExam,
     getExamQuestions,
-    registerForExam
+    registerForExam,
+    updateDeck,
+    deleteDeck
 }

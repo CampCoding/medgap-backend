@@ -129,6 +129,48 @@ async function createDeck(req, res) {
     }
 }
 
+async function updateDeck(req, res) {
+    const studentId = getStudentId(req, res);
+    if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+    const { deck_id, deck_title, deck_description } = req.body;
+    
+    if (!deck_id) {
+        return responseBuilder.badRequest(res, "Deck ID is required");
+    }
+    
+    try {
+        const success = await repo.updateDeck({ deckId: deck_id, deck_title, deck_description });
+        if (success) {
+            return responseBuilder.success(res, { message: "Deck updated successfully" });
+        } else {
+            return responseBuilder.notFound(res, "Deck not found or no changes made");
+        }
+    } catch (err) {
+        return responseBuilder.badRequest(res, err.message);
+    }
+}
+
+async function deleteDeck(req, res) {
+    const studentId = getStudentId(req, res);
+    if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+    const { deck_id } = req.body;
+    
+    if (!deck_id) {
+        return responseBuilder.badRequest(res, "Deck ID is required");
+    }
+    
+    try {
+        const success = await repo.deleteDeck({ deckId: deck_id });
+        if (success) {
+            return responseBuilder.success(res, { message: "Deck deleted successfully" });
+        } else {
+            return responseBuilder.notFound(res, "Deck not found");
+        }
+    } catch (err) {
+        return responseBuilder.badRequest(res, err.message);
+    }
+}
+
 async function listDecks(req, res) {
     const studentId = getStudentId(req, res);
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
@@ -481,5 +523,7 @@ module.exports = {
     submitExamAttempt,
     getExamQuestions,
     registerExam,
-    listQbank
+    listQbank,
+    updateDeck,
+    deleteDeck
 }
