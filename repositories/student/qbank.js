@@ -1,4 +1,6 @@
 const { client } = require("../../config/db-connect");
+const activityTracking = require("./activityTracking");
+
 const solveQuestion = async ({ question_id, studentId, answer }) => {
     let [question] = await client.execute(
         `SELECT 
@@ -39,6 +41,30 @@ const solveQuestion = async ({ question_id, studentId, answer }) => {
          VALUES (?, ?, ?, ?)`,
         [question_id, studentId, answer, isCorrect ? '1' : '0']
     );
+
+    // Log activity automatically
+    try {
+        await activityTracking.logActivity({
+            studentId,
+            activityType: "question_answered",
+            activityDescription: `Answered question: ${question.question_text.substring(0, 50)}...`,
+            moduleName: null, // Could be enhanced to get module info
+            topicName: null, // Could be enhanced to get topic info
+            scorePercentage: isCorrect ? 100 : 0,
+            pointsEarned: isCorrect ? 10 : 0, // 10 points for correct, 0 for incorrect
+            metadata: {
+                question_id,
+                answer,
+                is_correct: isCorrect,
+                question_type: question.question_type,
+                difficulty_level: question.difficulty_level
+            }
+        });
+    } catch (activityError) {
+        console.error("Failed to log activity for question solve:", activityError);
+        // Don't throw error - activity logging is not critical
+    }
+
     return insertQuestionAnswer.insertId;
 
 }

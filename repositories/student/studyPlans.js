@@ -1,4 +1,5 @@
 const { client } = require("../../config/db-connect");
+const activityTracking = require("./activityTracking");
 
 // Study Plan CRUD
 async function createStudyPlan({
@@ -836,6 +837,42 @@ async function solveSessionQuestion({ planId, sessionId, studentId, questionId, 
     [isCorrect ? 1 : 0, sessionId, planId]
   );
 
+  // Log activity automatically
+  try {
+    // Get question details for better activity description
+    const [questionDetails] = await client.execute(
+      `SELECT question_text, question_type, difficulty_level, topic_id 
+       FROM questions WHERE question_id = ? LIMIT 1`,
+      [questionId]
+    );
+    
+    const question = questionDetails[0];
+    if (question) {
+      await activityTracking.logActivity({
+        studentId,
+        activityType: "question_answered",
+        activityDescription: `Answered question in study session: ${question.question_text.substring(0, 50)}...`,
+        moduleName: null, // Could be enhanced to get module info
+        topicName: null, // Could be enhanced to get topic info
+        scorePercentage: isCorrect ? 100 : 0,
+        pointsEarned: isCorrect ? 10 : 0, // 10 points for correct, 0 for incorrect
+        metadata: {
+          question_id: questionId,
+          session_id: sessionId,
+          plan_id: planId,
+          answer: answerText || String(selectedOptionId || ''),
+          is_correct: isCorrect,
+          question_type: question.question_type,
+          difficulty_level: question.difficulty_level,
+          context: 'study_session'
+        }
+      });
+    }
+  } catch (activityError) {
+    console.error("Failed to log activity for session question solve:", activityError);
+    // Don't throw error - activity logging is not critical
+  }
+
   return { success: true, attempted: 1, correct: isCorrect };
 }
 
@@ -893,6 +930,41 @@ async function reviewSessionFlashcard({ planId, sessionId, studentId, flashcardI
      WHERE session_id = ? AND plan_id = ?`,
     [sessionId, planId]
   );
+
+  // Log activity automatically
+  try {
+    // Get flashcard details for better activity description
+    const [flashcardDetails] = await client.execute(
+      `SELECT front_text, back_text, difficulty_level, topic_id 
+       FROM flashcards WHERE flashcard_id = ? LIMIT 1`,
+      [flashcardId]
+    );
+    
+    const flashcard = flashcardDetails[0];
+    if (flashcard) {
+      await activityTracking.logActivity({
+        studentId,
+        activityType: "flashcard_studied",
+        activityDescription: `Studied flashcard: ${flashcard.front_text.substring(0, 50)}...`,
+        moduleName: null, // Could be enhanced to get module info
+        topicName: null, // Could be enhanced to get topic info
+        scorePercentage: correct ? 100 : 0,
+        pointsEarned: correct ? 5 : 0, // 5 points for correct, 0 for incorrect
+        metadata: {
+          flashcard_id: flashcardId,
+          session_id: sessionId,
+          plan_id: planId,
+          is_correct: correct,
+          status: status,
+          difficulty_level: flashcard.difficulty_level,
+          context: 'study_session'
+        }
+      });
+    }
+  } catch (activityError) {
+    console.error("Failed to log activity for flashcard review:", activityError);
+    // Don't throw error - activity logging is not critical
+  }
 
   return { success: true, studied: 1, correct: correct ? 1 : 0 };
 }
