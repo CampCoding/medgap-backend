@@ -203,7 +203,7 @@ class FlashcardsController {
         difficulty_level,
         status,
         search,
-        limit = 10,
+        limit = 100000000000000,
         topic_id,
         page = 1,
       } = req.query;
@@ -477,7 +477,7 @@ class FlashcardsController {
         difficulty_level,
         status,
         search,
-        limit = 10,
+        limit = 100000000000000000000000,
         page = 1,
       } = req.query;
 
