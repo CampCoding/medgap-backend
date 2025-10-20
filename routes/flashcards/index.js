@@ -8,6 +8,7 @@ const {
   updateFlashcardValidation,
 } = require("../../middlewares/validation/flashcards");
 const jwtMiddleware = require("../../middlewares/jwt"); // Assuming JWT middleware is used for auth
+const { uploadFlashcards } = require("../../utils/multer-upload-flashcards");
 
 // --- Flashcard Libraries ---
 
@@ -30,6 +31,15 @@ router.post(
   // jwtMiddleware.requireAdminOrTeacher,
   // createFlashcardLibraryValidation,
   flashcardsController.createFlashcardLibrary
+);
+
+// Upload flashcards from file (Admin/Teacher only)
+router.post(
+  "/upload",
+  // jwtMiddleware.verifyToken,
+  // jwtMiddleware.requireAdminOrTeacher,
+  uploadFlashcards.single("flashcardsFile"),
+  flashcardsController.uploadFlashcardsFromFile
 );
 
 // Update a flashcard library (Admin/Teacher only)

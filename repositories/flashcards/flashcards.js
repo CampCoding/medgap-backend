@@ -268,6 +268,165 @@ class FlashcardsRepository {
     }
   }
 
+  // إنشاء بطاقات تعليمية من ملف مع معالجة مجمعة محسنة
+  async createFlashcardsFromFile(flashcardsData, createdBy = null) {
+    try {
+      console.log(`Starting to create ${flashcardsData.length} flashcards`);
+
+      // Test database connection
+      try {
+        const [testResult] = await client.execute("SELECT 1 as test");
+        console.log("Database connection test successful:", testResult);
+      } catch (dbError) {
+        console.error("Database connection test failed:", dbError.message);
+        throw new Error(`Database connection failed: ${dbError.message}`);
+      }
+
+      const results = {
+        successful: [],
+        failed: [],
+        totalProcessed: flashcardsData.length,
+        successCount: 0,
+        failureCount: 0
+      };
+
+      // استخدام المعاملات لتحسين الأداء
+      console.log("Starting transaction...");
+      await client.execute("START TRANSACTION");
+
+      try {
+        // معالجة البطاقات في مجموعات لتحسين الأداء
+        const batchSize = 50; // معالجة 50 بطاقة في كل مرة
+        const batches = [];
+
+        for (let i = 0; i < flashcardsData.length; i += batchSize) {
+          batches.push(flashcardsData.slice(i, i + batchSize));
+        }
+
+        console.log(`Processing ${batches.length} batches`);
+
+        // معالجة كل مجموعة بالتوازي
+        for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+          const batch = batches[batchIndex];
+          console.log(`Processing batch ${batchIndex + 1}/${batches.length} with ${batch.length} flashcards`);
+
+          const batchPromises = batch.map(async (flashcardData, index) => {
+            const globalIndex = batchIndex * batchSize + index + 1;
+            try {
+              console.log(`Creating flashcard ${globalIndex}: ${flashcardData.front_text?.substring(0, 50)}...`);
+              const flashcard = await this.createFlashcardInBatch(flashcardData, createdBy);
+              console.log(`Successfully created flashcard ${globalIndex} with ID: ${flashcard.flashcard_id}`);
+              return {
+                success: true,
+                index: globalIndex,
+                flashcard: flashcard
+              };
+            } catch (error) {
+              console.error(`Failed to create flashcard ${globalIndex}:`, error.message);
+              return {
+                success: false,
+                index: globalIndex,
+                flashcardData: flashcardData,
+                error: error.message
+              };
+            }
+          });
+
+          const batchResults = await Promise.all(batchPromises);
+
+          batchResults.forEach(result => {
+            if (result.success) {
+              results.successful.push({
+                index: result.index,
+                flashcard_id: result.flashcard.flashcard_id,
+                front_text: result.flashcard.front_text,
+                back_text: result.flashcard.back_text
+              });
+              results.successCount++;
+            } else {
+              results.failed.push({
+                index: result.index,
+                flashcard_data: result.flashcardData,
+                error: result.error
+              });
+              results.failureCount++;
+            }
+          });
+        }
+
+        console.log("Committing transaction...");
+        await client.execute("COMMIT");
+        console.log(`Transaction committed successfully. Created ${results.successCount} flashcards`);
+        return results;
+
+      } catch (error) {
+        console.error("Error in transaction, rolling back:", error.message);
+        await client.execute("ROLLBACK");
+        throw error;
+      }
+
+    } catch (error) {
+      console.error("Error creating flashcards from file:", error.message);
+      throw new Error(`Error creating flashcards from file: ${error.message}`);
+    }
+  }
+
+  // إنشاء بطاقة تعليمية واحدة داخل المعاملة
+  async createFlashcardInBatch(flashcardData, createdBy = null) {
+    const {
+      library_id,
+      topic_id,
+      front_text,
+      back_text,
+      difficulty_level = "medium",
+      hint,
+      keywords = [],
+      tags = [],
+      help_guidance,
+      card_order = 1,
+      status = "draft"
+    } = flashcardData;
+
+    // إنشاء البطاقة التعليمية
+    const flashcardQuery = `
+      INSERT INTO flashcards (
+        library_id, topic_id, front_text, back_text, difficulty_level,
+        hint, keywords, tags, help_guidance, card_order, status, created_by, updated_by
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const flashcardValues = [
+      library_id,
+      topic_id || null,
+      front_text,
+      back_text,
+      difficulty_level,
+      hint || null,
+      JSON.stringify(keywords),
+      JSON.stringify(tags),
+      help_guidance || null,
+      card_order,
+      status,
+      createdBy,
+      createdBy
+    ];
+
+    console.log("Executing flashcard insert query...");
+    const [flashcardResult] = await client.execute(flashcardQuery, flashcardValues);
+    const flashcardId = flashcardResult.insertId;
+    console.log(`Flashcard inserted with ID: ${flashcardId}`);
+
+    return {
+      flashcard_id: flashcardId,
+      front_text,
+      back_text,
+      library_id,
+      topic_id,
+      difficulty_level,
+      status
+    };
+  }
+
   // تنسيق بيانات البطاقة التعليمية
   formatFlashcard(flashcard) {
     if (!flashcard) return null;
