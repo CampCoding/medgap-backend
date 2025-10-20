@@ -542,11 +542,24 @@ class QuestionsController {
 
       if (parseResult.errors.length > 0) {
         console.warn(`Parsing errors found: ${parseResult.errors.length} errors`);
+        console.log("First few parsing errors:", parseResult.errors.slice(0, 3));
       }
 
       if (parseResult.questions.length === 0) {
+        console.log("No valid questions found in file");
         return responseBuilder.badRequest(res, "No valid questions found in the file");
       }
+
+      // Debug: Log sample parsed question
+      console.log("Sample parsed question:", {
+        question_text: parseResult.questions[0].question_text?.substring(0, 100),
+        question_type: parseResult.questions[0].question_type,
+        difficulty_level: parseResult.questions[0].difficulty_level,
+        hint: parseResult.questions[0].hint,
+        keywords: parseResult.questions[0].keywords,
+        help_guidance: parseResult.questions[0].help_guidance,
+        tags: parseResult.questions[0].tags
+      });
 
       // Add topic_id to all questions if provided
       if (topicId && !isNaN(topicId)) {

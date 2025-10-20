@@ -53,6 +53,8 @@ ALTER TABLE questions
 ADD COLUMN IF NOT EXISTS model_answer TEXT,
 ADD COLUMN IF NOT EXISTS keywords JSON,
 ADD COLUMN IF NOT EXISTS tags JSON,
+ADD COLUMN IF NOT EXISTS hint TEXT,
+ADD COLUMN IF NOT EXISTS help_guidance TEXT,
 ADD COLUMN IF NOT EXISTS status ENUM('active', 'inactive') DEFAULT 'active';
 
 -- Add missing columns to question_options table if they don't exist
