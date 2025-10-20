@@ -371,7 +371,7 @@ class FlashcardsController {
         card_order: parseResult.flashcards[0].card_order,
         status: parseResult.flashcards[0].status
       });
-
+ 
       console.log("parseResult.flashcards[0]", parseResult.flashcards[0])
 
       // Add library_id and topic_id to all flashcards if provided

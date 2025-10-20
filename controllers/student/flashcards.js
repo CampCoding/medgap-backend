@@ -138,10 +138,87 @@ async function updateCardProgress(req, res) {
   }
 }
 
+async function importAllLibrariesToDeck(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId)
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  
+  const { deck_title, deck_description } = req.body || {};
+  
+  try {
+    const result = await repo.importAllLibrariesToDeck({
+      studentId,
+      deckTitle: deck_title || "Imported Flashcards",
+      deckDescription: deck_description || "All flashcard libraries imported to personal deck"
+    });
+
+    if (!result.success) {
+      return responseBuilder.badRequest(res, result.message);
+    }
+
+    return responseBuilder.success(res, {
+      data: {
+        deck_id: result.deckId,
+        imported_libraries: result.importedLibraries,
+        imported_cards: result.importedCards,
+        libraries: result.libraries
+      },
+      message: result.message
+    }, 201);
+
+  } catch (error) {
+    console.error("Error importing libraries to deck:", error);
+    return responseBuilder.serverError(res, "Failed to import libraries to deck");
+  }
+}
+
+async function copyDeckById(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId)
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  
+  const { deck_id } = req.params;
+  const { deck_title, deck_description } = req.body || {};
+  
+  // Validate deck_id
+  if (!deck_id || isNaN(Number(deck_id))) {
+    return responseBuilder.badRequest(res, "Invalid deck ID");
+  }
+  
+  try {
+    const result = await repo.copyDeckById({
+      sourceDeckId: Number(deck_id),
+      studentId,
+      newDeckTitle: deck_title,
+      newDeckDescription: deck_description
+    });
+
+    if (!result.success) {
+      return responseBuilder.badRequest(res, result.message);
+    }
+
+    return responseBuilder.success(res, {
+      data: {
+        new_deck_id: result.newDeckId,
+        copied_cards: result.copiedCards,
+        source_deck: result.sourceDeck,
+        new_deck: result.newDeck
+      },
+      message: result.message
+    }, 201);
+
+  } catch (error) {
+    console.error("Error copying deck:", error);
+    return responseBuilder.serverError(res, "Failed to copy deck");
+  }
+}
+
 module.exports = {
   listLibraries,
   getLibrary,
   updateLibraryProgress,
   updateCardProgress,
-  listLibrariesByBulkModules
+  listLibrariesByBulkModules,
+  importAllLibrariesToDeck,
+  copyDeckById
 };
