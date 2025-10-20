@@ -8,6 +8,7 @@ class QuestionsRepository {
         question_type,
         topic_id,
         model_answer,
+        explanation,
         difficulty_level = "medium",
         hint,
         keywords = [],
@@ -20,10 +21,10 @@ class QuestionsRepository {
       // إنشاء السؤال
       const questionQuery = `
         INSERT INTO questions (
-          question_text, question_type, topic_id, model_answer, 
+          question_text, question_type, topic_id, model_answer, explanation,
           difficulty_level, hint, keywords, tags, help_guidance, 
           points, status, usage_count, acceptance_rate, created_by, updated_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
       const questionValues = [
@@ -31,6 +32,7 @@ class QuestionsRepository {
         question_type,
         topic_id || null,
         model_answer || null,
+        explanation || null,
         difficulty_level,
         hint || null,
         JSON.stringify(keywords),
@@ -473,6 +475,7 @@ class QuestionsRepository {
         question_type,
         topic_id,
         model_answer,
+        explanation,
         difficulty_level,
         hint,
         keywords,
@@ -501,6 +504,10 @@ class QuestionsRepository {
       if (model_answer !== undefined) {
         updateFields.push("model_answer = ?");
         values.push(model_answer || null);
+      }
+      if (explanation !== undefined) {
+        updateFields.push("explanation = ?");
+        values.push(explanation || null);
       }
       if (difficulty_level !== undefined) {
         updateFields.push("difficulty_level = ?");

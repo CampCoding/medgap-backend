@@ -565,7 +565,7 @@ class QuestionsController {
       );
       const createTime = Date.now() - createStartTime;
 
-      console.log(`Database creation completed in ${createTime}ms: ${createResult.successCount} created, ${createResult.failureCount} failed`);
+      console.log(`Database creation completed in ${createTifme}ms: ${createResult.successCount} created, ${createResult.failureCount} failed`);
 
       // Clean up uploaded file (only in non-serverless environments)
       if (!isServerless && req.file.path) {
