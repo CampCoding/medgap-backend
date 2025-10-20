@@ -226,7 +226,7 @@ async function copyDeckById(req, res) {
       data: {
         new_deck_id: result.newDeckId,
         copied_cards: result.copiedCards,
-        source_deck: result.sourceDeck,
+        source_library: result.sourceLibrary,
         new_deck: result.newDeck
       },
       message: result.message
@@ -238,6 +238,30 @@ async function copyDeckById(req, res) {
   }
 }
 
+async function listAllLibraries(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId)
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  
+  const { search = "" } = req.query;
+  
+  try {
+    const result = await repo.listAllLibraries({
+      search
+    });
+
+    return responseBuilder.success(res, {
+      data: result.data,
+      message: `Found ${result.data.length} flashcard libraries`,
+      search_term: search
+    });
+
+  } catch (error) {
+    console.error("Error listing libraries:", error);
+    return responseBuilder.serverError(res, "Failed to list libraries");
+  }
+}
+
 module.exports = {
   listLibraries,
   getLibrary,
@@ -246,5 +270,5 @@ module.exports = {
   listLibrariesByBulkModules,
   importAllLibrariesToDeck,
   copyDeckById,
-  listAllDecks
+  listAllLibraries
 };

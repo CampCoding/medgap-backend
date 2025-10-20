@@ -438,32 +438,33 @@ async function importAllLibrariesToDeck({ studentId, deckTitle = "Imported Flash
 
 async function copyDeckById({ sourceDeckId, studentId, newDeckTitle, newDeckDescription }) {
   try {
-    // First, get the source deck information
-    const getSourceDeckSql = `
+    // First, get the source library information
+    const getSourceLibrarySql = `
       SELECT 
-        sd.student_deck_id,
-        sd.deck_title,
-        sd.deck_description,
-        sd.created_at,
-        COUNT(sfc.student_flash_card_id) AS total_cards
-      FROM student_deck sd
-      LEFT JOIN student_flash_cards sfc ON sfc.deck_id = sd.student_deck_id
-      WHERE sd.student_deck_id = ?
-      GROUP BY sd.student_deck_id
+        fl.library_id,
+        fl.library_name,
+        fl.description,
+        fl.difficulty_level,
+        fl.created_at,
+        COUNT(f.flashcard_id) AS total_cards
+      FROM flashcard_libraries fl
+      LEFT JOIN flashcards f ON f.library_id = fl.library_id AND f.status IN ('active', 'draft')
+      WHERE fl.library_id = ? AND fl.status = 'active'
+      GROUP BY fl.library_id
     `;
     
-    const [sourceDeckRows] = await client.execute(getSourceDeckSql, [sourceDeckId]);
+    const [sourceLibraryRows] = await client.execute(getSourceLibrarySql, [sourceDeckId]);
     
-    if (!sourceDeckRows.length) {
+    if (!sourceLibraryRows.length) {
       return {
         success: false,
-        message: "Source deck not found",
+        message: "Source library not found",
         newDeckId: null,
         copiedCards: 0
       };
     }
     
-    const sourceDeck = sourceDeckRows[0];
+    const sourceLibrary = sourceLibraryRows[0];
     
     // Create a new deck for the student
     const createDeckSql = `
@@ -471,19 +472,25 @@ async function copyDeckById({ sourceDeckId, studentId, newDeckTitle, newDeckDesc
       VALUES (?, ?, ?)
     `;
     
-    const deckTitle = newDeckTitle || `${sourceDeck.deck_title}`;
-    const deckDescription = newDeckDescription || `"${sourceDeck.deck_title}"`;
+    const deckTitle = newDeckTitle || `${sourceLibrary.library_name}`;
+    const deckDescription = newDeckDescription || `"${sourceLibrary.library_name}"`;
     
     const [deckResult] = await client.execute(createDeckSql, [studentId, deckTitle, deckDescription]);
     const newDeckId = deckResult.insertId;
     
-    // Get all flashcards from the source deck
+    // Get all flashcards from the source library
     const getSourceCardsSql = `
       SELECT 
-       *
-      FROM flashcard_libraries
-      WHERE library_id = ?
-      
+        f.flashcard_id,
+        f.front_text,
+        f.back_text,
+        f.difficulty_level,
+        f.card_order,
+        f.topic_id,
+        f.library_id
+      FROM flashcards f
+      WHERE f.library_id = ? AND f.status IN ('active', 'draft')
+      ORDER BY f.card_order, f.flashcard_id
     `;
     
     const [sourceCardsRows] = await client.execute(getSourceCardsSql, [sourceDeckId]);
@@ -491,13 +498,13 @@ async function copyDeckById({ sourceDeckId, studentId, newDeckTitle, newDeckDesc
     if (sourceCardsRows.length === 0) {
       return {
         success: true,
-        message: `Deck copied successfully but no flashcards found in source deck`,
+        message: `Library copied successfully but no flashcards found in source library`,
         newDeckId: newDeckId,
         copiedCards: 0,
-        sourceDeck: {
-          deck_id: sourceDeck.student_deck_id,
-          deck_title: sourceDeck.deck_title,
-          total_cards: sourceDeck.total_cards
+        sourceLibrary: {
+          library_id: sourceLibrary.library_id,
+          library_name: sourceLibrary.library_name,
+          total_cards: sourceLibrary.total_cards
         }
       };
     }
@@ -506,31 +513,27 @@ async function copyDeckById({ sourceDeckId, studentId, newDeckTitle, newDeckDesc
     const cardsToInsert = [];
     
     sourceCardsRows.forEach(card => {
-      // Update tags to include source information
-      let tags = card.tags;
-      try {
-        tags = JSON.parse(tags || '{}');
-      } catch (e) {
-        tags = {};
-      }
-      
-      tags.copied_from_library_id = sourceDeck.library_id;
-      tags.copied_from_deck_title = sourceDeck.library_name;
-      tags.copied_at = new Date().toISOString();
+      // Create tags with source information
+      const tags = {
+        copied_from_library_id: sourceLibrary.library_id,
+        copied_from_library_name: sourceLibrary.library_name,
+        original_flashcard_id: card.flashcard_id,
+        copied_at: new Date().toISOString()
+      };
       
       cardsToInsert.push([
-        card.student_flash_card_front,
-        card.student_flash_card_back,
+        card.front_text,
+        card.back_text,
         newDeckId,
         JSON.stringify(tags),
         'not_seen', // card_status
         '0', // card_solved
-        card.difficulty || 'medium',
-        card.question_id || 0,
-        card.qbank_id || 0,
-        card.ease_factor || 2.50,
-        card.repetitions || 0,
-        card.interval_days || 0
+        card.difficulty_level || 'medium',
+        0, // question_id
+        0, // qbank_id
+        2.50, // ease_factor
+        0, // repetitions
+        0 // interval_days
       ]);
     });
     
@@ -556,13 +559,13 @@ async function copyDeckById({ sourceDeckId, studentId, newDeckTitle, newDeckDesc
     
     return {
       success: true,
-      message: `Successfully copied deck "${sourceDeck.deck_title}" with ${cardsToInsert.length} flashcards`,
+      message: `Successfully copied library "${sourceLibrary.library_name}" with ${cardsToInsert.length} flashcards`,
       newDeckId: newDeckId,
       copiedCards: cardsToInsert.length,
-      sourceDeck: {
-        deck_id: sourceDeck.student_deck_id,
-        deck_title: sourceDeck.deck_title,
-        total_cards: sourceDeck.total_cards
+      sourceLibrary: {
+        library_id: sourceLibrary.library_id,
+        library_name: sourceLibrary.library_name,
+        total_cards: sourceLibrary.total_cards
       },
       newDeck: {
         deck_id: newDeckId,
@@ -577,6 +580,51 @@ async function copyDeckById({ sourceDeckId, studentId, newDeckTitle, newDeckDesc
   }
 }
 
+async function listAllLibraries({ search = "" }) {
+  try {
+    const where = ["fl.status = 'active'"];
+    const params = [];
+    
+    if (search && search.trim()) {
+      where.push("(fl.library_name LIKE ? OR fl.description LIKE ?)");
+      params.push(`%${search.trim()}%`, `%${search.trim()}%`);
+    }
+    
+    const sql = `
+      SELECT 
+        fl.library_id,
+        fl.library_name,
+        fl.description,
+        fl.difficulty_level,
+        fl.created_at,
+        COUNT(f.flashcard_id) AS total_cards
+      FROM flashcard_libraries fl
+      LEFT JOIN flashcards f ON f.library_id = fl.library_id AND f.status IN ('active', 'draft')
+      WHERE ${where.join(" AND ")}
+      GROUP BY fl.library_id
+      ORDER BY fl.created_at DESC
+    `;
+    
+    const [rows] = await client.execute(sql, params);
+    
+    return {
+      success: true,
+      data: rows.map(row => ({
+        library_id: row.library_id,
+        library_name: row.library_name,
+        description: row.description,
+        difficulty_level: row.difficulty_level,
+        created_at: row.created_at,
+        total_cards: Number(row.total_cards) || 0
+      }))
+    };
+    
+  } catch (error) {
+    console.error("Error listing libraries:", error);
+    throw new Error(`Failed to list libraries: ${error.message}`);
+  }
+}
+
 module.exports = {
   listLibrariesByModule,
   getLibraryWithCards,
@@ -584,5 +632,6 @@ module.exports = {
   upsertCardProgress,
   listLibrariesByBulkModules,
   importAllLibrariesToDeck,
-  copyDeckById
+  copyDeckById,
+  listAllLibraries
 };

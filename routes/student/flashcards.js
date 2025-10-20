@@ -18,10 +18,10 @@ router.post("/cards/:flashcard_id/progress", ctrl.updateCardProgress);
 // Import all flashcard libraries to personal deck
 router.post("/import-all-to-deck", ctrl.importAllLibrariesToDeck);
 
-// Copy a specific deck by ID to student's personal collection
+// Copy a specific library by ID to student's personal collection
 router.post("/copy-deck/:deck_id", ctrl.copyDeckById);
 
-// List all available decks (for finding decks to copy)
-router.get("/decks", ctrl.listAllDecks);
+// List all available flashcard libraries (for finding libraries to copy)
+router.get("/libraries", ctrl.listAllLibraries);
 
 module.exports = router;

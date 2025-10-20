@@ -1,45 +1,45 @@
-// Test script to find and copy medgap deck
+// Test script to find and copy medgap library
 const axios = require('axios');
 
 const BASE_URL = 'http://localhost:3000/api/student/flashcards';
 
-async function findAndCopyMedgapDeck() {
+async function findAndCopyMedgapLibrary() {
   try {
-    console.log('🔍 Looking for decks with "medgap" in the name...');
+    console.log('🔍 Looking for flashcard libraries with "medgap" in the name...');
     
     // You'll need to replace this with a valid student JWT token
     const studentToken = 'YOUR_STUDENT_JWT_TOKEN_HERE';
     
-    // First, list all decks to find the medgap deck
-    const listResponse = await axios.get(`${BASE_URL}/decks?search=medgap`, {
+    // First, list all libraries to find the medgap library
+    const listResponse = await axios.get(`${BASE_URL}/libraries?search=medgap`, {
       headers: {
         'Authorization': `Bearer ${studentToken}`,
         'Content-Type': 'application/json'
       }
     });
     
-    console.log('📋 Available decks:', JSON.stringify(listResponse.data, null, 2));
+    console.log('📋 Available libraries:', JSON.stringify(listResponse.data, null, 2));
     
-    // Look for medgap deck
-    const medgapDeck = listResponse.data.data.find(deck => 
-      deck.deck_title.toLowerCase().includes('medgap')
+    // Look for medgap library
+    const medgapLibrary = listResponse.data.data.find(library => 
+      library.library_name.toLowerCase().includes('medgap')
     );
     
-    if (!medgapDeck) {
-      console.log('❌ No deck found with "medgap" in the name');
-      console.log('Available decks:', listResponse.data.data.map(d => d.deck_title));
+    if (!medgapLibrary) {
+      console.log('❌ No library found with "medgap" in the name');
+      console.log('Available libraries:', listResponse.data.data.map(l => l.library_name));
       return;
     }
     
-    console.log(`✅ Found medgap deck: "${medgapDeck.deck_title}" (ID: ${medgapDeck.deck_id})`);
-    console.log(`📊 Deck has ${medgapDeck.total_cards} cards`);
+    console.log(`✅ Found medgap library: "${medgapLibrary.library_name}" (ID: ${medgapLibrary.library_id})`);
+    console.log(`📊 Library has ${medgapLibrary.total_cards} cards`);
     
-    // Copy the deck
-    console.log('📋 Copying deck to your personal collection...');
+    // Copy the library
+    console.log('📋 Copying library to your personal collection...');
     
-    const copyResponse = await axios.post(`${BASE_URL}/copy-deck/${medgapDeck.deck_id}`, {
+    const copyResponse = await axios.post(`${BASE_URL}/copy-deck/${medgapLibrary.library_id}`, {
       deck_title: 'My Medgap Deck',
-      deck_description: 'Personal copy of medgap deck for study'
+      deck_description: 'Personal copy of medgap library for study'
     }, {
       headers: {
         'Authorization': `Bearer ${studentToken}`,
@@ -59,14 +59,14 @@ async function findAndCopyMedgapDeck() {
   }
 }
 
-// Alternative: Copy by specific deck ID if you know it
-async function copyDeckById(deckId) {
+// Alternative: Copy by specific library ID if you know it
+async function copyLibraryById(libraryId) {
   try {
-    console.log(`📋 Copying deck ID ${deckId}...`);
+    console.log(`📋 Copying library ID ${libraryId}...`);
     
     const studentToken = 'YOUR_STUDENT_JWT_TOKEN_HERE';
     
-    const response = await axios.post(`${BASE_URL}/copy-deck/${deckId}`, {
+    const response = await axios.post(`${BASE_URL}/copy-deck/${libraryId}`, {
       deck_title: 'My Medgap Deck',
       deck_description: 'Personal copy for study'
     }, {
@@ -89,10 +89,10 @@ async function copyDeckById(deckId) {
 }
 
 // Run the functions
-console.log('🚀 Starting medgap deck copy process...\n');
+console.log('🚀 Starting medgap library copy process...\n');
 
-// Method 1: Search for medgap deck
-findAndCopyMedgapDeck();
+// Method 1: Search for medgap library
+findAndCopyMedgapLibrary();
 
-// Method 2: Copy by specific ID (uncomment and replace with actual deck ID)
-// copyDeckById(123);
+// Method 2: Copy by specific ID (uncomment and replace with actual library ID)
+// copyLibraryById(123);
