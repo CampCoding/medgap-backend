@@ -1,39 +1,39 @@
-Front Text: What is the normal range for adult blood pressure? | Back Text: 120/80 mmHg | Difficulty: easy | Tags: cardiology, vital signs | Keywords: blood pressure, hypertension, normal range, mmHg | Hint: Consider the standard reference values used in clinical practice | Help: This flashcard tests knowledge of normal vital sign parameters
+Front Text: What is the normal range for adult blood pressure? | Back Text: 120/80 mmHg | Difficulty: easy | Card Order: 1 | Status: draft
 
-Front Text: What is the primary function of insulin? | Back Text: To regulate blood glucose levels by facilitating glucose uptake into cells | Difficulty: medium | Tags: endocrinology, diabetes | Keywords: insulin, glucose, diabetes, metabolism | Hint: Think about what happens when blood sugar levels are high | Help: Understanding insulin's role is crucial for diabetes management
+Front Text: What is the primary function of insulin? | Back Text: To regulate blood glucose levels by facilitating glucose uptake into cells | Difficulty: medium | Card Order: 2 | Status: draft
 
-Front Text: What is the normal heart rate range for adults at rest? | Back Text: 60-100 beats per minute | Difficulty: easy | Tags: cardiology, vital signs | Keywords: heart rate, pulse, bradycardia, tachycardia | Hint: Consider what's considered normal for a healthy adult | Help: This is a fundamental vital sign measurement
+Front Text: What is the normal heart rate range for adults at rest? | Back Text: 60-100 beats per minute | Difficulty: easy | Card Order: 3 | Status: draft
 
-Front Text: What does COPD stand for? | Back Text: Chronic Obstructive Pulmonary Disease | Difficulty: medium | Tags: pulmonology, respiratory | Keywords: COPD, chronic, obstructive, pulmonary, disease | Hint: Think about long-term lung conditions that affect breathing | Help: COPD is a common respiratory condition affecting millions worldwide
+Front Text: What does COPD stand for? | Back Text: Chronic Obstructive Pulmonary Disease | Difficulty: medium | Card Order: 4 | Status: draft
 
-Front Text: What is the normal body temperature in Celsius? | Back Text: 37°C (98.6°F) | Difficulty: easy | Tags: vital signs, physiology | Keywords: body temperature, fever, hypothermia, Celsius, Fahrenheit | Hint: Consider the standard reference point for normal body temperature | Help: Body temperature is a key vital sign in medical assessment
+Front Text: What is the normal body temperature in Celsius? | Back Text: 37°C (98.6°F) | Difficulty: easy | Card Order: 5 | Status: draft
 
-Front Text: What is the primary cause of Type 2 diabetes? | Back Text: Insulin resistance and relative insulin deficiency | Difficulty: hard | Tags: endocrinology, diabetes | Keywords: Type 2 diabetes, insulin resistance, insulin deficiency | Hint: Think about how the body responds to insulin over time | Help: Understanding the pathophysiology helps in treatment planning
+Front Text: What is the primary cause of Type 2 diabetes? | Back Text: Insulin resistance and relative insulin deficiency | Difficulty: hard | Card Order: 6 | Status: draft
 
-Front Text: What is the normal range for hemoglobin in adult males? | Back Text: 13.8-17.2 g/dL | Difficulty: medium | Tags: hematology, laboratory values | Keywords: hemoglobin, anemia, blood count, g/dL | Hint: Consider normal blood component levels for adult males | Help: Hemoglobin levels are important indicators of blood health
+Front Text: What is the normal range for hemoglobin in adult males? | Back Text: 13.8-17.2 g/dL | Difficulty: medium | Card Order: 7 | Status: draft
 
-Front Text: What does MRI stand for? | Back Text: Magnetic Resonance Imaging | Difficulty: easy | Tags: radiology, imaging | Keywords: MRI, magnetic resonance, imaging, diagnostic | Hint: Think about the technology used for detailed body imaging | Help: MRI is a crucial diagnostic tool in modern medicine
+Front Text: What does MRI stand for? | Back Text: Magnetic Resonance Imaging | Difficulty: easy | Card Order: 8 | Status: draft
 
-Front Text: What is the normal range for white blood cell count? | Back Text: 4,500-11,000 cells/μL | Difficulty: medium | Tags: hematology, laboratory values | Keywords: white blood cells, WBC, infection, immunity | Hint: Consider the cells responsible for fighting infections | Help: WBC count helps diagnose infections and immune disorders
+Front Text: What is the normal range for white blood cell count? | Back Text: 4,500-11,000 cells/μL | Difficulty: medium | Card Order: 9 | Status: draft
 
-Front Text: What is the primary treatment for anaphylaxis? | Back Text: Epinephrine (adrenaline) injection | Difficulty: hard | Tags: emergency medicine, allergy | Keywords: anaphylaxis, epinephrine, adrenaline, emergency, allergy | Hint: Think about the immediate treatment for severe allergic reactions | Help: Anaphylaxis is a medical emergency requiring immediate intervention
+Front Text: What is the primary treatment for anaphylaxis? | Back Text: Epinephrine (adrenaline) injection | Difficulty: hard | Card Order: 10 | Status: draft
 
-Front Text: What is the normal range for blood glucose fasting? | Back Text: 70-100 mg/dL | Difficulty: medium | Tags: endocrinology, diabetes | Keywords: blood glucose, fasting, diabetes, mg/dL | Hint: Consider normal blood sugar levels after overnight fasting | Help: Fasting glucose is a key test for diabetes diagnosis
+Front Text: What is the normal range for blood glucose fasting? | Back Text: 70-100 mg/dL | Difficulty: medium | Card Order: 11 | Status: draft
 
-Front Text: What does ECG stand for? | Back Text: Electrocardiogram | Difficulty: easy | Tags: cardiology, diagnostic | Keywords: ECG, EKG, electrocardiogram, heart rhythm | Hint: Think about the test that records heart electrical activity | Help: ECG is essential for diagnosing heart rhythm disorders
+Front Text: What does ECG stand for? | Back Text: Electrocardiogram | Difficulty: easy | Card Order: 12 | Status: draft
 
-Front Text: What is the normal range for platelet count? | Back Text: 150,000-450,000 platelets/μL | Difficulty: medium | Tags: hematology, laboratory values | Keywords: platelets, thrombocytopenia, bleeding, clotting | Hint: Consider the cells responsible for blood clotting | Help: Platelet count is important for assessing bleeding risk
+Front Text: What is the normal range for platelet count? | Back Text: 150,000-450,000 platelets/μL | Difficulty: medium | Card Order: 13 | Status: draft
 
-Front Text: What is the primary function of the kidneys? | Back Text: To filter waste products and excess water from the blood | Difficulty: medium | Tags: nephrology, physiology | Keywords: kidneys, filtration, waste, urine, renal | Hint: Think about what the kidneys remove from the bloodstream | Help: Understanding kidney function is crucial for managing kidney disease
+Front Text: What is the primary function of the kidneys? | Back Text: To filter waste products and excess water from the blood | Difficulty: medium | Card Order: 14 | Status: draft
 
-Front Text: What is the normal range for cholesterol (total)? | Back Text: Less than 200 mg/dL | Difficulty: medium | Tags: cardiology, laboratory values | Keywords: cholesterol, cardiovascular, mg/dL, lipids | Hint: Consider the recommended upper limit for total cholesterol | Help: Cholesterol levels are important for cardiovascular risk assessment
+Front Text: What is the normal range for cholesterol (total)? | Back Text: Less than 200 mg/dL | Difficulty: medium | Card Order: 15 | Status: draft
 
-Front Text: What does CT scan stand for? | Back Text: Computed Tomography | Difficulty: easy | Tags: radiology, imaging | Keywords: CT scan, computed tomography, imaging, diagnostic | Hint: Think about the imaging technique that uses X-rays | Help: CT scans provide detailed cross-sectional images of the body
+Front Text: What does CT scan stand for? | Back Text: Computed Tomography | Difficulty: easy | Card Order: 16 | Status: draft
 
-Front Text: What is the normal range for creatinine in adult males? | Back Text: 0.7-1.3 mg/dL | Difficulty: medium | Tags: nephrology, laboratory values | Keywords: creatinine, kidney function, renal, mg/dL | Hint: Consider the waste product used to assess kidney function | Help: Creatinine levels help evaluate kidney health
+Front Text: What is the normal range for creatinine in adult males? | Back Text: 0.7-1.3 mg/dL | Difficulty: medium | Card Order: 17 | Status: draft
 
-Front Text: What is the primary cause of hypertension? | Back Text: Often idiopathic (essential hypertension) with multiple contributing factors | Difficulty: hard | Tags: cardiology, hypertension | Keywords: hypertension, blood pressure, essential, idiopathic | Hint: Think about the most common type of high blood pressure | Help: Understanding hypertension causes helps in treatment strategies
+Front Text: What is the primary cause of hypertension? | Back Text: Often idiopathic (essential hypertension) with multiple contributing factors | Difficulty: hard | Card Order: 18 | Status: draft
 
-Front Text: What is the normal range for oxygen saturation? | Back Text: 95-100% | Difficulty: easy | Tags: pulmonology, vital signs | Keywords: oxygen saturation, SpO2, pulse oximetry, breathing | Hint: Consider the percentage of hemoglobin carrying oxygen | Help: Oxygen saturation is a key indicator of respiratory function
+Front Text: What is the normal range for oxygen saturation? | Back Text: 95-100% | Difficulty: easy | Card Order: 19 | Status: draft
 
-Front Text: What does CPR stand for? | Back Text: Cardiopulmonary Resuscitation | Difficulty: easy | Tags: emergency medicine, resuscitation | Keywords: CPR, cardiopulmonary, resuscitation, emergency | Hint: Think about the life-saving technique for cardiac arrest | Help: CPR is a fundamental emergency procedure everyone should know
+Front Text: What does CPR stand for? | Back Text: Cardiopulmonary Resuscitation | Difficulty: easy | Card Order: 20 | Status: draft

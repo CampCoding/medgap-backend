@@ -368,10 +368,8 @@ class FlashcardsController {
         front_text: parseResult.flashcards[0].front_text?.substring(0, 100),
         back_text: parseResult.flashcards[0].back_text?.substring(0, 100),
         difficulty_level: parseResult.flashcards[0].difficulty_level,
-        hint: parseResult.flashcards[0].hint,
-        keywords: parseResult.flashcards[0].keywords,
-        help_guidance: parseResult.flashcards[0].help_guidance,
-        tags: parseResult.flashcards[0].tags
+        card_order: parseResult.flashcards[0].card_order,
+        status: parseResult.flashcards[0].status
       });
 
       console.log("parseResult.flashcards[0]", parseResult.flashcards[0])

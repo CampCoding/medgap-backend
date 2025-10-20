@@ -379,20 +379,16 @@ class FlashcardsRepository {
       front_text,
       back_text,
       difficulty_level = "medium",
-      hint,
-      keywords = [],
-      tags = [],
-      help_guidance,
       card_order = 1,
       status = "draft"
     } = flashcardData;
 
-    // إنشاء البطاقة التعليمية
+    // إنشاء البطاقة التعليمية - استخدام نفس الأعمدة الموجودة في createFlashcard
     const flashcardQuery = `
       INSERT INTO flashcards (
         library_id, topic_id, front_text, back_text, difficulty_level,
-        hint, keywords, tags, help_guidance, card_order, status, created_by, updated_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        card_order, status, created_by
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const flashcardValues = [
@@ -401,13 +397,8 @@ class FlashcardsRepository {
       front_text,
       back_text,
       difficulty_level,
-      hint || null,
-      JSON.stringify(keywords),
-      JSON.stringify(tags),
-      help_guidance || null,
       card_order,
       status,
-      createdBy,
       createdBy
     ];
 

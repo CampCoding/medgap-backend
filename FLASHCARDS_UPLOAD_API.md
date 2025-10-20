@@ -24,7 +24,7 @@ Content-Type: multipart/form-data
 Each line in the `.txt` file should contain one flashcard with the following format:
 
 ```
-Front Text: [Question or prompt] | Back Text: [Answer or response] | Difficulty: [easy/medium/hard] | Tags: [tag1, tag2, tag3] | Keywords: [keyword1, keyword2] | Hint: [Optional hint] | Help: [Optional help text] | Card Order: [Optional order number] | Status: [Optional status]
+Front Text: [Question or prompt] | Back Text: [Answer or response] | Difficulty: [easy/medium/hard] | Card Order: [Optional order number] | Status: [Optional status]
 ```
 
 ### Required Fields
@@ -33,18 +33,16 @@ Front Text: [Question or prompt] | Back Text: [Answer or response] | Difficulty:
 
 ### Optional Fields
 - `Difficulty`: easy, medium, or hard (default: medium)
-- `Tags`: Comma-separated list of tags
-- `Keywords`: Comma-separated list of keywords
-- `Hint`: Additional hint for the flashcard
-- `Help`: Help text or guidance
 - `Card Order`: Order number for the flashcard (default: 1)
 - `Status`: draft, active, or inactive (default: draft)
 
+**Note**: Fields like `Tags`, `Keywords`, `Hint`, and `Help` are parsed but ignored as they are not supported in the current database schema.
+
 ## Example File Content
 ```
-Front Text: What is the normal range for adult blood pressure? | Back Text: 120/80 mmHg | Difficulty: easy | Tags: cardiology, vital signs | Keywords: blood pressure, hypertension, normal range, mmHg | Hint: Consider the standard reference values used in clinical practice | Help: This flashcard tests knowledge of normal vital sign parameters
+Front Text: What is the normal range for adult blood pressure? | Back Text: 120/80 mmHg | Difficulty: easy | Card Order: 1 | Status: draft
 
-Front Text: What is the primary function of insulin? | Back Text: To regulate blood glucose levels by facilitating glucose uptake into cells | Difficulty: medium | Tags: endocrinology, diabetes | Keywords: insulin, glucose, diabetes, metabolism | Hint: Think about what happens when blood sugar levels are high | Help: Understanding insulin's role is crucial for diabetes management
+Front Text: What is the primary function of insulin? | Back Text: To regulate blood glucose levels by facilitating glucose uptake into cells | Difficulty: medium | Card Order: 2 | Status: draft
 ```
 
 ## Response Format

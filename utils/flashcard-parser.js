@@ -57,10 +57,6 @@ function parseFlashcardLine(line, lineNumber) {
     front_text: "",
     back_text: "",
     difficulty_level: "medium",
-    tags: [],
-    keywords: [],
-    hint: "",
-    help_guidance: "",
     card_order: 1,
     status: "draft"
   };
@@ -85,24 +81,18 @@ function parseFlashcardLine(line, lineNumber) {
       case "difficulty":
         flashcard.difficulty_level = value.toLowerCase();
         break;
-      case "tags":
-        flashcard.tags = parseTags(value);
-        break;
-      case "keywords":
-        flashcard.keywords = parseKeywords(value);
-        break;
-      case "hint":
-        flashcard.hint = value;
-        break;
-      case "help":
-      case "help guidance":
-        flashcard.help_guidance = value;
-        break;
       case "card order":
         flashcard.card_order = parseInt(value) || 1;
         break;
       case "status":
         flashcard.status = value.toLowerCase();
+        break;
+      case "tags":
+      case "keywords":
+      case "hint":
+      case "help":
+      case "help guidance":
+        // Ignore these fields as they don't exist in the current database schema
         break;
       default:
         // Ignore unknown fields
