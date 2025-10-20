@@ -28,9 +28,7 @@ const mysqlClient = mysql2.createPool({
   waitForConnections: true,
   connectionLimit: 5, // Reduced from 10 to prevent connection limit issues
   queueLimit: 0,
-  charset: "utf8mb4",
-  acquireTimeout: 60000, // 60 seconds
-  timeout: 60000, // 60 seconds
+  charset: "utf8mb4"
 });
 
 // --------- DRIVER SELECTION -----

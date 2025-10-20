@@ -397,25 +397,30 @@ async function importAllLibrariesToDeck({ studentId, deckTitle = "Imported Flash
       };
     }
 
-    // Batch insert all flashcards
-    const insertCardsSql = `
-      INSERT INTO student_flash_cards (
-        student_flash_card_front,
-        student_flash_card_back,
-        deck_id,
-        tags,
-        card_status,
-        card_solved,
-        difficulty,
-        question_id,
-        qbank_id,
-        ease_factor,
-        repetitions,
-        interval_days
-      ) VALUES ?
-    `;
-    
-    await client.execute(insertCardsSql, [cardsToInsert]);
+    // Batch insert all flashcards using individual INSERT statements
+    if (cardsToInsert.length > 0) {
+      const insertCardsSql = `
+        INSERT INTO student_flash_cards (
+          student_flash_card_front,
+          student_flash_card_back,
+          deck_id,
+          tags,
+          card_status,
+          card_solved,
+          difficulty,
+          question_id,
+          qbank_id,
+          ease_factor,
+          repetitions,
+          interval_days
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+      
+      // Execute each insert individually
+      for (const card of cardsToInsert) {
+        await client.execute(insertCardsSql, card);
+      }
+    }
 
     return {
       success: true,
@@ -537,25 +542,30 @@ async function copyDeckById({ sourceDeckId, studentId, newDeckTitle, newDeckDesc
       ]);
     });
     
-    // Batch insert all flashcards
-    const insertCardsSql = `
-      INSERT INTO student_flash_cards (
-        student_flash_card_front,
-        student_flash_card_back,
-        deck_id,
-        tags,
-        card_status,
-        card_solved,
-        difficulty,
-        question_id,
-        qbank_id,
-        ease_factor,
-        repetitions,
-        interval_days
-      ) VALUES ?
-    `;
-    
-    await client.execute(insertCardsSql, [cardsToInsert]);
+    // Batch insert all flashcards using individual INSERT statements
+    if (cardsToInsert.length > 0) {
+      const insertCardsSql = `
+        INSERT INTO student_flash_cards (
+          student_flash_card_front,
+          student_flash_card_back,
+          deck_id,
+          tags,
+          card_status,
+          card_solved,
+          difficulty,
+          question_id,
+          qbank_id,
+          ease_factor,
+          repetitions,
+          interval_days
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+      
+      // Execute each insert individually
+      for (const card of cardsToInsert) {
+        await client.execute(insertCardsSql, card);
+      }
+    }
     
     return {
       success: true,
