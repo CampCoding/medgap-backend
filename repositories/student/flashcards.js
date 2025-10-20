@@ -480,18 +480,10 @@ async function copyDeckById({ sourceDeckId, studentId, newDeckTitle, newDeckDesc
     // Get all flashcards from the source deck
     const getSourceCardsSql = `
       SELECT 
-        student_flash_card_front,
-        student_flash_card_back,
-        tags,
-        difficulty,
-        question_id,
-        qbank_id,
-        ease_factor,
-        repetitions,
-        interval_days
-      FROM student_flash_cards
-      WHERE deck_id = ?
-      ORDER BY student_flash_card_id
+       *
+      FROM flashcard_libraries
+      WHERE library_id = ?
+      
     `;
     
     const [sourceCardsRows] = await client.execute(getSourceCardsSql, [sourceDeckId]);
@@ -522,8 +514,8 @@ async function copyDeckById({ sourceDeckId, studentId, newDeckTitle, newDeckDesc
         tags = {};
       }
       
-      tags.copied_from_deck_id = sourceDeckId;
-      tags.copied_from_deck_title = sourceDeck.deck_title;
+      tags.copied_from_library_id = sourceDeck.library_id;
+      tags.copied_from_deck_title = sourceDeck.library_name;
       tags.copied_at = new Date().toISOString();
       
       cardsToInsert.push([

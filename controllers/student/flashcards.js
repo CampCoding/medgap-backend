@@ -172,6 +172,31 @@ async function importAllLibrariesToDeck(req, res) {
   }
 }
 
+async function listAllDecks(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId)
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  
+  const { search = "" } = req.query;
+  
+  try {
+    const result = await repo.listAllDecks({
+      studentId,
+      search
+    });
+
+    return responseBuilder.success(res, {
+      data: result.data,
+      message: `Found ${result.data.length} decks`,
+      search_term: search
+    });
+
+  } catch (error) {
+    console.error("Error listing decks:", error);
+    return responseBuilder.serverError(res, "Failed to list decks");
+  }
+}
+
 async function copyDeckById(req, res) {
   const studentId = getStudentId(req, res);
   if (!studentId)
