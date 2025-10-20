@@ -252,19 +252,19 @@ async function getRecentActivity(studentId) {
       s.full_name
     FROM student_activity_log sal
     JOIN students s ON sal.student_id = s.student_id
-    WHERE s.status = 'active'
+    WHERE s.status = 'active' AND sal.student_id = ?
     ORDER BY sal.created_at DESC
     LIMIT 10
   `;
 
-  const [rows] = isMysql ? await client.execute(sql) : await client.query(sql);
+  const [rows] = isMysql ? await client.execute(sql, [studentId]) : await client.query(sql, [studentId]);
 
   return rows.map((activity) => ({
     student_name: activity.full_name,
     activity_description: activity.activity_description,
     score_percentage: activity.score_percentage,
     time_ago: getTimeAgo(activity.created_at),
-    is_current_student: activity.student_id === studentId,
+    is_current_student: true, // Since we're filtering by studentId, all results are for current student
   }));
 }
 

@@ -210,8 +210,13 @@ async function getGroupLeaderboard(req, res) {
 
 // Get recent activity
 async function getRecentActivity(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+
   try {
-    const activities = await repo.getRecentActivity();
+    const activities = await repo.getRecentActivity(studentId);
 
     return responseBuilder.success(res, {
       data: { activities },
