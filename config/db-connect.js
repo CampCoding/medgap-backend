@@ -26,9 +26,11 @@ const mysqlClient = mysql2.createPool({
   password: process.env.MYSQL_PASS,
   database: process.env.MYSQL_DB,
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: 5, // Reduced from 10 to prevent connection limit issues
   queueLimit: 0,
   charset: "utf8mb4",
+  acquireTimeout: 60000, // 60 seconds
+  timeout: 60000, // 60 seconds
 });
 
 // --------- DRIVER SELECTION -----

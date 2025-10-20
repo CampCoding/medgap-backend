@@ -245,5 +245,6 @@ module.exports = {
   updateCardProgress,
   listLibrariesByBulkModules,
   importAllLibrariesToDeck,
-  copyDeckById
+  copyDeckById,
+  listAllDecks
 };

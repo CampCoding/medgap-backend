@@ -21,4 +21,7 @@ router.post("/import-all-to-deck", ctrl.importAllLibrariesToDeck);
 // Copy a specific deck by ID to student's personal collection
 router.post("/copy-deck/:deck_id", ctrl.copyDeckById);
 
+// List all available decks (for finding decks to copy)
+router.get("/decks", ctrl.listAllDecks);
+
 module.exports = router;
