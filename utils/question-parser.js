@@ -73,7 +73,7 @@ function parseQuestionLine(line, lineNumber) {
     
     const key = part.substring(0, colonIndex).trim().toLowerCase();
     const value = part.substring(colonIndex + 1).trim();
-    
+    console.log("questionquestion", question)
     switch (key) {
       case "question text":
         question.question_text = value;
@@ -156,12 +156,12 @@ function parseQuestionLine(line, lineNumber) {
   }
   
   // Set default values
-  question.status = "draft";
+  question.status = "approved";
   question.points = 1;
-  question.keywords = [];
-  question.hint = null;
-  question.help_guidance = null;
-  question.model_answer = null;
+  // question.keywords = [];
+  // question.hint = null;
+  // question.help_guidance = null;
+  // question.model_answer = null;
   
   return question;
 }

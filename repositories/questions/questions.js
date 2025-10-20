@@ -248,7 +248,7 @@ class QuestionsRepository {
       const [result] = await client.execute(query, values);
       result.map((item) => {
         item.answers = JSON.parse(item.answers)?.filter((item) => item);
-        console.log(item.answers?.length);
+        
         return item;
       });
       return result.map((row) => this.formatQuestion(row));
@@ -341,7 +341,7 @@ class QuestionsRepository {
   // تحديث حالة الموافقة/الحالة لسؤال
   async updateQuestionStatus(questionId, status, updatedBy = null) {
     try {
-      console.log([status, updatedBy, questionId])
+      
       const query = `UPDATE questions SET status = ?, updated_at = NOW() WHERE question_id = ?`;
       await client.execute(query, [status, questionId]);
       return await this.getQuestionById(questionId);
@@ -698,7 +698,7 @@ class QuestionsRepository {
         
         WHERE question_id = ?
       `;
-      console.log("questionId", questionId)
+      
       await client.execute(query, [questionId]);
       return { success: true, message: "Question deleted successfully" };
     } catch (error) {
@@ -775,12 +775,12 @@ class QuestionsRepository {
   // إنشاء عدة أسئلة من ملف (محسن للأداء)
   async createQuestionsFromFile(questionsData, createdBy = null) {
     try {
-      console.log(`Starting to create ${questionsData.length} questions`);
+      console.log("questionsDataquestionsData", questionsData)
       
       // Test database connection
       try {
         const [testResult] = await client.execute("SELECT 1 as test");
-        console.log("Database connection test successful:", testResult);
+        
       } catch (dbError) {
         console.error("Database connection test failed:", dbError.message);
         throw new Error(`Database connection failed: ${dbError.message}`);
@@ -795,7 +795,7 @@ class QuestionsRepository {
       };
 
       // استخدام المعاملات لتحسين الأداء
-      console.log("Starting transaction...");
+      
       await client.execute("START TRANSACTION");
 
       try {
@@ -807,19 +807,19 @@ class QuestionsRepository {
           batches.push(questionsData.slice(i, i + batchSize));
         }
 
-        console.log(`Processing ${batches.length} batches`);
+        
 
         // معالجة كل مجموعة بالتوازي
         for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
           const batch = batches[batchIndex];
-          console.log(`Processing batch ${batchIndex + 1}/${batches.length} with ${batch.length} questions`);
+          
           
           const batchPromises = batch.map(async (questionData, index) => {
             const globalIndex = batchIndex * batchSize + index + 1;
             try {
-              console.log(`Creating question ${globalIndex}: ${questionData.question_text?.substring(0, 50)}...`);
+              
               const question = await this.createQuestionInBatch(questionData, createdBy);
-              console.log(`Successfully created question ${globalIndex} with ID: ${question.question_id}`);
+              
               return {
                 success: true,
                 index: globalIndex,
@@ -858,9 +858,9 @@ class QuestionsRepository {
           });
         }
 
-        console.log("Committing transaction...");
+        
         await client.execute("COMMIT");
-        console.log(`Transaction committed successfully. Created ${results.successCount} questions`);
+        
         return results;
 
       } catch (error) {
@@ -919,10 +919,10 @@ class QuestionsRepository {
       createdBy
     ];
 
-    console.log("Executing question insert query...");
+    
     const [questionResult] = await client.execute(questionQuery, questionValues);
     const questionId = questionResult.insertId;
-    console.log(`Question inserted with ID: ${questionId}`);
+    
 
     // إنشاء خيارات السؤال إذا كان من نوع multiple_choice أو true_false
     if (

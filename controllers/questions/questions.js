@@ -520,10 +520,6 @@ class QuestionsController {
       const createdBy = req.user?.admin_id || 1; // TODO: Get from JWT
       const topicId = req.body.topic_id ? parseInt(req.body.topic_id) : null;
       const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
-
-      console.log(`Starting file processing: ${req.file.originalname} (${req.file.size} bytes)`);
-      console.log(`Serverless environment: ${isServerless ? 'Yes' : 'No'}`);
-
       // Parse questions from file (handle both file path and buffer)
       const parseStartTime = Date.now();
       let parseResult;
@@ -550,16 +546,9 @@ class QuestionsController {
         return responseBuilder.badRequest(res, "No valid questions found in the file");
       }
 
-      // Debug: Log sample parsed question
-      console.log("Sample parsed question:", {
-        question_text: parseResult.questions[0].question_text?.substring(0, 100),
-        question_type: parseResult.questions[0].question_type,
-        difficulty_level: parseResult.questions[0].difficulty_level,
-        hint: parseResult.questions[0].hint,
-        keywords: parseResult.questions[0].keywords,
-        help_guidance: parseResult.questions[0].help_guidance,
-        tags: parseResult.questions[0].tags
-      });
+      
+
+      console.log("parseResult.questions[0]", parseResult.questions[0])
 
       // Add topic_id to all questions if provided
       if (topicId && !isNaN(topicId)) {
