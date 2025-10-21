@@ -99,6 +99,9 @@ function parseQuestionLine(line, lineNumber) {
       case "hint":
         question.hint = value;
         break;
+      case "explanation":
+        question.explanation = value;
+        break;
       case "help":
       case "help guidance":
         question.help_guidance = value;
