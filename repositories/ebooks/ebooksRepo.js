@@ -3,7 +3,7 @@ const { client } = require("../../config/db-connect");
 /** ===================== Helpers ===================== */
 const ALLOWED_UPDATE_FIELDS = new Set([
   "subject_id",
-  "book_title",
+  "book_title", 
   "book_description",
   "author",
   "file",

@@ -511,6 +511,7 @@ class QuestionsController {
   // رفع ملف أسئلة وإنشاءها (محسن للأداء ومتوافق مع Vercel)
   async uploadQuestionsFromFile(req, res) {
     const startTime = Date.now();
+      const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
     
     try {
       if (!req.file) {
@@ -519,7 +520,6 @@ class QuestionsController {
 
       const createdBy = req.user?.admin_id || 1; // TODO: Get from JWT
       const topicId = req.body.topic_id ? parseInt(req.body.topic_id) : null;
-      const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
       // Parse questions from file (handle both file path and buffer)
       const parseStartTime = Date.now();
       let parseResult;
@@ -548,13 +548,17 @@ class QuestionsController {
 
       
 
-      console.log("parseResult.questions[0]", parseResult.questions[0])
+      // Only log first question in development environment
+      if (process.env.NODE_ENV === 'development') {
+        console.log("parseResult.questions[0]", parseResult.questions[0]);
+      }
 
-      // Add topic_id to all questions if provided
+      // Add topic_id to all questions if provided - using faster method
       if (topicId && !isNaN(topicId)) {
-        parseResult.questions.forEach(question => {
-          question.topic_id = topicId;
-        });
+        // Use direct assignment instead of forEach for better performance
+        for (let i = 0; i < parseResult.questions.length; i++) {
+          parseResult.questions[i].topic_id = topicId;
+        }
       }
 
       // Create questions in database with optimized batch processing
@@ -565,10 +569,10 @@ class QuestionsController {
       );
       const createTime = Date.now() - createStartTime;
 
-      console.log(`Database creation completed in ${createTifme}ms: ${createResult.successCount} created, ${createResult.failureCount} failed`);
+      console.log(`Database creation completed in ${createTime}ms: ${createResult.successCount} created, ${createResult.failureCount} failed`);
 
       // Clean up uploaded file (only in non-serverless environments)
-      if (!isServerless && req.file.path) {
+      if (!isServerless && req.file && req.file.path) {
         try {
           fs.unlinkSync(req.file.path);
         } catch (cleanupError) {

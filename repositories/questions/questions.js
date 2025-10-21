@@ -1,5 +1,18 @@
 const { client } = require("../../config/db-connect");
 
+// Simple in-memory cache for frequently accessed data
+const cache = {
+  topics: new Map(),
+  topicCacheTime: 0,
+  CACHE_TTL: 5 * 60 * 1000, // 5 minutes in milliseconds
+  
+  // Clear all caches
+  clear() {
+    this.topics.clear();
+    this.topicCacheTime = 0;
+  }
+};
+
 class QuestionsRepository {
   async createQuestion(questionData, createdBy = null) {
     try {
@@ -782,12 +795,11 @@ class QuestionsRepository {
   // إنشاء عدة أسئلة من ملف (محسن للأداء)
   async createQuestionsFromFile(questionsData, createdBy = null) {
     try {
-      console.log("questionsDataquestionsData", questionsData)
+      console.log("Processing questions data, count:", questionsData.length);
       
       // Test database connection
       try {
         const [testResult] = await client.execute("SELECT 1 as test");
-        
       } catch (dbError) {
         console.error("Database connection test failed:", dbError.message);
         throw new Error(`Database connection failed: ${dbError.message}`);
@@ -801,50 +813,53 @@ class QuestionsRepository {
         failureCount: 0
       };
 
-      // استخدام المعاملات لتحسين الأداء
+      // Process questions in smaller batches to avoid lock timeouts
+      const batchSize = 5; // Reduced from 10 to 5 for even better performance
+      const batches = [];
       
-      await client.execute("START TRANSACTION");
+      for (let i = 0; i < questionsData.length; i += batchSize) {
+        batches.push(questionsData.slice(i, i + batchSize));
+      }
 
-      try {
-        // معالجة الأسئلة في مجموعات لتحسين الأداء
-        const batchSize = 50; // معالجة 50 سؤال في كل مرة
-        const batches = [];
+      // Process each batch sequentially instead of in parallel to avoid lock contention
+      for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+        const batch = batches[batchIndex];
         
-        for (let i = 0; i < questionsData.length; i += batchSize) {
-          batches.push(questionsData.slice(i, i + batchSize));
-        }
-
+        // Start a new transaction for each batch
+        await client.execute("START TRANSACTION");
         
-
-        // معالجة كل مجموعة بالتوازي
-        for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-          const batch = batches[batchIndex];
-          
-          
-          const batchPromises = batch.map(async (questionData, index) => {
+        try {
+          // Process questions in this batch one by one instead of using Promise.all
+          // This reduces database contention significantly
+          const batchResults = [];
+          for (let index = 0; index < batch.length; index++) {
+            const questionData = batch[index];
             const globalIndex = batchIndex * batchSize + index + 1;
+            
             try {
-              
               const question = await this.createQuestionInBatch(questionData, createdBy);
-              
-              return {
+              batchResults.push({
                 success: true,
                 index: globalIndex,
                 question: question
-              };
+              });
+              
+              // Add a small delay between each question to reduce database contention
+              if (index < batch.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 50));
+              }
             } catch (error) {
               console.error(`Failed to create question ${globalIndex}:`, error.message);
-              return {
+              batchResults.push({
                 success: false,
                 index: globalIndex,
                 questionData: questionData,
                 error: error.message
-              };
+              });
             }
-          });
-
-          const batchResults = await Promise.all(batchPromises);
+          }
           
+          // Update results
           batchResults.forEach(result => {
             if (result.success) {
               results.successful.push({
@@ -863,18 +878,34 @@ class QuestionsRepository {
               results.failureCount++;
             }
           });
+          
+          // Commit this batch
+          await client.execute("COMMIT");
+          console.log(`Batch ${batchIndex + 1}/${batches.length} committed successfully`);
+          
+          // Add a small delay between batches to reduce database contention
+          if (batchIndex < batches.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+          
+        } catch (error) {
+          console.error(`Error in batch ${batchIndex + 1}, rolling back:`, error.message);
+          await client.execute("ROLLBACK");
+          
+          // Mark all questions in this batch as failed
+          batch.forEach((questionData, index) => {
+            const globalIndex = batchIndex * batchSize + index + 1;
+            results.failed.push({
+              index: globalIndex,
+              question_data: questionData,
+              error: `Batch transaction failed: ${error.message}`
+            });
+            results.failureCount++;
+          });
         }
-
-        
-        await client.execute("COMMIT");
-        
-        return results;
-
-      } catch (error) {
-        console.error("Error in transaction, rolling back:", error.message);
-        await client.execute("ROLLBACK");
-        throw error;
       }
+      
+      return results;
 
     } catch (error) {
       console.error("Error creating questions from file:", error.message);
