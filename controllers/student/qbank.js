@@ -17,9 +17,9 @@ function getStudentId(req, res) {
 async function solveQuestion(req, res) {
     const studentId = getStudentId(req, res);
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
-    const { question_id, answer } = req.body;
+    const { question_id, answer, qbank_id, correct } = req.body;
     console.log("studentId", studentId)
-    const question = await repo.solveQuestion({ question_id, studentId, answer });
+    const question = await repo.solveQuestion({ question_id, studentId, answer, qbank_id, correct });
     return responseBuilder.success(res, { question });
 }
 

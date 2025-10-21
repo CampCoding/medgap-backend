@@ -1,7 +1,7 @@
 const { client } = require("../../config/db-connect");
 const activityTracking = require("./activityTracking");
 
-const solveQuestion = async ({ question_id, studentId, answer }) => {
+const solveQuestion = async ({ question_id, studentId, answer, qbank_id, correct }) => {
     let [question] = await client.execute(
         `SELECT 
             questions.*, 
@@ -37,9 +37,9 @@ const solveQuestion = async ({ question_id, studentId, answer }) => {
 
 
     const [insertQuestionAnswer] = await client.execute(
-        `INSERT INTO solved_questions (question_id, student_id, answer, is_correct)
-         VALUES (?, ?, ?, ?)`,
-        [question_id, studentId, answer, isCorrect ? '1' : '0']
+        `INSERT INTO solved_questions (question_id, student_id, answer, is_correct, qbank_id)
+         VALUES (?, ?, ?, ?, qbank_id)`,
+        [question_id, studentId, answer, correct ? correct ? '1' : '0' : isCorrect ? '1' : '0', qbank_id]
     );
 
     // Log activity automatically
@@ -280,24 +280,24 @@ const updateDeck = async ({ deckId, deck_title, deck_description }) => {
     let query = `UPDATE student_deck SET `;
     const params = [];
     const updates = [];
-    
+
     if (deck_title !== undefined) {
         updates.push(`deck_title = ?`);
         params.push(deck_title);
     }
-    
+
     if (deck_description !== undefined) {
         updates.push(`deck_description = ?`);
         params.push(deck_description || null);
     }
-    
+
     if (updates.length === 0) {
         return false; // No fields to update
     }
-    
+
     query += updates.join(', ') + ` WHERE student_deck_id = ?`;
     params.push(deckId);
-    
+
     const [result] = await client.execute(query, params);
     return result.affectedRows > 0;
 }
@@ -453,12 +453,12 @@ const listQuestion = async ({ qbank_id, studentId }) => {
             r.options = JSON.parse(r.options).filter(Boolean);
             if (typeof r.keywords === 'string') r.keywords = JSON.parse(r.keywords).filter(Boolean);
             if (typeof r.notes === 'string') r.notes = JSON.parse(r.notes).filter(Boolean);
-                const answerParsed = JSON.parse(r.your_answer);
-                    answerParsed.solved = false
-                if(answerParsed?.is_correct != null){
-                    answerParsed.solved = true
-                }
-              r.your_answer = answerParsed
+            const answerParsed = JSON.parse(r.your_answer);
+            answerParsed.solved = false
+            if (answerParsed?.is_correct != null) {
+                answerParsed.solved = true
+            }
+            r.your_answer = answerParsed
             if (typeof r.flashcards === 'string') {
                 const parsed = JSON.parse(r.flashcards).filter(Boolean);
 
