@@ -39,7 +39,7 @@ const solveQuestion = async ({ question_id, studentId, answer, qbank_id, correct
     const [insertQuestionAnswer] = await client.execute(
         `INSERT INTO solved_questions (question_id, student_id, answer, is_correct, qbank_id)
          VALUES (?, ?, ?, ?, qbank_id)`,
-        [question_id, studentId, answer, correct ? correct ? '1' : '0' : isCorrect ? '1' : '0', qbank_id]
+        [question_id, studentId, answer, correct ? correct ? '1' : '0' : isCorrect ? '1' : '0', qbank_id?qbank_id:0]
     );
 
     // Log activity automatically
