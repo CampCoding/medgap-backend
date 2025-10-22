@@ -14,7 +14,9 @@ class TeachersRepository {
       status,
       image_url,
       qualification,
-      password
+      password,
+      image_path,
+      document_url
     } = teacherData;
 
     try {
@@ -26,9 +28,9 @@ class TeachersRepository {
         INSERT INTO teachers (
           full_name, email, phone, notes, experience_years, 
           join_date, role, status, image_url, qualification, created_by,
-          password
+          password,document_url
         ) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
       `;
 
       const teacherValues = [
@@ -43,7 +45,8 @@ class TeachersRepository {
         image_url || null,
         qualification || null,
         createdBy,
-        password || null
+        password || null,
+        document_url||null
       ];
 
       console.log("Executing query:", teacherQuery);
