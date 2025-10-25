@@ -2,7 +2,7 @@ const { client } = require("../../../config/db-connect");
 const { signAccessToken, signRefreshToken } = require("../../../utils/jwt");
 
 const loginRepo = async (data) => {
-  const isMysql = process.env.ENV == "development";
+  const isMysql = true;
   let adminData = {};
 
   if (isMysql) {

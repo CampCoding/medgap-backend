@@ -8,7 +8,7 @@ async function getAllQuotes(req, res) {
     const offset = (page - 1) * limit;
 
     const quotes = await repo.getAllQuotes({
-      offset: parseInt(offset),
+      offset: parseInt(offset), 
       limit: parseInt(limit),
       search,
       category,

@@ -1,7 +1,7 @@
 const { client } = require("../../config/db-connect");
 
 // Check if we're using MySQL (development) or PostgreSQL (production)
-const isMysql = process.env.ENV === "development";
+const isMysql = true;
 
 // Log specific activity (called from other controllers)
 async function logActivity({

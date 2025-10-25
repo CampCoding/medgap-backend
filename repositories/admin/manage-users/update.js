@@ -1,6 +1,6 @@
 const { client } = require("../../../config/db-connect");
 
-const isMySQL = (process.env.ENV || "").trim().toLowerCase() === "development";
+const isMysql = true;
 
 const updateRepo = async (data) => {
   const updateStmt = [];

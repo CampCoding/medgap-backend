@@ -1,7 +1,7 @@
 const { client } = require("../../config/db-connect");
 
 // Check if we're using MySQL (development) or PostgreSQL (production)
-const isMysql = process.env.ENV === "development";
+const isMysql = true;
 
 // Get all exams for a specific teacher with pagination and filters
 async function getAllExams({

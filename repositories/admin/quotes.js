@@ -1,7 +1,7 @@
 const { client } = require("../../config/db-connect");
 
 // Check if we're using MySQL (development) or PostgreSQL (production)
-const isMysql = process.env.ENV === "development";
+const isMysql = true;
 
 // Get all quotes with pagination and search
 async function getAllQuotes({

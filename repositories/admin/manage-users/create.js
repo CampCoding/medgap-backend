@@ -1,6 +1,6 @@
 const { client } = require("../../../config/db-connect");
 
-const isMySQL = (process.env.ENV || "").trim().toLowerCase() === "development";
+const isMysql = true;
 
 const createRepo = async (data) => {
   if (isMySQL) {
