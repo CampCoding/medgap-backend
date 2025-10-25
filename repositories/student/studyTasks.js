@@ -11,7 +11,7 @@ async function createBacklogTask({
   notes,
 }) {
   const sql = `INSERT INTO student_tasks_backlog (student_id, title, time_of_day, task_type, priority, notes)
-               VALUES (?, ?, ?, ?, ?, ?, ?)`;
+               VALUES (?, ?, ?, ?, ?, ?)`;
   const params = [
     studentId,
     title,
