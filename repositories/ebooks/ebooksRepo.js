@@ -10,7 +10,8 @@ const ALLOWED_UPDATE_FIELDS = new Set([
   "pages",
   "thumbnail",
   "status",
-  "size"
+  "size",
+  "type"
 ]);
 
 function buildUpdateSet(data = {}) {
@@ -40,9 +41,9 @@ async function createRepo(data) {
   const date = new Date();
   const insertSql = `
     INSERT INTO ebooks
-      (subject_id, book_title, book_description, author, file, pages, thumbnail, status, is_deleted, created_by, created_at, updated_at, size)
+      (subject_id, book_title, book_description, author, file, pages, thumbnail, status, is_deleted, created_by, created_at, updated_at, size, type)
     VALUES
-      (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)
+      (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)
   `;
   const [result] = await client.execute(insertSql, [
     data?.subject_id,
@@ -55,7 +56,8 @@ async function createRepo(data) {
     data?.status || "active",
     0,
     date,
-    data?.size
+    data?.size,
+    data?.type || "ebook"
   ]);
 
   if (result?.insertId)
@@ -222,6 +224,7 @@ async function listRepo({
   book_id,
   module_id,
   status,
+  type,
   search,
   includeDeleted = false,
   orderBy = "created_at",
@@ -232,7 +235,8 @@ async function listRepo({
     "updated_at",
     "book_title",
     "pages",
-    "id"
+    "id",
+    "type"
   ]);
   const allowedDir = new Set(["ASC", "DESC"]);
 
@@ -261,7 +265,10 @@ async function listRepo({
     where.push("status = ? ");
     params.push(status);
   }
-
+  if (type) {
+    where.push("type = ? ");
+    params.push(type);
+  }
   if (search && search.trim()) {
     where.push(
       "(book_title LIKE CONCAT('%', ?, '%') OR author LIKE CONCAT('%', ?, '%') OR book_description LIKE CONCAT('%', ?, '%')) "

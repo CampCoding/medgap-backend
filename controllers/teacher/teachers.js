@@ -30,6 +30,9 @@ class TeachersController {
       } = req.body;
 
       const image = req?.files?.find((file) => file.fieldname === "image");
+        const document = req?.files?.find((file) => file.fieldname === "document"); // Add this line
+    console.log("document", document); // Add this line
+
       console.log("image", image)
       const join_date =
 
@@ -65,7 +68,8 @@ class TeachersController {
         image_url: image_url || (image ? image.path.replace(/\\/g, "/") : null),
         qualification,
         password: await bcrypt.hash(password, saltRounds),
-        image_path: image ? image.path.replace(/\\/g, "/") : null
+        image_path: image ? image.path.replace(/\\/g, "/") : null,
+          document_url: document ? document.path.replace(/\\/g, "/") : null
       };
 
       console.log("teacherData", teacherData);

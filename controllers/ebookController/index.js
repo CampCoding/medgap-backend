@@ -49,6 +49,7 @@ const createController = async (req, res) => {
         req.body?.book_description || req.body?.description || null,
       author: req.body?.author || null,
       file,
+      type: req.body?.type || "ebook",
       pages,
       thumbnail,
       status: req.body?.status || "active",
