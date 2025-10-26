@@ -203,7 +203,7 @@ async function createQbankController(req, res) {
      */
     const { tutorMode: tutorMode, timed: timed, timeAcc: timeType, selected_modules,
         selected_subjects,
-        selected_topics, question_level, numQuestions } = req.body;
+        selected_topics, question_level, numQuestions, question_mode } = req.body;
         const qbankName = req?.body?.quiz_name || new Date().toLocaleDateString();
     const qbank_id = await repo.createQbank({
         qbankName,
@@ -216,7 +216,8 @@ async function createQbankController(req, res) {
         selected_subjects,
         selected_topics,
         question_level,
-        numQuestions
+        numQuestions,
+        question_mode
     });
     return responseBuilder.success(res, { qbank_id });
 }

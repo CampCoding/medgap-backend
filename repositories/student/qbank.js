@@ -142,138 +142,239 @@ const fetchTopicsByUnitIds = async (unitIds = []) => {
 const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId = null) => {
     if (!Array.isArray(topicIds) || topicIds.length === 0) return [];
     const placeholders = topicIds.map(() => '?').join(',');
+    const numQuestions = filters?.numQuestions || 10;
 
-    let sql = `SELECT 
-		q.*,
-		COALESCE(
-			JSON_ARRAYAGG(
-				CASE WHEN qo.option_id IS NOT NULL THEN JSON_OBJECT(
-					'option_id', qo.option_id,
-					'option_text', qo.option_text,
-					'is_correct', qo.is_correct,
-					'explanation', qo.explanation
-				) END
-			), JSON_ARRAY()
-		) AS options,
-		CASE WHEN sq.question_id IS NOT NULL THEN 1 ELSE 0 END AS is_solved,
-		CASE WHEN sq.is_correct = 1 THEN 1 ELSE 0 END AS is_correct_answer,
-		CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL THEN 1 ELSE 0 END AS is_marked,
-		q.difficulty_level,
-		-- Correct counts by difficulty
-		CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 1 AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS correct_count_easy,
-		CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 1 AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS correct_count_medium,
-		CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 1 AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS correct_count_hard,
-		-- Wrong counts by difficulty
-		CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 0 AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS wrong_count_easy,
-		CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 0 AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS wrong_count_medium,
-		CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 0 AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS wrong_count_hard,
-		-- Unused counts by difficulty
-		CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS unused_count_easy,
-		CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS unused_count_medium,
-		CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS unused_count_hard,
-		-- Marked counts by difficulty
-		CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS marked_count_easy,
-		CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS marked_count_medium,
-		CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS marked_count_hard
-	 FROM questions q
-	 LEFT JOIN question_options qo ON q.question_id = qo.question_id`;
-    
-    // Add solved_questions join if studentId is provided
+    // First, get counts for each mode to determine distribution
+    let countSql = `SELECT 
+        COUNT(DISTINCT CASE WHEN sq.question_id IS NULL THEN q.question_id END) AS unused_count,
+        COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' THEN q.question_id END) AS incorrect_count,
+        COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' THEN q.question_id END) AS correct_count,
+        COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL THEN q.question_id END) AS marked_count
+        FROM questions q`;
+
     if (studentId) {
-        sql += ` LEFT JOIN (
+        countSql += ` LEFT JOIN (
             SELECT DISTINCT question_id, is_correct 
             FROM solved_questions 
             WHERE student_id = ?
         ) sq ON q.question_id = sq.question_id`;
-        sql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
-        sql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
+        countSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+        countSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
     } else {
-        sql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
-        sql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
-        sql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
+        countSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
+        countSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+        countSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
     }
-    
-    sql += ` WHERE q.topic_id IN (${placeholders})`;
-    
-    const values = studentId ? [studentId, studentId, ...topicIds] : [...topicIds];
-    
+
+    countSql += ` WHERE q.topic_id IN (${placeholders})`;
+
     if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
         const difficultyPlaceholders = filters.status.map(() => '?').join(',');
-        sql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
-        values.push(...filters.status);
+        countSql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
     }
 
-    // Add mode-based filtering
-    if (filters.question_mode && Array.isArray(filters.question_mode) && filters.question_mode.length > 0 && studentId) {
-        const modeConditions = [];
-        
-        if (filters.question_mode.includes('unused')) {
-            modeConditions.push('sq.question_id IS NULL');
-        }
-        if (filters.question_mode.includes('incorrect')) {
-            modeConditions.push('(sq.question_id IS NOT NULL AND sq.is_correct = 0)');
-        }
-        if (filters.question_mode.includes('marked')) {
-            modeConditions.push('(mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)');
-        }
-        if (filters.question_mode.includes('correct')) {
-            modeConditions.push('(sq.question_id IS NOT NULL AND sq.is_correct = 1)');
-        }
-        
-        if (modeConditions.length > 0) {
-            sql += ` AND (${modeConditions.join(' OR ')})`;
-            console.log('Added mode conditions:', modeConditions);
-        }
+    const countValues = studentId ? [studentId, studentId, ...topicIds] : [...topicIds];
+    if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
+        countValues.push(...filters.status);
     }
 
-    sql += ` GROUP BY q.question_id ORDER BY q.created_at DESC LIMIT ?`;
-    values.push(filters?.numQuestions || 10); // Added default limit for safety
-    console.log(sql, values)
-    const [rows] = await client.execute(sql, values);
-    console.log('Query returned', rows.length, 'rows');
-    if (rows.length > 0) {
-        console.log('Sample row:', {
-            question_id: rows[0].question_id,
-            is_solved: rows[0].is_solved,
-            is_correct_answer: rows[0].is_correct_answer,
-            is_marked: rows[0].is_marked
+    const [countRows] = await client.execute(countSql, countValues);
+    const counts = countRows[0];
+
+    // Determine which modes to include and how many questions from each
+    const availableModes = [];
+    if (filters.question_mode && Array.isArray(filters.question_mode) && filters.question_mode.length > 0) {
+        filters.question_mode.forEach(mode => {
+            const count = counts[`${mode}_count`] || 0;
+            if (count > 0) {
+                availableModes.push({ mode, count });
+            }
+        });
+    } else {
+        // If no mode specified, use all available modes
+        if (counts.unused_count > 0) availableModes.push({ mode: 'unused', count: counts.unused_count });
+        if (counts.incorrect_count > 0) availableModes.push({ mode: 'incorrect', count: counts.incorrect_count });
+        if (counts.correct_count > 0) availableModes.push({ mode: 'correct', count: counts.correct_count });
+        if (counts.marked_count > 0) availableModes.push({ mode: 'marked', count: counts.marked_count });
+    }
+
+    // Calculate questions per mode (distribute evenly, but respect individual mode limits)
+    // First, check if total available questions is less than requested
+    const totalAvailable = availableModes.reduce((sum, { count }) => sum + count, 0);
+    const actualNumQuestions = Math.min(numQuestions, totalAvailable);
+
+    // If we have multiple topics, try to distribute questions across topics as well
+    let modeLimits = [];
+    if (topicIds.length > 1) {
+        // Distribute questions across topics first, then across modes within each topic
+        const questionsPerTopic = Math.ceil(actualNumQuestions / topicIds.length);
+
+        for (const topicId of topicIds) {
+            const topicQuestionsPerMode = Math.ceil(questionsPerTopic / availableModes.length);
+
+            availableModes.forEach(({ mode, count }) => {
+                const limit = Math.min(topicQuestionsPerMode, count);
+                if (limit > 0) {
+                    modeLimits.push({ mode, limit, topicId });
+                }
+            });
+        }
+    } else {
+        // Single topic - distribute across modes only
+        const questionsPerMode = Math.ceil(actualNumQuestions / availableModes.length);
+        modeLimits = availableModes.map(({ mode, count }) => ({
+            mode,
+            limit: Math.min(questionsPerMode, count),
+            topicId: topicIds[0]
+        }));
+    }
+
+    console.log('Available counts:', counts);
+    console.log('Available modes:', availableModes);
+    console.log('Requested questions:', numQuestions);
+    console.log('Total available:', totalAvailable);
+    console.log('Actual questions to fetch:', actualNumQuestions);
+    console.log('Mode distribution:', modeLimits);
+
+    // If no questions available, return empty result
+    if (totalAvailable === 0) {
+        console.log('No questions available for the specified criteria');
+        return {
+            questions: [],
+            counts: {
+                correct_count_easy: 0, correct_count_medium: 0, correct_count_hard: 0,
+                wrong_count_easy: 0, wrong_count_medium: 0, wrong_count_hard: 0,
+                unused_count_easy: 0, unused_count_medium: 0, unused_count_hard: 0,
+                marked_count_easy: 0, marked_count_medium: 0, marked_count_hard: 0,
+                total_questions: 0
+            }
+        };
+    }
+
+    // Now fetch questions based on calculated limits
+    let allQuestions = [];
+    let aggregatedCounts = {
+        correct_count_easy: 0, correct_count_medium: 0, correct_count_hard: 0,
+        wrong_count_easy: 0, wrong_count_medium: 0, wrong_count_hard: 0,
+        unused_count_easy: 0, unused_count_medium: 0, unused_count_hard: 0,
+        marked_count_easy: 0, marked_count_medium: 0, marked_count_hard: 0,
+        total_questions: 0
+    };
+
+    for (const { mode, limit, topicId } of modeLimits) {
+        if (limit <= 0) continue;
+
+        let modeSql = `SELECT 
+            q.*,
+            COALESCE(
+                JSON_ARRAYAGG(
+                    CASE WHEN qo.option_id IS NOT NULL THEN JSON_OBJECT(
+                        'option_id', qo.option_id,
+                        'option_text', qo.option_text,
+                        'is_correct', qo.is_correct,
+                        'explanation', qo.explanation
+                    ) END
+                ), JSON_ARRAY()
+            ) AS options,
+            CASE WHEN sq.question_id IS NOT NULL THEN 1 ELSE 0 END AS is_solved,
+            CASE WHEN sq.is_correct = '1' THEN 1 ELSE 0 END AS is_correct_answer,
+            CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL THEN 1 ELSE 0 END AS is_marked,
+            q.difficulty_level,
+            -- Correct counts by difficulty
+            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS correct_count_easy,
+            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS correct_count_medium,
+            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS correct_count_hard,
+            -- Wrong counts by difficulty
+            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS wrong_count_easy,
+            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS wrong_count_medium,
+            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS wrong_count_hard,
+            -- Unused counts by difficulty
+            CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS unused_count_easy,
+            CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS unused_count_medium,
+            CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS unused_count_hard,
+            -- Marked counts by difficulty
+            CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS marked_count_easy,
+            CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS marked_count_medium,
+            CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS marked_count_hard
+            FROM questions q
+            LEFT JOIN question_options qo ON q.question_id = qo.question_id`;
+
+        if (studentId) {
+            modeSql += ` LEFT JOIN (
+                SELECT DISTINCT question_id, is_correct 
+                FROM solved_questions 
+                WHERE student_id = ?
+            ) sq ON q.question_id = sq.question_id`;
+            modeSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+            modeSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
+        } else {
+            modeSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
+            modeSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+            modeSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
+        }
+
+        modeSql += ` WHERE q.topic_id = ?`;
+
+        const modeValues = studentId ? [studentId, studentId, topicId] : [topicId];
+
+        if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
+            const difficultyPlaceholders = filters.status.map(() => '?').join(',');
+            modeSql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
+            modeValues.push(...filters.status);
+        }
+
+        // Add mode-specific condition
+        switch (mode) {
+            case 'unused':
+                modeSql += ` AND sq.question_id IS NULL`;
+                break;
+            case 'incorrect':
+                modeSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '0')`;
+                break;
+            case 'correct':
+                modeSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '1')`;
+                break;
+            case 'marked':
+                modeSql += ` AND (mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)`;
+                break;
+        }
+
+        modeSql += ` GROUP BY q.question_id ORDER BY q.created_at DESC LIMIT ?`;
+        modeValues.push(limit);
+
+        console.log(`Fetching ${limit} ${mode} questions from topic ${topicId}`);
+        const [modeRows] = await client.execute(modeSql, modeValues);
+
+        // Process questions and aggregate counts
+        const processedQuestions = modeRows.map((q) => ({
+            ...q,
+            options: JSON.parse(q.options)?.filter(Boolean) || [],
+            question_mode: mode
+        }));
+
+        allQuestions = allQuestions.concat(processedQuestions);
+
+        // Aggregate counts
+        modeRows.forEach(row => {
+            aggregatedCounts.correct_count_easy += row.correct_count_easy;
+            aggregatedCounts.correct_count_medium += row.correct_count_medium;
+            aggregatedCounts.correct_count_hard += row.correct_count_hard;
+            aggregatedCounts.wrong_count_easy += row.wrong_count_easy;
+            aggregatedCounts.wrong_count_medium += row.wrong_count_medium;
+            aggregatedCounts.wrong_count_hard += row.wrong_count_hard;
+            aggregatedCounts.unused_count_easy += row.unused_count_easy;
+            aggregatedCounts.unused_count_medium += row.unused_count_medium;
+            aggregatedCounts.unused_count_hard += row.unused_count_hard;
+            aggregatedCounts.marked_count_easy += row.marked_count_easy;
+            aggregatedCounts.marked_count_medium += row.marked_count_medium;
+            aggregatedCounts.marked_count_hard += row.marked_count_hard;
         });
     }
-    
-    // Aggregate counts by difficulty level
-    const aggregatedCounts = {
-        correct_count_easy: 0,
-        correct_count_medium: 0,
-        correct_count_hard: 0,
-        wrong_count_easy: 0,
-        wrong_count_medium: 0,
-        wrong_count_hard: 0,
-        unused_count_easy: 0,
-        unused_count_medium: 0,
-        unused_count_hard: 0,
-        marked_count_easy: 0,
-        marked_count_medium: 0,
-        marked_count_hard: 0,
-        total_questions: rows.length
-    };
-    
-    rows.forEach(row => {
-        aggregatedCounts.correct_count_easy += row.correct_count_easy;
-        aggregatedCounts.correct_count_medium += row.correct_count_medium;
-        aggregatedCounts.correct_count_hard += row.correct_count_hard;
-        aggregatedCounts.wrong_count_easy += row.wrong_count_easy;
-        aggregatedCounts.wrong_count_medium += row.wrong_count_medium;
-        aggregatedCounts.wrong_count_hard += row.wrong_count_hard;
-        aggregatedCounts.unused_count_easy += row.unused_count_easy;
-        aggregatedCounts.unused_count_medium += row.unused_count_medium;
-        aggregatedCounts.unused_count_hard += row.unused_count_hard;
-        aggregatedCounts.marked_count_easy += row.marked_count_easy;
-        aggregatedCounts.marked_count_medium += row.marked_count_medium;
-        aggregatedCounts.marked_count_hard += row.marked_count_hard;
-    });
-    
+
+    aggregatedCounts.total_questions = allQuestions.length;
+
     return {
-        questions: rows.map((q) => ({ ...q, options: JSON.parse(q.options)?.filter(Boolean) || [] })),
+        questions: allQuestions,
         counts: aggregatedCounts
     };
 }
@@ -308,7 +409,7 @@ const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filt
 
 const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, selected_modules,
     selected_subjects,
-    selected_topics, question_level, numQuestions }) => {
+    selected_topics, question_level, numQuestions, question_mode = ["unused"] }) => {
     /**
       numQuestions:null,
   question_mode:"",
@@ -332,7 +433,7 @@ const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, s
         selected_subjects,
         selected_topics,
         status: question_level,
-        question_mode: ["unused"],
+        question_mode: question_mode,
         numQuestions
     }
 
