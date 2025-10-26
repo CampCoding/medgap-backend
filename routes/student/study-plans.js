@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const ctrl = require("../../controllers/student/studyPlans");
 
-router.get("/modules", ctrl.getModules);
+router.get("/modules", ctrl.getModules); 
 router.get("/modules/:module_id/topics", ctrl.getTopicsByModule);
 router.get("/subjects/:module_id/topics", ctrl.getTopicsBySubject);
 router.get("/modules/:module_id/subjects", ctrl.getSubjectsByModule);

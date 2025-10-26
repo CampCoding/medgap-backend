@@ -1643,11 +1643,22 @@ async function getTopicsBySubject({ moduleId, studentId }) {
     });
   });
 
-  // --- 4. Combine and return ---
-  return topicRows.map(topic => ({
+   // --- 4. Combine and return ---
+   return topicRows.map(topic => {
+    const distinct = [
+      ...new Map(questionsByTopic[topic.topic_id].map(item => [item.question_id, item])).values()
+    ];
+
+    topic.wrong_count = distinct?.filter(item=>!item?.correct && item?.attempted)?.length || 0;
+    topic.correct_count = distinct?.filter(item=>item?.correct && item?.attempted)?.length || 0;
+    topic.unsolved_count = distinct?.filter(item=>!item?.attempted)?.length || 0;
+    topic.marked_count = distinct?.filter(item=>item?.marked)?.length || 0;
+
+  return ({
     ...topic,
-    questions: questionsByTopic[topic.topic_id] || []
-  }));
+    questions: distinct || []
+  })
+})
 }
 
 async function getSubjectsByModule({ moduleId }) {
