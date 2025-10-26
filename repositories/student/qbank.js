@@ -139,7 +139,7 @@ const fetchTopicsByUnitIds = async (unitIds = []) => {
     return rows;
 }
 
-const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}) => {
+const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId = null) => {
     if (!Array.isArray(topicIds) || topicIds.length === 0) return [];
     const placeholders = topicIds.map(() => '?').join(',');
 
@@ -154,25 +154,131 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}) => {
 					'explanation', qo.explanation
 				) END
 			), JSON_ARRAY()
-		) AS options
+		) AS options,
+		CASE WHEN sq.question_id IS NOT NULL THEN 1 ELSE 0 END AS is_solved,
+		CASE WHEN sq.is_correct = 1 THEN 1 ELSE 0 END AS is_correct_answer,
+		CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL THEN 1 ELSE 0 END AS is_marked,
+		q.difficulty_level,
+		-- Correct counts by difficulty
+		CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 1 AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS correct_count_easy,
+		CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 1 AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS correct_count_medium,
+		CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 1 AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS correct_count_hard,
+		-- Wrong counts by difficulty
+		CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 0 AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS wrong_count_easy,
+		CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 0 AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS wrong_count_medium,
+		CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 0 AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS wrong_count_hard,
+		-- Unused counts by difficulty
+		CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS unused_count_easy,
+		CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS unused_count_medium,
+		CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS unused_count_hard,
+		-- Marked counts by difficulty
+		CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS marked_count_easy,
+		CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS marked_count_medium,
+		CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS marked_count_hard
 	 FROM questions q
-	 LEFT JOIN question_options qo ON q.question_id = qo.question_id
-	 WHERE q.topic_id IN (${placeholders})`;
-    const values = [...topicIds];
+	 LEFT JOIN question_options qo ON q.question_id = qo.question_id`;
+    
+    // Add solved_questions join if studentId is provided
+    if (studentId) {
+        sql += ` LEFT JOIN (
+            SELECT DISTINCT question_id, is_correct 
+            FROM solved_questions 
+            WHERE student_id = ?
+        ) sq ON q.question_id = sq.question_id`;
+        sql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+        sql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
+    } else {
+        sql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
+        sql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+        sql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
+    }
+    
+    sql += ` WHERE q.topic_id IN (${placeholders})`;
+    
+    const values = studentId ? [studentId, studentId, ...topicIds] : [...topicIds];
+    
     if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
         const difficultyPlaceholders = filters.status.map(() => '?').join(',');
         sql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
         values.push(...filters.status);
     }
 
+    // Add mode-based filtering
+    if (filters.question_mode && Array.isArray(filters.question_mode) && filters.question_mode.length > 0 && studentId) {
+        const modeConditions = [];
+        
+        if (filters.question_mode.includes('unused')) {
+            modeConditions.push('sq.question_id IS NULL');
+        }
+        if (filters.question_mode.includes('incorrect')) {
+            modeConditions.push('(sq.question_id IS NOT NULL AND sq.is_correct = 0)');
+        }
+        if (filters.question_mode.includes('marked')) {
+            modeConditions.push('(mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)');
+        }
+        if (filters.question_mode.includes('correct')) {
+            modeConditions.push('(sq.question_id IS NOT NULL AND sq.is_correct = 1)');
+        }
+        
+        if (modeConditions.length > 0) {
+            sql += ` AND (${modeConditions.join(' OR ')})`;
+            console.log('Added mode conditions:', modeConditions);
+        }
+    }
+
     sql += ` GROUP BY q.question_id ORDER BY q.created_at DESC LIMIT ?`;
     values.push(filters?.numQuestions || 10); // Added default limit for safety
     console.log(sql, values)
     const [rows] = await client.execute(sql, values);
-    return rows.map((q) => ({ ...q, options: JSON.parse(q.options)?.filter(Boolean) || [] }));
+    console.log('Query returned', rows.length, 'rows');
+    if (rows.length > 0) {
+        console.log('Sample row:', {
+            question_id: rows[0].question_id,
+            is_solved: rows[0].is_solved,
+            is_correct_answer: rows[0].is_correct_answer,
+            is_marked: rows[0].is_marked
+        });
+    }
+    
+    // Aggregate counts by difficulty level
+    const aggregatedCounts = {
+        correct_count_easy: 0,
+        correct_count_medium: 0,
+        correct_count_hard: 0,
+        wrong_count_easy: 0,
+        wrong_count_medium: 0,
+        wrong_count_hard: 0,
+        unused_count_easy: 0,
+        unused_count_medium: 0,
+        unused_count_hard: 0,
+        marked_count_easy: 0,
+        marked_count_medium: 0,
+        marked_count_hard: 0,
+        total_questions: rows.length
+    };
+    
+    rows.forEach(row => {
+        aggregatedCounts.correct_count_easy += row.correct_count_easy;
+        aggregatedCounts.correct_count_medium += row.correct_count_medium;
+        aggregatedCounts.correct_count_hard += row.correct_count_hard;
+        aggregatedCounts.wrong_count_easy += row.wrong_count_easy;
+        aggregatedCounts.wrong_count_medium += row.wrong_count_medium;
+        aggregatedCounts.wrong_count_hard += row.wrong_count_hard;
+        aggregatedCounts.unused_count_easy += row.unused_count_easy;
+        aggregatedCounts.unused_count_medium += row.unused_count_medium;
+        aggregatedCounts.unused_count_hard += row.unused_count_hard;
+        aggregatedCounts.marked_count_easy += row.marked_count_easy;
+        aggregatedCounts.marked_count_medium += row.marked_count_medium;
+        aggregatedCounts.marked_count_hard += row.marked_count_hard;
+    });
+    
+    return {
+        questions: rows.map((q) => ({ ...q, options: JSON.parse(q.options)?.filter(Boolean) || [] })),
+        counts: aggregatedCounts
+    };
 }
 
-const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filters = {} }) => {
+const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filters = {}, studentId = null }) => {
 
     const modules = await fetchModules(selected_modules);
     const moduleIds = modules.map(m => m.module_id);
@@ -195,9 +301,9 @@ const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filt
     const explicitTopicIds = Array.isArray(filters.selected_topics) ? filters.selected_topics : [];
     const topicIds = explicitTopicIds.length ? explicitTopicIds : topics.map(t => t.topic_id);
 
-    const questions = await fetchQuestionsByTopicIds(topicIds, filters);
+    const questions = await fetchQuestionsByTopicIds(topicIds, filters, studentId);
     console.log({ modules, subjects, topics, questions })
-    return { modules, subjects, topics, questions };
+    return { modules, subjects, topics, questions: questions.questions, counts: questions.counts };
 }
 
 const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, selected_modules,
