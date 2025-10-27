@@ -147,21 +147,32 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
     // First, get counts for each mode to determine distribution
     let countSql = `SELECT 
         COUNT(DISTINCT CASE WHEN sq.question_id IS NULL THEN q.question_id END) AS unused_count,
-        COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' THEN q.question_id END) AS incorrect_count,
-        COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' THEN q.question_id END) AS correct_count,
+        COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 0 AND sq.has_correct = 0 THEN q.question_id END) AS incorrect_count,
+        COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.has_correct = 1 THEN q.question_id END) AS correct_count,
         COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL THEN q.question_id END) AS marked_count
         FROM questions q`;
 
     if (studentId) {
         countSql += ` LEFT JOIN (
-            SELECT DISTINCT question_id, is_correct 
+            SELECT 
+                question_id,
+                MAX(is_correct) as is_correct,
+                CASE WHEN MAX(is_correct) = 1 THEN 1 ELSE 0 END as has_correct
             FROM solved_questions 
             WHERE student_id = ?
+            GROUP BY question_id
         ) sq ON q.question_id = sq.question_id`;
         countSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
         countSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
     } else {
-        countSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
+        countSql += ` LEFT JOIN (
+            SELECT 
+                question_id,
+                MAX(is_correct) as is_correct,
+                CASE WHEN MAX(is_correct) = 1 THEN 1 ELSE 0 END as has_correct
+            FROM solved_questions 
+            GROUP BY question_id
+        ) sq ON q.question_id = sq.question_id`;
         countSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
         countSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
     }
@@ -265,29 +276,29 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
         if (limit <= 0) continue;
 
         let modeSql = `SELECT 
-            q.*,
-            COALESCE(
-                JSON_ARRAYAGG(
-                    CASE WHEN qo.option_id IS NOT NULL THEN JSON_OBJECT(
-                        'option_id', qo.option_id,
-                        'option_text', qo.option_text,
-                        'is_correct', qo.is_correct,
-                        'explanation', qo.explanation
-                    ) END
-                ), JSON_ARRAY()
+		q.*,
+		COALESCE(
+			JSON_ARRAYAGG(
+				CASE WHEN qo.option_id IS NOT NULL THEN JSON_OBJECT(
+					'option_id', qo.option_id,
+					'option_text', qo.option_text,
+					'is_correct', qo.is_correct,
+					'explanation', qo.explanation
+				) END
+			), JSON_ARRAY()
             ) AS options,
             CASE WHEN sq.question_id IS NOT NULL THEN 1 ELSE 0 END AS is_solved,
-            CASE WHEN sq.is_correct = '1' THEN 1 ELSE 0 END AS is_correct_answer,
+            CASE WHEN sq.has_correct = 1 THEN 1 ELSE 0 END AS is_correct_answer,
             CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL THEN 1 ELSE 0 END AS is_marked,
             q.difficulty_level,
             -- Correct counts by difficulty
-            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS correct_count_easy,
-            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS correct_count_medium,
-            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS correct_count_hard,
+            CASE WHEN sq.question_id IS NOT NULL AND sq.has_correct = 1 AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS correct_count_easy,
+            CASE WHEN sq.question_id IS NOT NULL AND sq.has_correct = 1 AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS correct_count_medium,
+            CASE WHEN sq.question_id IS NOT NULL AND sq.has_correct = 1 AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS correct_count_hard,
             -- Wrong counts by difficulty
-            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS wrong_count_easy,
-            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS wrong_count_medium,
-            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS wrong_count_hard,
+            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 0 AND sq.has_correct = 0 AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS wrong_count_easy,
+            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 0 AND sq.has_correct = 0 AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS wrong_count_medium,
+            CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = 0 AND sq.has_correct = 0 AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS wrong_count_hard,
             -- Unused counts by difficulty
             CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS unused_count_easy,
             CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS unused_count_medium,
@@ -296,19 +307,30 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
             CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END AS marked_count_easy,
             CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END AS marked_count_medium,
             CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END AS marked_count_hard
-            FROM questions q
+	 FROM questions q
             LEFT JOIN question_options qo ON q.question_id = qo.question_id`;
 
         if (studentId) {
             modeSql += ` LEFT JOIN (
-                SELECT DISTINCT question_id, is_correct 
+                SELECT 
+                    question_id,
+                    MAX(is_correct) as is_correct,
+                    CASE WHEN MAX(is_correct) = 1 THEN 1 ELSE 0 END as has_correct
                 FROM solved_questions 
                 WHERE student_id = ?
+                GROUP BY question_id
             ) sq ON q.question_id = sq.question_id`;
             modeSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
             modeSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
         } else {
-            modeSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
+            modeSql += ` LEFT JOIN (
+                SELECT 
+                    question_id,
+                    MAX(is_correct) as is_correct,
+                    CASE WHEN MAX(is_correct) = 1 THEN 1 ELSE 0 END as has_correct
+                FROM solved_questions 
+                GROUP BY question_id
+            ) sq ON q.question_id = sq.question_id`;
             modeSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
             modeSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
         }
@@ -317,8 +339,8 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
 
         const modeValues = studentId ? [studentId, studentId, topicId] : [topicId];
 
-        if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
-            const difficultyPlaceholders = filters.status.map(() => '?').join(',');
+    if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
+        const difficultyPlaceholders = filters.status.map(() => '?').join(',');
             modeSql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
             modeValues.push(...filters.status);
         }
@@ -329,10 +351,10 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
                 modeSql += ` AND sq.question_id IS NULL`;
                 break;
             case 'incorrect':
-                modeSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '0')`;
+                modeSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = 0 AND sq.has_correct = 0)`;
                 break;
             case 'correct':
-                modeSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '1')`;
+                modeSql += ` AND (sq.question_id IS NOT NULL AND sq.has_correct = 1)`;
                 break;
             case 'marked':
                 modeSql += ` AND (mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)`;
