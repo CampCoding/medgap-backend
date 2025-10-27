@@ -403,7 +403,9 @@ const listQuestion = async ({ qbank_id, studentId }) => {
 		  JSON_ARRAY()
 		) AS options,
          JSON_OBJECT(
-         'is_correct', sq.is_correct
+         'is_correct', sq.is_correct,
+         'answer', sq.answer
+
          ) AS your_answer,
 		COALESCE(
 		  JSON_ARRAYAGG(
@@ -452,8 +454,10 @@ const listQuestion = async ({ qbank_id, studentId }) => {
         try {
             r.options = JSON.parse(r.options).filter(Boolean);
             if (typeof r.keywords === 'string') r.keywords = JSON.parse(r.keywords).filter(Boolean);
+
             if (typeof r.notes === 'string') r.notes = JSON.parse(r.notes).filter(Boolean);
             const answerParsed = JSON.parse(r.your_answer);
+            answerParsed.option_id =  r.options.find(option => option.option_text === answerParsed.answer)?.option_id;
             answerParsed.solved = false
             if (answerParsed?.is_correct != null) {
                 answerParsed.solved = true
@@ -474,7 +478,6 @@ const listQuestion = async ({ qbank_id, studentId }) => {
     }
     return { questions: rows, categories };
 };
-
 
 const createFlashCard = async ({ deck_id, front, back, tags = [], difficulty = 'medium', question_id = 0, qbank_id = 0 }) => {
     const [res] = await client.execute(
