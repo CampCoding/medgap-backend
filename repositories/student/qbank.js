@@ -69,6 +69,12 @@ const solveQuestion = async ({ question_id, studentId, answer, qbank_id, correct
 
 }
 
+/**CREATE TABLE `campcod3_medgap`.`qbank` (`qbank_id` INT NOT NULL AUTO_INCREMENT , `qbank_name` TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP , `tutor_mode` ENUM('1','0','','') NOT NULL DEFAULT '0' , `timed` ENUM('0','1','','') NOT NULL DEFAULT '0' , `time_type` ENUM('extended','fast','challenging','none') NOT NULL DEFAULT 'none' , `active` ENUM('0','1','','') NOT NULL DEFAULT '1' , `deleted` ENUM('0','1','','') NOT NULL DEFAULT '0' , PRIMARY KEY (`qbank_id`)) ENGINE = InnoDB;
+ * 
+ * CREATE TABLE `campcod3_medgap`.`qbank_questions` (`qbank_question_id` INT NOT NULL AUTO_INCREMENT , `question_id` INT NOT NULL , `qbank_id` INT NOT NULL , `correct_option` INT NOT NULL , PRIMARY KEY (`qbank_question_id`)) ENGINE = InnoDB;
+
+ */
+
 const fetchModules = async (moduleIds = []) => {
     if (Array.isArray(moduleIds) && moduleIds.length > 0) {
         const placeholders = moduleIds.map(() => '?').join(',');
@@ -133,15 +139,70 @@ const fetchTopicsByUnitIds = async (unitIds = []) => {
     return rows;
 }
 
-const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId = null) => {
+const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}) => {
+    if (!Array.isArray(topicIds) || topicIds.length === 0) return [];
+    const placeholders = topicIds.map(() => '?').join(',');
+
+    let sql = `SELECT 
+		q.*,
+		COALESCE(
+			JSON_ARRAYAGG(
+				CASE WHEN qo.option_id IS NOT NULL THEN JSON_OBJECT(
+					'option_id', qo.option_id,
+					'option_text', qo.option_text,
+					'is_correct', qo.is_correct,
+					'explanation', qo.explanation
+				) END
+			), JSON_ARRAY()
+		) AS options
+	 FROM questions q
+	 LEFT JOIN question_options qo ON q.question_id = qo.question_id
+	 WHERE q.topic_id IN (${placeholders})`;
+    const values = [...topicIds];
+    if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
+        const difficultyPlaceholders = filters.status.map(() => '?').join(',');
+        sql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
+        values.push(...filters.status);
+    }
+
+    sql += ` GROUP BY q.question_id ORDER BY q.created_at DESC LIMIT ?`;
+    values.push(filters?.numQuestions || 10); // Added default limit for safety
+    console.log(sql, values)
+    const [rows] = await client.execute(sql, values);
+    return rows.map((q) => ({ ...q, options: JSON.parse(q.options)?.filter(Boolean) || [] }));
 }
 
-const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filters = {}, studentId = null }) => {
+const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filters = {} }) => {
+
+    const modules = await fetchModules(selected_modules);
+    const moduleIds = modules.map(m => m.module_id);
+
+
+    const selectedSubjects = Array.isArray(filters.selected_subjects) ? filters.selected_subjects : [];
+    const subjects = selectedSubjects.length
+        ? await fetchSubjectsFromUnitsByModuleIds(moduleIds.length ? moduleIds : [])
+        : await fetchSubjectsFromUnitsByModuleIds(moduleIds);
+
+
+    let topics = [];
+    if (selectedSubjects.length) {
+        topics = await fetchTopicsByUnitIds(selectedSubjects);
+    } else {
+        topics = await fetchTopicsByModuleIds(moduleIds);
+    }
+
+
+    const explicitTopicIds = Array.isArray(filters.selected_topics) ? filters.selected_topics : [];
+    const topicIds = explicitTopicIds.length ? explicitTopicIds : topics.map(t => t.topic_id);
+
+    const questions = await fetchQuestionsByTopicIds(topicIds, filters);
+    console.log({ modules, subjects, topics, questions })
+    return { modules, subjects, topics, questions };
 }
 
 const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, selected_modules,
     selected_subjects,
-    selected_topics, question_level, numQuestions, question_mode = ["unused"] }) => {
+    selected_topics, question_level, numQuestions }) => {
     /**
       numQuestions:null,
   question_mode:"",
@@ -165,7 +226,7 @@ const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, s
         selected_subjects,
         selected_topics,
         status: question_level,
-        question_mode: question_mode,
+        question_mode: ["unused"],
         numQuestions
     }
 
@@ -342,9 +403,7 @@ const listQuestion = async ({ qbank_id, studentId }) => {
 		  JSON_ARRAY()
 		) AS options,
          JSON_OBJECT(
-         'is_correct', sq.is_correct,
-         'answer', sq.answer
-
+         'is_correct', sq.is_correct
          ) AS your_answer,
 		COALESCE(
 		  JSON_ARRAYAGG(
@@ -393,10 +452,8 @@ const listQuestion = async ({ qbank_id, studentId }) => {
         try {
             r.options = JSON.parse(r.options).filter(Boolean);
             if (typeof r.keywords === 'string') r.keywords = JSON.parse(r.keywords).filter(Boolean);
-
             if (typeof r.notes === 'string') r.notes = JSON.parse(r.notes).filter(Boolean);
             const answerParsed = JSON.parse(r.your_answer);
-            answerParsed.option_id =  r.options.find(option => option.option_text === answerParsed.answer)?.option_id;
             answerParsed.solved = false
             if (answerParsed?.is_correct != null) {
                 answerParsed.solved = true
@@ -417,6 +474,7 @@ const listQuestion = async ({ qbank_id, studentId }) => {
     }
     return { questions: rows, categories };
 };
+
 
 const createFlashCard = async ({ deck_id, front, back, tags = [], difficulty = 'medium', question_id = 0, qbank_id = 0 }) => {
     const [res] = await client.execute(
