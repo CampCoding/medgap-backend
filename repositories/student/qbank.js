@@ -572,7 +572,7 @@ const unAssignFromCategory = async ({ mark_id }) => {
 
     return deleteMark.affectedRows;
 }
-
+ 
 const listQuestion = async ({ qbank_id, studentId }) => {
     console.log(studentId)
     const [categories] = await client.query("SELECT * FROM student_mark_categories WHERE student_id = ?", [studentId])
