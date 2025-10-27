@@ -147,46 +147,8 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
     // First, get counts for each mode to determine distribution
     let countSql = `SELECT 
         COUNT(DISTINCT CASE WHEN sq.question_id IS NULL THEN q.question_id END) AS unused_count,
-        COUNT(DISTINCT CASE 
-            WHEN EXISTS (
-                SELECT 1 FROM solved_questions sq1 
-                WHERE sq1.question_id = q.question_id 
-                AND sq1.student_id = ?
-                AND sq1.is_correct = '0'
-            ) AND EXISTS (
-                SELECT 1 FROM solved_questions sq2 
-                WHERE sq2.question_id = q.question_id 
-                AND sq2.student_id = ?
-                AND sq2.is_correct = '1'
-                AND sq2.created_at > (
-                    SELECT MAX(sq3.created_at) 
-                    FROM solved_questions sq3 
-                    WHERE sq3.question_id = q.question_id 
-                    AND sq3.student_id = ?
-                    AND sq3.is_correct = '0'
-                )
-            ) THEN q.question_id 
-        END) AS incorrect_count,
-        COUNT(DISTINCT CASE 
-            WHEN EXISTS (
-                SELECT 1 FROM solved_questions sq1 
-                WHERE sq1.question_id = q.question_id 
-                AND sq1.student_id = ?
-                AND sq1.is_correct = '0'
-            ) AND EXISTS (
-                SELECT 1 FROM solved_questions sq2 
-                WHERE sq2.question_id = q.question_id 
-                AND sq2.student_id = ?
-                AND sq2.is_correct = '1'
-                AND sq2.created_at > (
-                    SELECT MAX(sq3.created_at) 
-                    FROM solved_questions sq3 
-                    WHERE sq3.question_id = q.question_id 
-                    AND sq3.student_id = ?
-                    AND sq3.is_correct = '0'
-                )
-            ) THEN q.question_id 
-        END) AS correct_count,
+        COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' THEN q.question_id END) AS incorrect_count,
+        COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' THEN q.question_id END) AS correct_count,
         COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL THEN q.question_id END) AS marked_count
         FROM questions q`;
 
@@ -211,7 +173,7 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
         countSql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
     }
 
-    const countValues = studentId ? [studentId, studentId, studentId, studentId, studentId, studentId, studentId, studentId, ...topicIds] : [...topicIds];
+    const countValues = studentId ? [studentId, studentId, ...topicIds] : [...topicIds];
     if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
         countValues.push(...filters.status);
     }
@@ -367,58 +329,10 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
                 modeSql += ` AND sq.question_id IS NULL`;
                 break;
             case 'incorrect':
-                // Questions that were incorrect and then later answered correctly
-                if (studentId) {
-                    modeSql += ` AND EXISTS (
-                        SELECT 1 FROM solved_questions sq1 
-                        WHERE sq1.question_id = q.question_id 
-                        AND sq1.student_id = ?
-                        AND sq1.is_correct = '0'
-                    ) AND EXISTS (
-                        SELECT 1 FROM solved_questions sq2 
-                        WHERE sq2.question_id = q.question_id 
-                        AND sq2.student_id = ?
-                        AND sq2.is_correct = '1'
-                        AND sq2.created_at > (
-                            SELECT MAX(sq3.created_at) 
-                            FROM solved_questions sq3 
-                            WHERE sq3.question_id = q.question_id 
-                            AND sq3.student_id = ?
-                            AND sq3.is_correct = '0'
-                        )
-                    )`;
-                    // Add extra studentId parameters for this mode
-                    modeValues.push(studentId, studentId, studentId);
-                } else {
-                    modeSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '0')`;
-                }
+                modeSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '0')`;
                 break;
             case 'correct':
-                // Questions that were incorrect and then later answered correctly
-                if (studentId) {
-                    modeSql += ` AND EXISTS (
-                        SELECT 1 FROM solved_questions sq1 
-                        WHERE sq1.question_id = q.question_id 
-                        AND sq1.student_id = ?
-                        AND sq1.is_correct = '0'
-                    ) AND EXISTS (
-                        SELECT 1 FROM solved_questions sq2 
-                        WHERE sq2.question_id = q.question_id 
-                        AND sq2.student_id = ?
-                        AND sq2.is_correct = '1'
-                        AND sq2.created_at > (
-                            SELECT MAX(sq3.created_at) 
-                            FROM solved_questions sq3 
-                            WHERE sq3.question_id = q.question_id 
-                            AND sq3.student_id = ?
-                            AND sq3.is_correct = '0'
-                        )
-                    )`;
-                    // Add extra studentId parameters for this mode
-                    modeValues.push(studentId, studentId, studentId);
-                } else {
-                    modeSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '1')`;
-                }
+                modeSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '1')`;
                 break;
             case 'marked':
                 modeSql += ` AND (mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)`;
