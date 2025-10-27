@@ -702,7 +702,6 @@ const listQuestion = async ({ qbank_id, studentId }) => {
     return { questions: rows, categories };
 };
 
-
 const createFlashCard = async ({ deck_id, front, back, tags = [], difficulty = 'medium', question_id = 0, qbank_id = 0 }) => {
     const [res] = await client.execute(
         `INSERT INTO student_flash_cards (student_flash_card_front, student_flash_card_back, deck_id, tags, card_status, card_solved, created_at, solved_at, difficulty, question_id, qbank_id)
