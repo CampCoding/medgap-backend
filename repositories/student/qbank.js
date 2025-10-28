@@ -300,10 +300,17 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
             LEFT JOIN question_options qo ON q.question_id = qo.question_id`;
 
         if (studentId) {
+            // Join latest attempt per question for this student
             modeSql += ` LEFT JOIN (
-                SELECT DISTINCT question_id, is_correct 
-                FROM solved_questions 
-                WHERE student_id = ?
+                SELECT sq1.question_id, sq1.is_correct
+                FROM solved_questions sq1
+                INNER JOIN (
+                  SELECT question_id, MAX(created_at) AS max_created
+                  FROM solved_questions
+                  WHERE student_id = ?
+                  GROUP BY question_id
+                ) latest ON latest.question_id = sq1.question_id AND latest.max_created = sq1.created_at
+                WHERE sq1.student_id = ?
             ) sq ON q.question_id = sq.question_id`;
             modeSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
             modeSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
@@ -315,7 +322,7 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
 
         modeSql += ` WHERE q.topic_id = ?`;
 
-        const modeValues = studentId ? [studentId, studentId, topicId] : [topicId];
+        const modeValues = studentId ? [studentId, studentId, studentId, topicId] : [topicId];
 
         if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
             const difficultyPlaceholders = filters.status.map(() => '?').join(',');
@@ -339,13 +346,73 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
                 break;
         }
 
-        modeSql += ` GROUP BY q.question_id ORDER BY q.created_at DESC LIMIT ?`;
+        // Build aggregate counts over the FULL filtered scope (no LIMIT)
+        let countSql = `SELECT 
+            SUM(CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END) AS correct_count_easy,
+            SUM(CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END) AS correct_count_medium,
+            SUM(CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END) AS correct_count_hard,
+            SUM(CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END) AS wrong_count_easy,
+            SUM(CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END) AS wrong_count_medium,
+            SUM(CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END) AS wrong_count_hard,
+            SUM(CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END) AS unused_count_easy,
+            SUM(CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END) AS unused_count_medium,
+            SUM(CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END) AS unused_count_hard,
+            SUM(CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END) AS marked_count_easy,
+            SUM(CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END) AS marked_count_medium,
+            SUM(CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END) AS marked_count_hard
+        FROM questions q`;
+
+        // replicate joins for counts (no options join needed)
+        if (studentId) {
+            countSql += ` LEFT JOIN (
+                SELECT sq1.question_id, sq1.is_correct
+                FROM solved_questions sq1
+                INNER JOIN (
+                  SELECT question_id, MAX(created_at) AS max_created
+                  FROM solved_questions
+                  WHERE student_id = ?
+                  GROUP BY question_id
+                ) latest ON latest.question_id = sq1.question_id AND latest.max_created = sq1.created_at
+                WHERE sq1.student_id = ?
+            ) sq ON q.question_id = sq.question_id`;
+            countSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+            countSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
+        } else {
+            countSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
+            countSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+            countSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
+        }
+
+        let countWhere = ` WHERE q.topic_id = ?`;
+        const countValues = studentId ? [modeValues[0], modeValues[1], modeValues[2], topicId] : [topicId];
+        if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
+            const difficultyPlaceholders = filters.status.map(() => '?').join(',');
+            countWhere += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
+            countValues.push(...filters.status);
+        }
+        switch (mode) {
+            case 'unused':
+                countWhere += ` AND sq.question_id IS NULL`;
+                break;
+            case 'incorrect':
+                countWhere += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '0')`;
+                break;
+            case 'correct':
+                countWhere += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '1')`;
+                break;
+            case 'marked':
+                countWhere += ` AND (mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)`;
+                break;
+        }
+        const [countRows] = await client.execute(countSql + countWhere, countValues);
+
+        modeSql += ` GROUP BY q.question_id ORDER BY RAND() LIMIT ?`;
         modeValues.push(limit);
 
         console.log(`Fetching ${limit} ${mode} questions from topic ${topicId}`);
         const [modeRows] = await client.execute(modeSql, modeValues);
 
-        // Process questions and aggregate counts
+        // Process questions
         const processedQuestions = modeRows.map((q) => ({
             ...q,
             options: JSON.parse(q.options)?.filter(Boolean) || [],
@@ -354,21 +421,20 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
 
         allQuestions = allQuestions.concat(processedQuestions);
 
-        // Aggregate counts
-        modeRows.forEach(row => {
-            aggregatedCounts.correct_count_easy += row.correct_count_easy;
-            aggregatedCounts.correct_count_medium += row.correct_count_medium;
-            aggregatedCounts.correct_count_hard += row.correct_count_hard;
-            aggregatedCounts.wrong_count_easy += row.wrong_count_easy;
-            aggregatedCounts.wrong_count_medium += row.wrong_count_medium;
-            aggregatedCounts.wrong_count_hard += row.wrong_count_hard;
-            aggregatedCounts.unused_count_easy += row.unused_count_easy;
-            aggregatedCounts.unused_count_medium += row.unused_count_medium;
-            aggregatedCounts.unused_count_hard += row.unused_count_hard;
-            aggregatedCounts.marked_count_easy += row.marked_count_easy;
-            aggregatedCounts.marked_count_medium += row.marked_count_medium;
-            aggregatedCounts.marked_count_hard += row.marked_count_hard;
-        });
+        // Use aggregate counts from full scope
+        const agg = countRows && countRows[0] ? countRows[0] : {};
+        aggregatedCounts.correct_count_easy += Number(agg.correct_count_easy || 0);
+        aggregatedCounts.correct_count_medium += Number(agg.correct_count_medium || 0);
+        aggregatedCounts.correct_count_hard += Number(agg.correct_count_hard || 0);
+        aggregatedCounts.wrong_count_easy += Number(agg.wrong_count_easy || 0);
+        aggregatedCounts.wrong_count_medium += Number(agg.wrong_count_medium || 0);
+        aggregatedCounts.wrong_count_hard += Number(agg.wrong_count_hard || 0);
+        aggregatedCounts.unused_count_easy += Number(agg.unused_count_easy || 0);
+        aggregatedCounts.unused_count_medium += Number(agg.unused_count_medium || 0);
+        aggregatedCounts.unused_count_hard += Number(agg.unused_count_hard || 0);
+        aggregatedCounts.marked_count_easy += Number(agg.marked_count_easy || 0);
+        aggregatedCounts.marked_count_medium += Number(agg.marked_count_medium || 0);
+        aggregatedCounts.marked_count_hard += Number(agg.marked_count_hard || 0);
     }
 
     aggregatedCounts.total_questions = allQuestions.length;
@@ -409,7 +475,7 @@ const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filt
 
 const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, selected_modules,
     selected_subjects,
-    selected_topics, question_level, numQuestions, question_mode = ["unused"] }) => {
+    selected_topics, question_level, numQuestions, question_mode = ["unused"], plan_id = 0}) => {
     /**
       numQuestions:null,
   question_mode:"",
@@ -443,9 +509,9 @@ const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, s
     const questions = await fetchModulesSubjectsTopicsQuestions({ studentId, filters })
 
     const [insertQbank] = await client.execute(
-        `INSERT INTO qbank (qbank_name, tutor_mode, timed, time_type, active, deleted, student_id)
-         VALUES (?, ?, ?, ?,?, ?,? )`,
-        [qbankName ? qbankName : new Date(), tutorMode, timed, timeType, '1', '0', studentId]
+        `INSERT INTO qbank (qbank_name, tutor_mode, timed, time_type, active, deleted, student_id, plan_id)
+         VALUES (?, ?, ?, ?,?, ?,? ,? )`,
+        [qbankName ? qbankName : new Date(), tutorMode, timed, timeType, '1', '0', studentId, plan_id]
     );
     const rows = (questions?.questions || []).map(q => [
         q.question_id,

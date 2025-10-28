@@ -3,7 +3,7 @@ const { client } = require("../../config/db-connect");
 /** ===================== Helpers ===================== */
 const ALLOWED_UPDATE_FIELDS = new Set([
   "subject_id",
-  "book_title", 
+  "book_title",
   "book_description",
   "author",
   "file",
@@ -112,7 +112,7 @@ async function updateRepo(id, data = {}) {
         optionsToInsert.push(index);
       }
     }
-console.log(optionsToDelete?.join(","))
+    console.log(optionsToDelete?.join(","))
     if (optionsToDelete.length > 0) {
       const deleteIndicesSql = `DELETE FROM ebook_indeces WHERE ebook_index_id IN (?)`;
       await client.execute(deleteIndicesSql, [optionsToDelete?.join(",")]);

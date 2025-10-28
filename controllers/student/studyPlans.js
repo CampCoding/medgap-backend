@@ -22,6 +22,32 @@ async function createPlan(req, res) {
     return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
   }
 
+
+  /*
+  {
+  "plan_name": "خطة التحضير لامتحان USMLE4",
+  "start_date": "2025-10-28",
+  "end_date": "2025-11-02",
+  "study_days": ["Sat", "Sun", "Mon", "Tue"],
+  "daily_time_budget": 180,
+  "daily_limits": {
+    "max_questions": 50,
+    "max_flashcards": 60
+  },
+  "question_mode": "study",
+  "difficulty_balance": "balanced",
+  "questions_per_session": 20,
+  "exams": [17],
+  "flashcards_modules": [25],
+  "flashcards_decks": [22, 23],
+  "question_bank_modules": 23,
+  "question_bank_subject": [18, 19],
+  "question_bank_topics": [110, 105],
+  "books_module": 23,
+  "books": 1
+}
+  */
+
   const {
     plan_name,
     start_date,
@@ -32,49 +58,19 @@ async function createPlan(req, res) {
     question_mode,
     difficulty_balance,
     questions_per_session,
-    // Content fields
-    exams_modules,
-    exams_topics,
+    exams,
     flashcards_modules,
-    flashcards_topics,
+    flashcards_decks,
     question_bank_modules,
+    question_bank_subject,
     question_bank_topics,
-    question_bank_quizzes,
-    subjects,
+    books_module,
+    books,
+    books_indeces,
   } = req.body || {};
 
-  // Validation
-  if (
-    !plan_name ||
-    !start_date ||
-    !end_date ||
-    !study_days ||
-    !daily_time_budget
-  ) {
-    return responseBuilder.badRequest(res, "Missing required fields");
-  }
-
-  if (!Array.isArray(study_days) || study_days.length === 0) {
-    return responseBuilder.badRequest(
-      res,
-      "study_days must be a non-empty array"
-    );
-  }
-
-  if (daily_time_budget < 30) {
-    return responseBuilder.badRequest(
-      res,
-      "daily_time_budget must be at least 30 minutes"
-    );
-  }
-
-  // At least one content type must be provided
-  if (!exams_modules && !flashcards_modules && !question_bank_modules) {
-    return responseBuilder.badRequest(
-      res,
-      "At least one content type (exams, flashcards, or question_bank) must be provided"
-    );
-  }
+  // Normalize helpers
+  const toArray = (v) => (Array.isArray(v) ? v : v != null ? [v] : []);
 
   try {
     // Create the plan
@@ -89,19 +85,29 @@ async function createPlan(req, res) {
       questionMode: question_mode || "study",
       difficultyBalance: difficulty_balance || "balanced",
       questionsPerSession: questions_per_session || 20,
+      questionBankModules: toArray(question_bank_modules),
+      questionBankTopics: question_bank_topics || [],
+      questionBankSubject: question_bank_subject || [],
+      booksModule: books_module || [],
+      booksIndeces: books_indeces || [],
+      books: books || [],
+      flashcardsDecks: flashcards_decks || [],
+      flashcardsModules: flashcards_modules || [],
+      exams: exams || [],
+
     });
 
     // Add content to the plan
     await repo.addPlanContent({
       planId: created.plan_id,
-      examsModules: exams_modules || [],
-      examsTopics: exams_topics || [],
+      examsModules: toArray(exams),
+      examsTopics: req.body?.exams_topics || [],
       flashcardsModules: flashcards_modules || [],
-      flashcardsTopics: flashcards_topics || [],
-      questionBankModules: question_bank_modules || [],
+      flashcardsTopics: req.body?.flashcards_topics || [],
+      questionBankModules: toArray(question_bank_modules),
       questionBankTopics: question_bank_topics || [],
-      questionBankQuizzes: question_bank_quizzes || [],
-      subjects: subjects || [],
+      questionBankQuizzes: req.body?.question_bank_quizzes || [],
+      subjects: req.body?.subjects || question_bank_subject || [],
     });
 
     return responseBuilder.success(res, {
