@@ -348,18 +348,18 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
 
         // Build aggregate counts over the FULL filtered scope (no LIMIT)
         let countSql = `SELECT 
-            SUM(CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END) AS correct_count_easy,
-            SUM(CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END) AS correct_count_medium,
-            SUM(CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END) AS correct_count_hard,
-            SUM(CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END) AS wrong_count_easy,
-            SUM(CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END) AS wrong_count_medium,
-            SUM(CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END) AS wrong_count_hard,
-            SUM(CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END) AS unused_count_easy,
-            SUM(CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END) AS unused_count_medium,
-            SUM(CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END) AS unused_count_hard,
-            SUM(CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'easy' THEN 1 ELSE 0 END) AS marked_count_easy,
-            SUM(CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'medium' THEN 1 ELSE 0 END) AS marked_count_medium,
-            SUM(CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'hard' THEN 1 ELSE 0 END) AS marked_count_hard
+            COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'easy' THEN q.question_id END) AS correct_count_easy,
+            COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'medium' THEN q.question_id END) AS correct_count_medium,
+            COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'hard' THEN q.question_id END) AS correct_count_hard,
+            COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'easy' THEN q.question_id END) AS wrong_count_easy,
+            COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'medium' THEN q.question_id END) AS wrong_count_medium,
+            COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' AND q.difficulty_level = 'hard' THEN q.question_id END) AS wrong_count_hard,
+            COUNT(DISTINCT CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'easy' THEN q.question_id END) AS unused_count_easy,
+            COUNT(DISTINCT CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'medium' THEN q.question_id END) AS unused_count_medium,
+            COUNT(DISTINCT CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'hard' THEN q.question_id END) AS unused_count_hard,
+            COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'easy' THEN q.question_id END) AS marked_count_easy,
+            COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'medium' THEN q.question_id END) AS marked_count_medium,
+            COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'hard' THEN q.question_id END) AS marked_count_hard
         FROM questions q`;
 
         // replicate joins for counts (no options join needed)
