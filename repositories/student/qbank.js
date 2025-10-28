@@ -423,18 +423,18 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
 
         // Use aggregate counts from full scope
         const agg = countRows && countRows[0] ? countRows[0] : {};
-        aggregatedCounts.correct_count_easy += Number(agg.correct_count_easy || 0);
-        aggregatedCounts.correct_count_medium += Number(agg.correct_count_medium || 0);
-        aggregatedCounts.correct_count_hard += Number(agg.correct_count_hard || 0);
-        aggregatedCounts.wrong_count_easy += Number(agg.wrong_count_easy || 0);
-        aggregatedCounts.wrong_count_medium += Number(agg.wrong_count_medium || 0);
-        aggregatedCounts.wrong_count_hard += Number(agg.wrong_count_hard || 0);
-        aggregatedCounts.unused_count_easy += Number(agg.unused_count_easy || 0);
-        aggregatedCounts.unused_count_medium += Number(agg.unused_count_medium || 0);
-        aggregatedCounts.unused_count_hard += Number(agg.unused_count_hard || 0);
-        aggregatedCounts.marked_count_easy += Number(agg.marked_count_easy || 0);
-        aggregatedCounts.marked_count_medium += Number(agg.marked_count_medium || 0);
-        aggregatedCounts.marked_count_hard += Number(agg.marked_count_hard || 0);
+        aggregatedCounts.correct_count_easy = Number(agg.correct_count_easy || 0);
+        aggregatedCounts.correct_count_medium = Number(agg.correct_count_medium || 0);
+        aggregatedCounts.correct_count_hard = Number(agg.correct_count_hard || 0);
+        aggregatedCounts.wrong_count_easy = Number(agg.wrong_count_easy || 0);
+        aggregatedCounts.wrong_count_medium = Number(agg.wrong_count_medium || 0);
+        aggregatedCounts.wrong_count_hard = Number(agg.wrong_count_hard || 0);
+        aggregatedCounts.unused_count_easy = Number(agg.unused_count_easy || 0);
+        aggregatedCounts.unused_count_medium = Number(agg.unused_count_medium || 0);
+        aggregatedCounts.unused_count_hard = Number(agg.unused_count_hard || 0);
+        aggregatedCounts.marked_count_easy = Number(agg.marked_count_easy || 0);
+        aggregatedCounts.marked_count_medium = Number(agg.marked_count_medium || 0);
+        aggregatedCounts.marked_count_hard = Number(agg.marked_count_hard || 0);
     }
 
     aggregatedCounts.total_questions = allQuestions.length;
