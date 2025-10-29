@@ -363,7 +363,8 @@ class ModulesRepository {
 
   //  المدرسين المرتبطين بالمادة
   async getModuleTeachers(moduleId) {
-    const query = `
+    console.log("moduleId", moduleId)
+    let query = `
       SELECT 
         t.*,
         tm.assigned_at,
@@ -375,10 +376,25 @@ class ModulesRepository {
       ORDER BY tm.assigned_at DESC
     `;
 
-  
+  if(!moduleId){
+    query = `
+      SELECT 
+        t.*,
+        tm.assigned_at,
+        tm.status as assignment_status
+      FROM teachers t
+      LEFT JOIN teacher_modules tm ON t.teacher_id = tm.teacher_id
+      ORDER BY tm.assigned_at DESC
+    `;
+  }
     try {
-      const [result] = await client.execute(query, [moduleId]);
-      return result;
+      if(moduleId){
+        const [result] = await client.execute(query, [moduleId]);
+        return result;
+      }else{
+        const [result] = await client.execute(query);
+        return result;
+      }
     } catch (error) {
       throw new Error(`Error fetching module teachers: ${error.message}`);
     }

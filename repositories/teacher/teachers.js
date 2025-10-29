@@ -119,7 +119,6 @@ class TeachersRepository {
       values.push(filters.role);
     }else{
       query += ` AND t.role = 'teacher'`;
-      values.push('teacher');
     }
 
     // البحث في الاسم أو الإيميل
