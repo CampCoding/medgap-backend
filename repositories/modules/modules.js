@@ -370,11 +370,12 @@ class ModulesRepository {
         tm.status as assignment_status
       FROM teachers t
       LEFT JOIN teacher_modules tm ON t.teacher_id = tm.teacher_id
-      WHERE tm.module_id = ?
+      ${moduleId ? `WHERE tm.module_id = ?` : ''}
       group by t.teacher_id
       ORDER BY tm.assigned_at DESC
     `;
 
+  
     try {
       const [result] = await client.execute(query, [moduleId]);
       return result;
