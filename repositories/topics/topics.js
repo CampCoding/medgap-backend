@@ -46,9 +46,7 @@ class TopicsRepository {
 
   // جميع الموضوعات مع الإحصائيات
   async getAllTopics(filters = {}) {
-    let query = null;
-    if (filters?.teacher_id) {
-      query = `
+    let query = `
       SELECT
         t.*,
         u.unit_name,
@@ -64,42 +62,28 @@ class TopicsRepository {
       LEFT JOIN questions q ON t.topic_id = q.topic_id
       LEFT JOIN flashcards f ON t.topic_id = f.topic_id
       LEFT JOIN digital_library dl ON t.topic_id = dl.topic_id
-      WHERE ${filters?.unit_id ? `AND t.unit_id = ${filters?.unit_id}` : ''} ${filters?.teacher_id ? `AND t.teacher_id = ${filters?.teacher_id}` : ''} AND 1 = 1
+      WHERE 1 = 1
     `;
-    } else {
-      query = `
-      SELECT
-        t.*,
-        u.unit_name,
-        m.subject_name as module_name,
-        a1.full_name as created_by_name,
-        COUNT(DISTINCT q.question_id) as questions_count,
-        COUNT(DISTINCT f.flashcard_id) as flashcards_count,
-        COUNT(DISTINCT dl.library_id) as library_files_count
-      FROM topics t
-      LEFT JOIN units u ON t.unit_id = u.unit_id
-      LEFT JOIN modules m ON u.module_id = m.module_id
-      LEFT JOIN teachers a1 ON t.created_by = a1.teacher_id
-      LEFT JOIN questions q ON t.topic_id = q.topic_id
-      LEFT JOIN flashcards f ON t.topic_id = f.topic_id
-      LEFT JOIN digital_library dl ON t.topic_id = dl.topic_id
-      WHERE ${filters?.unit_id ? `AND t.unit_id = ${filters?.unit_id}` : ''} ${filters?.teacher_id ? `AND t.teacher_id = ${filters?.teacher_id}` : ''} AND 1 = 1
-    `;
-    }
 
-    let values = [filters?.teacher_id];
-    if (!filters?.teacher_id) {
-      values = []
+    const values = [];
+    if (filters.teacher_id) {
+      query += ` AND t.teacher_id = ?`;
+      values.push(filters.teacher_id);
+    }
+    if (filters.unit_id) {
+      query += ` AND t.unit_id = ?`;
+      values.push(filters.unit_id);
+    }
+    if (filters.module_id) {
+      query += ` AND u.module_id = ?`;
+      values.push(filters.module_id);
     }
 
     if (filters.status) {
       query += ` AND t.status = ?`;
       values.push(filters.status);
     }
-    if (filters.unit_id) {
-      query += ` AND t.unit_id = ?`;
-      values.push(filters.unit_id);
-    }
+    // unit_id handled above
     if (filters.search) {
       query += ` AND (t.topic_name LIKE ? OR t.short_description LIKE ? OR t.learning_objectives LIKE ?)`;
       values.push(
