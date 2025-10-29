@@ -402,7 +402,6 @@ class ModulesRepository {
       LEFT JOIN student_enrollments se ON s.student_id = se.student_id
       LEFT JOIN modules m ON se.module_id = m.module_id
       GROUP BY s.student_id
-      ORDER BY s.full_name
     `;
 
     try {

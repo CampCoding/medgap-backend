@@ -1632,7 +1632,17 @@ async function getTopicsBySubject({ moduleId, studentId }) {
     LEFT JOIN questions q ON q.topic_id = t.topic_id
     LEFT JOIN flashcards f ON f.topic_id = t.topic_id
     ${studentId ? `
-      LEFT JOIN solved_questions sq ON sq.question_id = q.question_id AND sq.student_id = ?
+      LEFT JOIN (
+        SELECT s1.question_id, s1.is_correct
+        FROM solved_questions s1
+        INNER JOIN (
+          SELECT question_id, MAX(created_at) AS max_created
+          FROM solved_questions
+          WHERE student_id = ?
+          GROUP BY question_id
+        ) latest ON latest.question_id = s1.question_id AND latest.max_created = s1.created_at
+        WHERE s1.student_id = ?
+      ) sq ON sq.question_id = q.question_id
       LEFT JOIN mark_category_question mcq ON mcq.question_id = q.question_id
       LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?
     ` : ''}
@@ -1644,7 +1654,7 @@ async function getTopicsBySubject({ moduleId, studentId }) {
       u.unit_id, u.unit_name
     ORDER BY u.unit_order, t.topic_order, t.topic_name
     `,
-    studentId ? [studentId, studentId, ...params] : params
+    studentId ? [studentId, studentId, studentId, ...params] : params
   );
 
   console.log("topicRows length:", `
@@ -1738,12 +1748,22 @@ async function getTopicsBySubject({ moduleId, studentId }) {
       CASE WHEN sq.is_correct = '1' THEN 1 ELSE 0 END AS correct,
       CASE WHEN mcq.question_id IS NOT NULL AND smc.student_mark_category_id IS NOT NULL THEN 1 ELSE 0 END AS marked
     FROM questions q
-    LEFT JOIN solved_questions sq ON sq.question_id = q.question_id AND sq.student_id = ?
+    LEFT JOIN (
+      SELECT s1.question_id, s1.is_correct
+      FROM solved_questions s1
+      INNER JOIN (
+        SELECT question_id, MAX(created_at) AS max_created
+        FROM solved_questions
+        WHERE student_id = ?
+        GROUP BY question_id
+      ) latest ON latest.question_id = s1.question_id AND latest.max_created = s1.created_at
+      WHERE s1.student_id = ?
+    ) sq ON sq.question_id = q.question_id
     LEFT JOIN mark_category_question mcq ON mcq.question_id = q.question_id
     LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?
     WHERE q.topic_id IN (${topicPlaceholders})
     `,
-    [studentId, studentId, ...topicIds]
+    [studentId, studentId, studentId, ...topicIds]
   );
 
   console.log("questionRows length:", questionRows.length);

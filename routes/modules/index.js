@@ -62,12 +62,7 @@ router.put("/:id/units/:unitId/update", modulesController.updateUnit);
 router.delete("/:id/units/:unitId/delete", modulesController.deleteUnit);
 
 router.get("/:id/students", async (req, res) => {
-  try {
-    const token = getTokenFromHeader(req, res);
-    if (!token || res.headersSent) return;
-    const decoded = verifyAccessToken(token, "teacher");
-    req.user = decoded;
-  } catch (err) {}
+
   await modulesController.getModuleStudents(req, res);
 });
 
