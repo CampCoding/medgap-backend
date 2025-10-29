@@ -135,7 +135,7 @@ class TopicsRepository {
         a1.full_name,
         a1.email,
         a1.phone,
-        CONCAT('https://camp-coding.site/medgap/uploads/teachers/', a1.image_url) as teacher_image,
+        CONCAT('https://api.medgap.net/uploads/teachers/', a1.image_url) as teacher_image,
         COUNT(DISTINCT q.question_id) as questions_count,
         COUNT(DISTINCT f.flashcard_id) as flashcards_count,
         COUNT(DISTINCT dl.library_id) as library_files_count

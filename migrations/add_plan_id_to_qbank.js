@@ -26,7 +26,7 @@ async function migrateMySQL() {
       // await conn.query(`ALTER TABLE student_study_plans ADD COLUMN questionBankSubject text DEFAULT NULL`);
       
       // await conn.query(`ALTER TABLE ebooks ADD COLUMN type ENUM('ebook', 'video', 'audio', 'summary', 'quiz', 'other') DEFAULT 'ebook'`);
-      await conn.query(`ALTER TABLE student_plan_content ADD COLUMN exams_modules TEXT DEFAULT NULL`);
+      await conn.query(`ALTER TABLE qbank ADD COLUMN day ENUM('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat') DEFAULT 'Sun'`);
 
     
      

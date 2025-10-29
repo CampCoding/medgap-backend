@@ -306,8 +306,8 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
                 FROM solved_questions sq1
                 INNER JOIN (
                   SELECT question_id, MAX(created_at) AS max_created
-                  FROM solved_questions
-                  WHERE student_id = ?
+                FROM solved_questions 
+                WHERE student_id = ?
                   GROUP BY question_id
                 ) latest ON latest.question_id = sq1.question_id AND latest.max_created = sq1.created_at
                 WHERE sq1.student_id = ?
@@ -474,7 +474,7 @@ const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filt
 }
 
 const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, selected_modules,
-    selected_subjects,
+    selected_subjects,day,
     selected_topics, question_level, numQuestions, question_mode = ["unused"], plan_id = 0}) => {
     /**
       numQuestions:null,
@@ -509,9 +509,9 @@ const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, s
     const questions = await fetchModulesSubjectsTopicsQuestions({ studentId, filters })
 
     const [insertQbank] = await client.execute(
-        `INSERT INTO qbank (qbank_name, tutor_mode, timed, time_type, active, deleted, student_id, plan_id)
-         VALUES (?, ?, ?, ?,?, ?,? ,? )`,
-        [qbankName ? qbankName : new Date(), tutorMode, timed, timeType, '1', '0', studentId, plan_id]
+        `INSERT INTO qbank (qbank_name, tutor_mode, timed, time_type, active, deleted, student_id, plan_id, day)
+         VALUES (?, ?, ?, ?,?, ?,? ,? ,? )`,
+        [qbankName ? qbankName : new Date(), tutorMode, timed, timeType, '1', '0', studentId, plan_id, day]
     );
     const rows = (questions?.questions || []).map(q => [
         q.question_id,

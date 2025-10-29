@@ -22,7 +22,7 @@ const loginRepo = async ({ data }) => {
 
   delete user[0].password;
   user[0].image_url = user[0].image_url
-    ? `https://camp-coding.site/medgap/${user[0].image_url}`
+    ? `https://api.medgap.net/${user[0].image_url}`
     : null;
 
   const { signAccessToken, signRefreshToken } = require("../../utils/jwt");
@@ -125,7 +125,7 @@ const getProfileRepo = async ({ studentId }) => {
   }
 
   user[0].image_url = user[0].image_url
-    ? `https://camp-coding.site/medgap/${user[0].image_url}`
+    ? `https://api.medgap.net/${user[0].image_url}`
     : null;
   return user[0];
 };

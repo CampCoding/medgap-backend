@@ -90,7 +90,7 @@ class TeachersRepository {
     let query = `
       SELECT 
         t.*,  
-        CONCAT('https://camp-coding.site/medgap/', t.image_url) as full_image_url,
+        CONCAT('https://api.medgap.net/', t.image_url) as full_image_url,
        
         (SELECT COUNT(*) FROM teacher_modules tm WHERE tm.teacher_id = t.teacher_id) as active_modules_count,
         (SELECT JSON_ARRAYAGG(JSON_OBJECT('subject_name', m.subject_name, 'module_id', m.module_id)) FROM modules m

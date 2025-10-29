@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon server.js",
-    "migrate:add-plan-id": "node migrations/add_plan_id_to_qbank.js"
+    "migrate": "node migrations/add_plan_id_to_qbank.js"
   },
   "keywords": [],
   "author": "",

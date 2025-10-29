@@ -2,7 +2,6 @@ const { client } = require("../../config/db-connect");
 const activityTracking = require("./activityTracking");
 const { createQbank } = require("./qbank");
 
-// Study Plan CRUD
 async function createStudyPlan({
   studentId,
   planName,
@@ -57,38 +56,183 @@ async function createStudyPlan({
   ];
 
   const [result] = await client.execute(sql, params);
-  await Promise.all(
+  await Promise.all(studyDays.map(async (day) => {
+  await createQbank({
+    studentId,
+    qbankName: planName,
+    tutorMode: 0,
+    timed: 0,
+    timeType: "none",
+    plan_id: result.insertId,
+      day: day,
+    selected_modules: questionBankModules,
+    selected_subjects: questionBankSubject,
+    selected_topics: questionBankTopics,
+    question_level: question_level,
+    numQuestions: questionsPerSession,
+    question_mode: questionMode,
+    });
+  }));
 
-    studyDays?.map(async item => {
-      return await createQbank({
-        studentId,
-        qbankName: planName,
-        tutorMode: 0,
-        timed: 0,
-        timeType: "none",
-        plan_id: result.insertId,
-        selected_modules: questionBankModules,
-        selected_subjects: questionBankSubject,
-        selected_topics: questionBankTopics,
-        question_level: question_level,
-        numQuestions: questionsPerSession,
-        question_mode: questionMode,
-        question_level: question_level,
-        numQuestions: questionsPerSession,
-        question_mode: questionMode,
-        selected_modules: questionBankModules,
-        selected_subjects: questionBankSubject,
-        selected_topics: questionBankTopics,
-        question_level: question_level,
-        numQuestions: questionsPerSession,
-        question_mode: questionMode,
-      })
-    })
-  )
+  
 
   await generatePlanSessions({ planId: result.insertId, studentId: studentId, studyDaysNumbers: studyDays });
 
   return { plan_id: result.insertId };
+}
+
+// Plan Sessions Management
+async function generatePlanSessions({ planId, studentId, studyDaysNumbers }) {
+  // Get plan details
+  const plan = await getStudyPlanById({ planId, studentId });
+  if (!plan) throw new Error("Plan not found");
+
+  // Normalize study_days to an array
+  let study_days;
+  if (Array.isArray(plan.study_days)) {
+    study_days = plan.study_days;
+  } else if (typeof plan.study_days === 'string') {
+    try {
+      const parsed = JSON.parse(plan.study_days);
+      study_days = Array.isArray(parsed) ? parsed : (plan.study_days ? plan.study_days.split(',') : []);
+    } catch {
+      study_days = plan.study_days ? plan.study_days.split(',') : [];
+    }
+  } else {
+    study_days = [];
+  }
+
+  // Function to safely parse JSON fields
+  const safeParse = (value) => {
+    if (!value) return null;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  };
+
+  let parsedPlan = {
+    ...plan,
+    study_days,
+    daily_limits: safeParse(plan.daily_limits),
+    questionBankModules: safeParse(plan.questionBankModules),
+    questionBankTopics: safeParse(plan.questionBankTopics),
+    questionBankSubject: safeParse(plan.questionBankSubject),
+    booksModule: safeParse(plan.booksModule),
+    booksIndeces: safeParse(plan.booksIndeces),
+    books: safeParse(plan.books),
+    flashcardsDecks: safeParse(plan.flashcardsDecks),
+    flashcardsModules: safeParse(plan.flashcardsModules),
+    exams: safeParse(plan.exams),
+  };
+
+  // Normalize potential non-array values to arrays
+  const normalizeToArray = (val) => {
+    if (val === null || val === undefined) return [];
+    if (Array.isArray(val)) return val;
+    return [val];
+  };
+
+  parsedPlan.questionBankModules = normalizeToArray(parsedPlan.questionBankModules);
+  parsedPlan.questionBankTopics = normalizeToArray(parsedPlan.questionBankTopics);
+  parsedPlan.questionBankSubject = normalizeToArray(parsedPlan.questionBankSubject);
+  parsedPlan.booksModule = normalizeToArray(parsedPlan.booksModule);
+  parsedPlan.booksIndeces = normalizeToArray(parsedPlan.booksIndeces);
+  parsedPlan.books = normalizeToArray(parsedPlan.books);
+  parsedPlan.flashcardsDecks = normalizeToArray(parsedPlan.flashcardsDecks);
+  parsedPlan.flashcardsModules = normalizeToArray(parsedPlan.flashcardsModules);
+  parsedPlan.exams = normalizeToArray(parsedPlan.exams);
+
+  // Get plan content
+  const content = await getPlanContent({ planId });
+
+  // Create content items array from the new structure
+  const contentItems = [];
+
+  // Add exams content
+  if (parsedPlan.exams.length > 0) {
+    contentItems.push({
+      content_id: content?.content_id || null,
+      content_type: "exams",
+    });
+  }
+
+  // Add flashcards content
+  if (parsedPlan.flashcardsModules.length > 0) {
+    contentItems.push({
+      content_id: content?.content_id || null,
+      content_type: "flashcards",
+    });
+  }
+
+  // Add question bank content
+  if (parsedPlan.questionBankModules.length > 0) {
+    contentItems.push({
+      content_id: content?.content_id || null,
+      content_type: "question_bank",
+    });
+  }
+
+  // Add ebooks content
+  if (parsedPlan.books.length > 0) {
+    contentItems.push({
+      content_id: content?.content_id || null,
+      content_type: "ebooks",
+    });
+  }
+
+  // Convert string days to numbers if needed
+  let studyDaysNumbersParsed = parsedPlan.study_days;
+  if (typeof studyDaysNumbersParsed[0] === "string") {
+    const dayMap = {
+      Sun: 0, Sunday: 0,
+      Mon: 1, Monday: 1,
+      Tue: 2, Tuesday: 2,
+      Wed: 3, Wednesday: 3,
+      Thu: 4, Thursday: 4,
+      Fri: 5, Friday: 5,
+      Sat: 6, Saturday: 6,
+    };
+    studyDaysNumbersParsed = studyDaysNumbersParsed.map((day) => {
+      const d = String(day).trim();
+      return dayMap[d] ?? Number(d);
+    });
+  }
+
+  // Prepare statements
+  const insertSql = `INSERT INTO student_plan_sessions 
+               (plan_id, session_date, session_type, content_id)
+               VALUES (?, ?, ?, ?)`;
+  const existsSql = `SELECT session_id FROM student_plan_sessions WHERE plan_id = ? AND session_date = ? AND session_type = ? LIMIT 1`;
+
+  // Iterate all dates, insert sessions on study days
+  let createdCount = 0;
+  let firstSessionId = null;
+  const startDate = new Date(plan.start_date);
+  const endDate = new Date(plan.end_date);
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    const day = d.getDay();
+    if (!studyDaysNumbersParsed.includes(day)) continue;
+    const dateStr = d.toISOString().split("T")[0];
+
+    for (const item of contentItems) {
+      // Skip duplicates per date/type
+      const [exists] = await client.execute(existsSql, [planId, dateStr, item.content_type]);
+      if (exists && exists.length) continue;
+
+      const [result] = await client.execute(insertSql, [planId, dateStr, item.content_type, 2]);
+      if (result && result.insertId) {
+        createdCount += 1;
+        if (!firstSessionId) firstSessionId = result.insertId;
+      }
+    }
+  }
+
+  if (createdCount === 0) {
+    return { sessions_created: 0, session_id: null };
+  }
+  return { sessions_created: createdCount, session_id: firstSessionId };
 }
 
 async function getStudyPlans({ studentId, status = null }) {
@@ -430,129 +574,7 @@ async function removePlanContent({ contentId, planId }) {
   return result.affectedRows > 0;
 }
 
-// Plan Sessions Management
-async function generatePlanSessions({ planId, studentId, studyDaysNumbers }) {
-  // Get plan details
-  const plan = await getStudyPlanById({ planId, studentId });
-  if (!plan) throw new Error("Plan not found");
 
-  // Get plan content
-  const content = await getPlanContent({ planId });
-
-  // Only generate sessions for the next valid study day
-  const startDate = new Date(plan.start_date);
-  const endDate = new Date(plan.end_date);
-  const studyDays = plan.study_days; // [1,2,3,4,5] for Mon-Fri
-
-  // Create content items array from the new structure
-  const contentItems = [];
-
-  // Add exams content
-  // if (content.exams_modules && content.exams_modules.length > 0) {
-  //   contentItems.push({
-  //     content_id: content.content_id,
-  //     content_type: "exams",
-  //     modules: content.exams_modules,
-  //     topics: content.exams_topics || [],
-  //   });
-  // }
-
-  // Add flashcards content
-  // if (content.flashcards_modules && content.flashcards_modules.length > 0) {
-  //   contentItems.push({
-  //     content_id: content.content_id,
-  //     content_type: "flashcards",
-  //     modules: content.flashcards_modules,
-  //     topics: content.flashcards_topics || [],
-  //   });
-  // }
-
-  // Add question bank content
-  // if (
-  //   content.question_bank_modules &&
-  //   content.question_bank_modules.length > 0
-  // ) {
-  //   contentItems.push({
-  //     content_id: content.content_id,
-  //     content_type: "question_bank",
-  //     modules: content.question_bank_modules,
-  //     topics: content.question_bank_topics || [],
-  //     quizzes: content.question_bank_quizzes || [],
-  //     subjects: content.subjects || [],
-  //   });
-  // }
-
-
-  // Convert string days to numbers if needed
-  // let studyDaysNumbers = studyDays;
-  // if (typeof studyDays[0] === "string") {
-  //   const dayMap = {
-  //     Sun: 0, Sunday: 0,
-  //     Mon: 1, Monday: 1,
-  //     Tue: 2, Tuesday: 2,
-  //     Wed: 3, Wednesday: 3,
-  //     Thu: 4, Thursday: 4,
-  //     Fri: 5, Friday: 5,
-  //     Sat: 6, Saturday: 6,
-  //   };
-  //   studyDaysNumbers = studyDays.map((day) => {
-  //     const d = String(day).trim();
-  //     return dayMap[d] ?? Number(d);
-  //   });
-  // }
-
-  // Build additional items from plan-level selections
-  const planFlashcardsDecks = (() => {
-    try { return plan.flashcardsDecks ? JSON.parse(plan.flashcardsDecks) : []; } catch { return []; }
-  })();
-  const planBooks = (() => {
-    try { return plan.books ? JSON.parse(plan.books) : []; } catch { return []; }
-  })();
-  const planBooksIndeces = (() => {
-    try { return plan.booksIndeces ? JSON.parse(plan.booksIndeces) : []; } catch { return []; }
-  })();
-
-  // Add placeholders for ebooks session if any selection exists
-    contentItems.push({
-      content_id: content?.content_id, // reuse content link for the plan
-      content_type: "ebooks",
-      books: planBooks,
-      books_indeces: planBooksIndeces,
-    });
-  
-
-  // Prepare statements
-  const insertSql = `INSERT INTO student_plan_sessions 
-               (plan_id, session_date, session_type, content_id)
-               VALUES (?, ?, ?, ?)`;
-  const existsSql = `SELECT session_id FROM student_plan_sessions WHERE plan_id = ? AND session_date = ? AND session_type = ? LIMIT 1`;
-
-  // Iterate all dates, insert sessions on study days
-  let createdCount = 0;
-  let firstSessionId = null;
-  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-    const day = d.getDay();
-    if (!studyDaysNumbers.includes(day)) continue;
-    const dateStr = d.toISOString().split("T")[0];
-
-    // for (const item of contentItems) {
-    //   // Skip duplicates per date/type
-    //   const [exists] = await client.execute(existsSql, [planId, dateStr, item.content_type]);
-    //   if (exists && exists.length) continue;
-
-    //   const [result] = await client.execute(insertSql, [planId, dateStr, item.content_type, item.content_id]);
-    //   if (result && result.insertId) {
-    //     createdCount += 1;
-    //     if (!firstSessionId) firstSessionId = result.insertId;
-    //   }
-    // }
-  }
-
-  if (createdCount === 0) {
-    return { sessions_created: 0, session_id: null };
-  }
-  return { sessions_created: createdCount, session_id: firstSessionId };
-}
 
 async function getPlanSessions({
   planId,

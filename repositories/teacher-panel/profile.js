@@ -11,7 +11,7 @@ const profile = async (req) => {
     return null;
   }
   delete user[0].password;
-  user[0].image_url = `https://camp-coding.site/medgap/${user[0].image_url}`;
+  user[0].image_url = `https://api.medgap.net/${user[0].image_url}`;
   return user[0];
 };
 

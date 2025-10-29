@@ -73,6 +73,47 @@ app.options("/uploads", (req, res) => {
   res.sendStatus(200);
 });
 
+// Secure file access proxy for external/uploads resources
+app.get("/api/access-file", async (req, res) => {
+  try {
+    const { url } = req.query;
+    if (!url || typeof url !== "string") {
+      return res.status(400).send("Missing 'url' query parameter");
+    }
+
+    const parsed = new URL(url);
+    const allowedHosts = ["api.medgap.net", "localhost", "127.0.0.1"];
+    if (!allowedHosts.includes(parsed.hostname)) {
+      return res.status(400).send("Blocked host");
+    }
+
+    if (!parsed.pathname.startsWith("/uploads/")) {
+      return res.status(400).send("Blocked path");
+    }
+
+    const upstream = await fetch(url);
+    if (!upstream.ok || !upstream.body) {
+      return res.status(upstream.status || 502).send("Failed to fetch upstream file");
+    }
+
+    const contentType = upstream.headers.get("content-type") || "application/octet-stream";
+    res.setHeader("Content-Type", contentType);
+    const disposition = upstream.headers.get("content-disposition");
+    if (disposition) {
+      res.setHeader("Content-Disposition", disposition);
+    }
+    const cacheControl = upstream.headers.get("cache-control");
+    if (cacheControl) {
+      res.setHeader("Cache-Control", cacheControl);
+    }
+
+    upstream.body.pipe(res);
+  } catch (err) {
+    console.error("/api/access-file error:", err);
+    return res.status(500).send("Internal server error");
+  }
+});
+
 // -------------------- Admin Routes 
 const admins = require("./routes/admin-copy/admins/manage-users/index");
 app.use("/api/admin/users", admins);

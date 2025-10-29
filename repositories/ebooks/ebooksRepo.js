@@ -291,8 +291,8 @@ console.log(whereSql)
     'order',ebook_indeces.order_index
     )
     ) AS indecies,
-    CONCAT('https://camp-coding.site/medgap', thumbnail) AS thumbnail,
-    CONCAT('https://camp-coding.site/medgap', file) AS file
+    CONCAT('https://api.medgap.net', thumbnail) AS thumbnail,
+    CONCAT('https://api.medgap.net', file) AS file
     FROM ebooks
     LEFT JOIN ebook_indeces ON ebook_indeces.ebook_id = ebooks.ebook_id
     ${whereSql}

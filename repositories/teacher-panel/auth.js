@@ -19,7 +19,7 @@ const loginRepo = async ({ data }) => {
   }
 
   delete user[0].password;
-  user[0].image_url = `https://camp-coding.site/medgap/${user[0].image_url}`;
+  user[0].image_url = `https://api.medgap.net/${user[0].image_url}`;
   const { signAccessToken, signRefreshToken } = require("../../utils/jwt");
   const access = signAccessToken({
     id: user[0].id,
