@@ -117,6 +117,9 @@ class TeachersRepository {
     if (filters.role) {
       query += ` AND t.role = ?`;
       values.push(filters.role);
+    }else{
+      query += ` AND t.role = 'teacher'`;
+      values.push('teacher');
     }
 
     // البحث في الاسم أو الإيميل
