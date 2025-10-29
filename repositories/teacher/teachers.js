@@ -89,31 +89,26 @@ class TeachersRepository {
   async getAllTeachers(filters = {}) {
     let query = `
       SELECT 
-        t.*,
-        
+        t.*,  
         CONCAT('https://camp-coding.site/medgap/', t.image_url) as full_image_url,
-        a1.admin_name as created_by_name,
-        a2.admin_name as updated_by_name,
-        (SELECT COUNT(*) FROM teacher_modules tm WHERE tm.teacher_id = t.teacher_id AND tm.status = 'active') as active_modules_count,
+       
+        (SELECT COUNT(*) FROM teacher_modules tm WHERE tm.teacher_id = t.teacher_id) as active_modules_count,
         (SELECT JSON_ARRAYAGG(JSON_OBJECT('subject_name', m.subject_name, 'module_id', m.module_id)) FROM modules m
-         INNER JOIN teacher_modules tm ON m.module_id = tm.module_id
-         WHERE tm.teacher_id = t.teacher_id AND tm.status = 'active') as active_modules
+         LEFT JOIN teacher_modules tm ON m.module_id = tm.module_id
+         WHERE tm.teacher_id = t.teacher_id) as active_modules
       FROM teachers t
-      LEFT JOIN admins a1 ON t.created_by = a1.admin_id
-      LEFT JOIN admins a2 ON t.updated_by = a2.admin_id
       WHERE 1 = 1 
     `;
 
     const values = [];
 
-    // فلترة حسب الحالة
-    if (filters.status) {
-      query += ` AND t.status = ?`;
-      values.push(filters.status);
-    }
+    // // فلترة حسب الحالة
+    // if (filters.status) {
+    //   query += ` AND t.status = ?`;
+    //   values.push(filters.status);
+    // }
 
-    // فلترة حسب الدور
-    console.log("filters.role", filters.role)
+    // // فلترة حسب الدور
     if (filters.role) {
       query += ` AND t.role = ?`;
       values.push(filters.role);
@@ -121,7 +116,7 @@ class TeachersRepository {
       query += ` AND t.role = 'teacher'`;
     }
 
-    // البحث في الاسم أو الإيميل
+    // // البحث في الاسم أو الإيميل
     if (filters.search) {
       query += ` AND (t.full_name LIKE ? OR t.email LIKE ?)`;
       values.push(`%${filters.search}%`, `%${filters.search}%`);
@@ -130,20 +125,10 @@ class TeachersRepository {
     // ترتيب النتائج
     query += ` ORDER BY t.created_at DESC`;
 
-    // تحديد عدد النتائج
-    if (filters.limit) {
-      query += ` LIMIT ?`;
-      values.push(filters.limit);
-    }
-
-    if (filters.offset) {
-      query += ` OFFSET ?`;
-      values.push(filters.offset);
-    }
 
     try {
-      console.log("query, values", query, values)
       const [result] = await client.execute(query, values);
+      console.log("result", result)
       result.map((row) => {
         try {
           row.active_modules_count = parseInt(row.active_modules_count) || 0;
@@ -153,6 +138,7 @@ class TeachersRepository {
         } catch {
           row.active_modules = [];
         }
+        console.log
         return row;
       });
       return result;
