@@ -343,7 +343,7 @@ class ModulesRepository {
       FROM units u
       LEFT JOIN topics t ON u.unit_id = t.unit_id
       LEFT JOIN questions q ON t.topic_id = q.topic_id
-      LEFT JOIN ebooks b ON u.unit_id = b.subject_id
+      LEFT JOIN ebooks b ON u.unit_id = b.subject_id AND b.is_deleted = 0
       WHERE u.module_id = ?
       GROUP BY u.unit_id
       ORDER BY u.unit_order ASC, u.created_at ASC

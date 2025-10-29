@@ -235,7 +235,7 @@ async function listRepo({
     "updated_at",
     "book_title",
     "pages",
-    "id",
+    "ebook_id",
     "type"
   ]);
   const allowedDir = new Set(["ASC", "DESC"]);
@@ -280,7 +280,7 @@ async function listRepo({
 
   const offset = (Math.max(1, page) - 1) * Math.max(1, pageSize);
   const limit = Math.max(1, pageSize);
-
+console.log(whereSql)
   const listSql = `
     SELECT ebooks.*,
     JSON_ARRAYAGG(
