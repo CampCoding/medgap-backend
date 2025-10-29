@@ -159,6 +159,27 @@ class TeachersRepository {
     }
   }
 
+  async getTeachersStats() {
+    const sql = `
+      SELECT
+        (SELECT COUNT(*) FROM teachers) AS total,
+        (SELECT COUNT(*) FROM teachers WHERE status = 'approved') AS approved,
+        (SELECT COUNT(*) FROM teachers WHERE status = 'pending') AS pending,
+        (SELECT COUNT(*) FROM teachers WHERE status = 'rejected') AS rejected,
+        (SELECT COUNT(*) FROM teachers WHERE role = 'head') AS department_heads,
+        (SELECT COUNT(*) FROM teachers WHERE role = 'assistant') AS teaching_assistants
+    `;
+    const [rows] = await client.execute(sql);
+    return rows && rows[0] ? rows[0] : {
+      total: 0,
+      approved: 0,
+      pending: 0,
+      rejected: 0,
+      department_heads: 0,
+      teaching_assistants: 0,
+    };
+  }
+
   //  مدرس بواسطة ID
   async getTeacherById(teacherId) {
     const query = `

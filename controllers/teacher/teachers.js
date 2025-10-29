@@ -98,14 +98,14 @@ class TeachersController {
 
   async getAllTeachers(req, res) {
     try {
-      const { status, role, search, limit = 50, offset = 0 } = req.query;
+      const { status, role, search, limit = 5000000000000000, offset = 0 } = req.query;
 
       const filters = {
         status,
         role,
         search,
-        limit: parseInt(limit),
-        offset: parseInt(offset)
+        limit: 5000000000000000000,
+        offset: 1
       };
 
       Object.keys(filters).forEach((key) => {
