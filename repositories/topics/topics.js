@@ -46,8 +46,8 @@ class TopicsRepository {
 
   // جميع الموضوعات مع الإحصائيات
   async getAllTopics(filters = {}) {
-       let query = null;
-      if(filters?.teacher_id){
+    let query = null;
+    if (filters?.teacher_id) {
       query = `
       SELECT
         t.*,
@@ -64,10 +64,10 @@ class TopicsRepository {
       LEFT JOIN questions q ON t.topic_id = q.topic_id
       LEFT JOIN flashcards f ON t.topic_id = f.topic_id
       LEFT JOIN digital_library dl ON t.topic_id = dl.topic_id
-      WHERE t.teacher_id = ?
+      WHERE ${filters?.unit_id ? `AND t.unit_id = ${filters?.unit_id}` : ''} ${filters?.teacher_id ? `AND t.teacher_id = ${filters?.teacher_id}` : ''} AND 1 = 1
     `;
-      }else{
-       query = `
+    } else {
+      query = `
       SELECT
         t.*,
         u.unit_name,
@@ -83,12 +83,13 @@ class TopicsRepository {
       LEFT JOIN questions q ON t.topic_id = q.topic_id
       LEFT JOIN flashcards f ON t.topic_id = f.topic_id
       LEFT JOIN digital_library dl ON t.topic_id = dl.topic_id
-    `;    
-      }
+      WHERE ${filters?.unit_id ? `AND t.unit_id = ${filters?.unit_id}` : ''} ${filters?.teacher_id ? `AND t.teacher_id = ${filters?.teacher_id}` : ''} AND 1 = 1
+    `;
+    }
 
     let values = [filters?.teacher_id];
-    if(!filters?.teacher_id){
-         values = []
+    if (!filters?.teacher_id) {
+      values = []
     }
 
     if (filters.status) {

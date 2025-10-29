@@ -70,8 +70,8 @@ class TopicsController {
         offset: offset,
 
       };
- if(!filters?.teacher_id){
-          delete filters?.teacher_id
+      if (!filters?.teacher_id) {
+        delete filters?.teacher_id
       }
       // إزالة القيم الفارغة
       Object.keys(filters).forEach((key) => {
@@ -79,7 +79,7 @@ class TopicsController {
           delete filters[key];
         }
       });
-     
+
 
       // الحصول على البيانات والعدد الإجمالي
       const [topics, totalCount] = await Promise.all([
@@ -218,9 +218,9 @@ class TopicsController {
             patch.tags = Array.isArray(parsed)
               ? parsed
               : patch.tags
-                  .split(",")
-                  .map((s) => s.trim())
-                  .filter(Boolean);
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean);
           } catch {
             patch.tags = patch.tags
               .split(",")
@@ -296,7 +296,7 @@ class TopicsController {
   // نسخ موضوع
   async duplicateTopic(req, res) {
     try {
-     await topicsRepository.duplicateTopic({ ...req?.body, ...req?.params });
+      await topicsRepository.duplicateTopic({ ...req?.body, ...req?.params });
       return responseBuilder.success(res, {
         message: "Topic was duplicated successfully",
         topic_id: req.params.id
@@ -518,7 +518,7 @@ class TopicsController {
         topic_id: topicId,
         file_type,
         processing_status,
-        approval_status, 
+        approval_status,
         limit: limitNum,
         offset: offset
       };
