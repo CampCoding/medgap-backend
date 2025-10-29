@@ -132,6 +132,9 @@ app.use("/api/student/home", studentHomePage);
 const adminQuotes = require("./routes/admin/quotes");
 app.use("/api/admin/quotes", adminQuotes);
 
+const adminOverview = require("./routes/admin/index");
+app.use("/api/admin", adminOverview);
+
 
 const teacherExams = require("./routes/teacher/exams");
 app.use("/api/teacher/exams", teacherExams);
