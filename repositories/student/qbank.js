@@ -474,8 +474,8 @@ const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filt
 }
 
 const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, selected_modules,
-    selected_subjects,day,
-    selected_topics, question_level, numQuestions, question_mode = ["unused"], plan_id = 0}) => {
+    selected_subjects, day,
+    selected_topics, question_level, numQuestions, question_mode = ["unused"], plan_id = 0 }) => {
     /**
       numQuestions:null,
   question_mode:"",
@@ -511,7 +511,7 @@ const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, s
     const [insertQbank] = await client.execute(
         `INSERT INTO qbank (qbank_name, tutor_mode, timed, time_type, active, deleted, student_id, plan_id, day)
          VALUES (?, ?, ?, ?,?, ?,? ,? ,? )`,
-        [qbankName ? qbankName : new Date(), tutorMode, timed, timeType, '1', '0', studentId, plan_id, day]
+        [qbankName ? qbankName : new Date(), tutorMode, timed, timeType, '1', '0', studentId, plan_id ? plan_id : 0, day ? day : "---"]
     );
     const rows = (questions?.questions || []).map(q => [
         q.question_id,
@@ -638,7 +638,7 @@ const unAssignFromCategory = async ({ mark_id }) => {
 
     return deleteMark.affectedRows;
 }
- 
+
 const listQuestion = async ({ qbank_id, studentId }) => {
     console.log(studentId)
     const [categories] = await client.query("SELECT * FROM student_mark_categories WHERE student_id = ?", [studentId])
@@ -730,7 +730,7 @@ const listQuestion = async ({ qbank_id, studentId }) => {
 
             if (typeof r.notes === 'string') r.notes = JSON.parse(r.notes).filter(Boolean);
             const answerParsed = JSON.parse(r.your_answer);
-            answerParsed.option_id =  r.options.find(option => option.option_text === answerParsed.answer)?.option_id;
+            answerParsed.option_id = r.options.find(option => option.option_text === answerParsed.answer)?.option_id;
             answerParsed.solved = false
             if (answerParsed?.is_correct != null) {
                 answerParsed.solved = true

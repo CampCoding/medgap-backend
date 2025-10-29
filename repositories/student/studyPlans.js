@@ -144,43 +144,71 @@ async function generatePlanSessions({ planId, studentId, studyDaysNumbers }) {
   parsedPlan.flashcardsModules = normalizeToArray(parsedPlan.flashcardsModules);
   parsedPlan.exams = normalizeToArray(parsedPlan.exams);
 
-  // Get plan content
-  const content = await getPlanContent({ planId });
+  // Build separate content rows per type so sessions can point to type-specific content
+  const contentRowsByType = {};
+  // Helper to insert a content row with only relevant fields
+  const insertContentRow = async ({
+    examsModules = null,
+    examsTopics = null,
+    flashcardsModules = null,
+    flashcardsTopics = null,
+    questionBankModules = null,
+    questionBankTopics = null,
+    questionBankQuizzes = null,
+    subjects = null,
+  }) => {
+    const sql = `INSERT INTO student_plan_content (
+               plan_id, exams_modules, exams_topics, flashcards_modules, flashcards_topics,
+               question_bank_modules, question_bank_topics, question_bank_quizzes, subjects)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const params = [
+      planId,
+      examsModules ? JSON.stringify(examsModules) : null,
+      examsTopics ? JSON.stringify(examsTopics) : null,
+      flashcardsModules ? JSON.stringify(flashcardsModules) : null,
+      flashcardsTopics ? JSON.stringify(flashcardsTopics) : null,
+      questionBankModules ? JSON.stringify(questionBankModules) : null,
+      questionBankTopics ? JSON.stringify(questionBankTopics) : null,
+      questionBankQuizzes ? JSON.stringify(questionBankQuizzes) : null,
+      subjects ? JSON.stringify(subjects) : null,
+    ];
+    const [ins] = await client.execute(sql, params);
+    return ins.insertId;
+  };
 
-  // Create content items array from the new structure
-  const contentItems = [];
-
-  // Add exams content
+  const availableTypes = [];
+  if (parsedPlan.questionBankModules.length > 0 || parsedPlan.questionBankTopics.length > 0) {
+    contentRowsByType.question_bank = await insertContentRow({
+      questionBankModules: parsedPlan.questionBankModules,
+      questionBankTopics: parsedPlan.questionBankTopics,
+      questionBankQuizzes: null,
+      subjects: parsedPlan.questionBankSubject,
+    });
+    availableTypes.push("question_bank");
+  }
+  if (parsedPlan.flashcardsModules.length > 0 || parsedPlan.flashcardsTopics.length > 0) {
+    contentRowsByType.flashcards = await insertContentRow({
+      flashcardsModules: parsedPlan.flashcardsModules,
+      flashcardsTopics: null,
+    });
+    availableTypes.push("flashcards");
+  }
+  if (parsedPlan.books.length > 0 || parsedPlan.booksModule.length > 0) {
+    // Treat ebooks as content subjects/modules
+    contentRowsByType.ebooks = await insertContentRow({
+      subjects: parsedPlan.booksModule,
+    });
+    availableTypes.push("ebooks");
+  }
   if (parsedPlan.exams.length > 0) {
-    contentItems.push({
-      content_id: content?.content_id || null,
-      content_type: "exams",
+    contentRowsByType.exams = await insertContentRow({
+      examsModules: parsedPlan.exams_modules || [],
+      examsTopics: parsedPlan.exams_topics || [],
     });
+    availableTypes.push("exams");
   }
-
-  // Add flashcards content
-  if (parsedPlan.flashcardsModules.length > 0) {
-    contentItems.push({
-      content_id: content?.content_id || null,
-      content_type: "flashcards",
-    });
-  }
-
-  // Add question bank content
-  if (parsedPlan.questionBankModules.length > 0) {
-    contentItems.push({
-      content_id: content?.content_id || null,
-      content_type: "question_bank",
-    });
-  }
-
-  // Add ebooks content
-  if (parsedPlan.books.length > 0) {
-    contentItems.push({
-      content_id: content?.content_id || null,
-      content_type: "ebooks",
-    });
-  }
+  // Fallback: if nothing specific, still avoid crashing
+  const contentItems = availableTypes.map((t) => ({ content_type: t, content_id: contentRowsByType[t] }));
 
   // Convert string days to numbers if needed
   let studyDaysNumbersParsed = parsedPlan.study_days;
@@ -206,26 +234,30 @@ async function generatePlanSessions({ planId, studentId, studyDaysNumbers }) {
                VALUES (?, ?, ?, ?)`;
   const existsSql = `SELECT session_id FROM student_plan_sessions WHERE plan_id = ? AND session_date = ? AND session_type = ? LIMIT 1`;
 
-  // Iterate all dates, insert sessions on study days
+  // Iterate all dates, insert sessions on study days, rotating content types across days
   let createdCount = 0;
   let firstSessionId = null;
   const startDate = new Date(plan.start_date);
   const endDate = new Date(plan.end_date);
+  let rotationIndex = 0;
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
     const day = d.getDay();
     if (!studyDaysNumbersParsed.includes(day)) continue;
     const dateStr = d.toISOString().split("T")[0];
+    if (!contentItems.length) continue;
+    // Choose next content type in round-robin
+    const item = contentItems[rotationIndex % contentItems.length];
+    rotationIndex += 1;
 
-    for (const item of contentItems) {
-      // Skip duplicates per date/type
-      const [exists] = await client.execute(existsSql, [planId, dateStr, item.content_type]);
-      if (exists && exists.length) continue;
+    // Skip duplicates per date/type
+    const [exists] = await client.execute(existsSql, [planId, dateStr, item.content_type]);
+    if (exists && exists.length) continue;
 
-      const [result] = await client.execute(insertSql, [planId, dateStr, item.content_type, 2]);
-      if (result && result.insertId) {
-        createdCount += 1;
-        if (!firstSessionId) firstSessionId = result.insertId;
-      }
+    const contentIdForType = item.content_id || null;
+    const [result] = await client.execute(insertSql, [planId, dateStr, item.content_type, contentIdForType]);
+    if (result && result.insertId) {
+      createdCount += 1;
+      if (!firstSessionId) firstSessionId = result.insertId;
     }
   }
 
