@@ -339,13 +339,26 @@ class ModulesRepository {
         u.*,
         COUNT(DISTINCT t.topic_id) as topics_count,
         COUNT(DISTINCT q.question_id) as questions_count,
-        COUNT(DISTINCT b.ebook_id) as books_count
+        COUNT(DISTINCT b.ebook_id) as ebooks_count
       FROM units u
       LEFT JOIN topics t ON u.unit_id = t.unit_id
       LEFT JOIN questions q ON t.topic_id = q.topic_id
       LEFT JOIN ebooks b ON u.unit_id = b.subject_id
       WHERE u.module_id = ?
       GROUP BY u.unit_id
+      ORDER BY u.unit_order ASC, u.created_at ASC
+    `;
+
+    try {
+      const [result] = await client.execute(query, [moduleId]);
+      return result.map((row) => ({
+        ...row,
+        topics_count: parseInt(row.topics_count) || 0,
+        questions_count: parseInt(row.questions_count) || 0
+      }));
+    } catch (error) {
+      throw new Error(`Error fetching module units: ${error.message}`);
+    }
   }
 
   //  المدرسين المرتبطين بالمادة
