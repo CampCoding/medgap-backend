@@ -162,12 +162,12 @@ class TeachersRepository {
   async getTeachersStats() {
     const sql = `
       SELECT
-        (SELECT COUNT(*) FROM teachers) AS total,
-        (SELECT COUNT(*) FROM teachers WHERE status = 'approved') AS approved,
-        (SELECT COUNT(*) FROM teachers WHERE status = 'pending') AS pending,
-        (SELECT COUNT(*) FROM teachers WHERE status = 'rejected') AS rejected,
-        (SELECT COUNT(*) FROM teachers WHERE role = 'head') AS department_heads,
-        (SELECT COUNT(*) FROM teachers WHERE role = 'assistant') AS teaching_assistants
+        (SELECT COUNT(*) FROM teachers WHERE role = 'teacher') AS total,
+        (SELECT COUNT(*) FROM teachers WHERE status = 'approved' AND role = 'teacher') AS approved,
+        (SELECT COUNT(*) FROM teachers WHERE status = 'pending' AND role = 'teacher') AS pending,
+        (SELECT COUNT(*) FROM teachers WHERE status = 'rejected' AND role = 'teacher') AS rejected,
+        (SELECT COUNT(*) FROM teachers WHERE role = 'head_of_department' AND role = 'teacher') AS department_heads,
+        (SELECT COUNT(*) FROM teachers WHERE role = 'assistant' AND role = 'teacher') AS teaching_assistants
     `;
     const [rows] = await client.execute(sql);
     return rows && rows[0] ? rows[0] : {
