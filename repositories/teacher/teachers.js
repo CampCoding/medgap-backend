@@ -46,7 +46,7 @@ class TeachersRepository {
         qualification || null,
         createdBy,
         password || null,
-        document_url||null
+        document_url || null
       ];
 
       console.log("Executing query:", teacherQuery);
@@ -144,10 +144,10 @@ class TeachersRepository {
       const [result] = await client.execute(query, values);
       result.map((row) => {
         try {
-        row.active_modules_count = parseInt(row.active_modules_count) || 0;
-        row.active_modules = row.active_modules
-          ? JSON.parse(row.active_modules)
-          : [];
+          row.active_modules_count = parseInt(row.active_modules_count) || 0;
+          row.active_modules = row.active_modules
+            ? JSON.parse(row.active_modules)
+            : [];
         } catch {
           row.active_modules = [];
         }
@@ -170,6 +170,7 @@ class TeachersRepository {
         (SELECT COUNT(*) FROM teachers WHERE role = 'assistant' AND role = 'teacher') AS teaching_assistants
     `;
     const [rows] = await client.execute(sql);
+
     return rows && rows[0] ? rows[0] : {
       total: 0,
       approved: 0,
@@ -264,8 +265,8 @@ class TeachersRepository {
     WHERE teacher_id = ?
   `;
 
-  console.log("Executing query:", query);
-  console.log("With values:", values);
+    console.log("Executing query:", query);
+    console.log("With values:", values);
 
     try {
       await client.execute(query, values);
@@ -340,16 +341,14 @@ class TeachersRepository {
   // إحصائيات المدرسين
   async getTeachersStats() {
     const query = `
-      SELECT 
-        COUNT(*) as total_teachers,
-        COUNT(CASE WHEN status = 'approved' THEN 1 END) as approved_teachers,
-        COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_teachers,
-        COUNT(CASE WHEN status = 'rejected' THEN 1 END) as rejected_teachers,
-        COUNT(CASE WHEN role = 'teacher' THEN 1 END) as teachers,
-        COUNT(CASE WHEN role = 'head_of_department' THEN 1 END) as heads_of_department,
-        COUNT(CASE WHEN role = 'assistant' THEN 1 END) as assistants
-      FROM teachers
-    `;
+    SELECT
+      (SELECT COUNT(*) FROM teachers WHERE role = 'teacher') AS total,
+      (SELECT COUNT(*) FROM teachers WHERE status = 'approved' AND role = 'teacher') AS approved,
+      (SELECT COUNT(*) FROM teachers WHERE status = 'pending' AND role = 'teacher') AS pending,
+      (SELECT COUNT(*) FROM teachers WHERE status = 'rejected' AND role = 'teacher') AS rejected,
+      (SELECT COUNT(*) FROM teachers WHERE role = 'head_of_department' AND role = 'teacher') AS department_heads,
+      (SELECT COUNT(*) FROM teachers WHERE role = 'assistant' AND role = 'teacher') AS teaching_assistants
+  `;
 
     try {
       const [result] = await client.execute(query);
