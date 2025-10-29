@@ -243,26 +243,33 @@ async updateTeacher(req, res) {
     );
 
     // Handle modules update if provided (module_ids can be JSON string or array)
-    if (module_ids !== undefined) {
+    // Normalize incoming module ids (accept module_ids, moduleIds, module_ids[])
+    const rawModuleIds = module_ids !== undefined
+      ? module_ids
+      : (req.body?.moduleIds !== undefined
+          ? req.body.moduleIds
+          : (req.body?.["module_ids[]"] !== undefined ? req.body["module_ids[]"] : undefined));
+
+    if (rawModuleIds !== undefined) {
       let moduleIdsParsed = [];
       try {
-        if (typeof module_ids === "string") {
+        if (typeof rawModuleIds === "string") {
           // attempt to parse JSON string; if fails, try to split by comma
           try {
-            moduleIdsParsed = JSON.parse(module_ids);
+            moduleIdsParsed = JSON.parse(rawModuleIds);
           } catch (e) {
-            moduleIdsParsed = module_ids
+            moduleIdsParsed = rawModuleIds
               .split(",")
               .map((m) => m.trim())
               .filter(Boolean);
           }
-        } else if (Array.isArray(module_ids)) {
-          moduleIdsParsed = module_ids;
-        } else if (module_ids == null) {
+        } else if (Array.isArray(rawModuleIds)) {
+          moduleIdsParsed = rawModuleIds;
+        } else if (rawModuleIds == null) {
           moduleIdsParsed = [];
-        } else {
+        } else { 
           // other types -> coerce to array
-          moduleIdsParsed = [module_ids];
+          moduleIdsParsed = [rawModuleIds];
         }
       } catch (err) {
         return responseBuilder.badRequest(res, "Invalid module_ids format");
