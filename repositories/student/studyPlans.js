@@ -649,11 +649,35 @@ async function getPlanSessions({
   let sql = `SELECT 
   nsps.*,
   JSON_OBJECT(
-    'qbank_id', q.qbank_id,
-    'qbank_name', q.qbank_name,
-    'qbank_created_at', q.created_at,
-    'started', COALESCE((SELECT new_student_plan_content.id FROM new_student_plan_content WHERE content_type = 'qbank' AND content_id = q.qbank_id AND session_id = nsps.session_id), 0)
-  ) AS qbank,
+  'qbank_id', q.qbank_id,
+  'qbank_name', q.qbank_name,
+  'qbank_created_at', q.created_at,
+  'started', COALESCE(
+    (SELECT id FROM new_student_plan_content WHERE content_type = 'qbank' AND content_id = q.qbank_id AND session_id = nsps.session_id LIMIT 1),
+    0
+  ),
+  'progress',
+  (
+    SELECT 
+      IFNULL(
+        ROUND(
+          (
+            SELECT COUNT(DISTINCT sq.question_id) 
+            FROM solved_questions sq
+            WHERE sq.qbank_id = q.qbank_id AND sq.student_id = ? AND sq.is_correct = '1'
+          ) 
+          *
+          100.0 /
+          (
+            SELECT COUNT(*) 
+            FROM qbank_questions qq 
+            WHERE qq.qbank_id = q.qbank_id
+          )
+          , 0
+        ), 0
+      )
+  )
+) AS qbank,
   JSON_OBJECT(
     'exam_id', e.exam_id,
     'exam_name', e.title,
@@ -687,7 +711,7 @@ async function getPlanSessions({
              LEFT JOIN ebook_indeces AS ei ON nsps.index_id = ei.ebook_index_id
              WHERE nsps.plan_id = ?`;
 
-  let params = [planId];
+  let params = [studentId, planId];
   const [rows] = await client.execute(sql, params);
   rows.map((item)=>{ 
     item.flashcards_decks = JSON.parse(item.flashcards_decks);
