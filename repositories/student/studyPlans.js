@@ -1,4 +1,5 @@
 const { client } = require("../../config/db-connect");
+const { getDatesBetween } = require("../../utils/getDateBetween");
 const activityTracking = require("./activityTracking");
 const { createQbank } = require("./qbank");
 
@@ -54,11 +55,10 @@ async function createStudyPlan({
     exams ? JSON.stringify(exams) : null,
 
   ];
-
+  console.log(getDatesBetween(startDate, endDate, studyDays, { locale: 'en-US', timeZone: 'Africa/Cairo' }))
   const [result] = await client.execute(sql, params);
-  console.log("qbankId", [1, 2, 3, 4, 5, 6, 7]);
   const qbankId = await Promise.all(
-    studyDays.map(async (day) => {
+    getDatesBetween(startDate, endDate, studyDays, { locale: 'en-US', timeZone: 'Africa/Cairo' }).map(async (date) => {
       return await createQbank({
         studentId,
         qbankName: planName,
@@ -66,7 +66,8 @@ async function createStudyPlan({
         timed: 0,
         timeType: "none",
         plan_id: result.insertId,
-        day: day,
+        day: date.day?.substring(0, 3),
+        date_schedule: date.date,
         selected_modules: questionBankModules,
         selected_subjects: questionBankSubject,
         selected_topics: questionBankTopics,
@@ -75,16 +76,41 @@ async function createStudyPlan({
         question_mode: questionMode,
       });
     }));
+  console.log("qbankId", booksIndeces);
+ 
+  getDatesBetween(startDate, endDate, studyDays, { locale: 'en-US', timeZone: 'Africa/Cairo' }).map(async (date, index) => {
+    return await createSession({
+      planId: result.insertId,
+      studentId: studentId,
+      studyDay: index + 1,
+      studyDayDate: date?.date,
+      studyDayName: date?.day?.substring(0, 3),
+      qbankId: qbankId[index] ? qbankId[index] : 0,
+      examId: exams[index] ? exams[index] : 0,
+      flashcarddeckId: flashcardsDecks ? flashcardsDecks[index] : 0,
+      ebookId: books ? books : 0,
+      indexId: booksIndeces ? booksIndeces[index] : 0,
+    });
+  });
+  // await Promise.all(studyDays.map(async (day, index) => {
 
-
+  // }));
   // await generatePlanSessions({ planId: result.insertId, studentId: studentId, studyDaysNumbers: studyDays });
 
   return { plan_id: result.insertId };
 }
 
 
-const createSession = async ({ planId, studentId, studyDay, studyDayName, qbankId, examId, flashcarddeckId, ebookId, indexId }) => {
- 
+const createSession = async ({ planId, studentId, studyDay, studyDayName, qbankId, examId, flashcarddeckId, ebookId, indexId, studyDayDate }) => {
+  const paramsSafe = [
+    planId, studentId, studyDay, studyDayName,
+    qbankId, examId, flashcarddeckId, ebookId, indexId, studyDayDate
+  ].map(v => v === undefined ? null : v);
+console.log(paramsSafe);
+  const sql = `INSERT INTO new_student_plan_sessions (plan_id, student_id, study_day, study_day_name, qbank_id, exam_id, flashcarddeck_id, ebook_id, index_id, study_day_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  const params = [planId, studentId, studyDay, studyDayName, qbankId, examId, flashcarddeckId, ebookId, indexId, studyDayDate];
+  const [result] = await client.execute(sql, paramsSafe);
+  return result.insertId;
 }
 
 // Plan Sessions Management
@@ -619,62 +645,45 @@ async function getPlanSessions({
   studentId,
   date = null,
   status = null,
-}) {
-  let sql = `SELECT s.*, c.exams_modules, c.exams_topics, c.flashcards_modules, 
-             c.flashcards_topics, c.question_bank_modules, c.question_bank_topics, 
-             c.question_bank_quizzes, c.subjects
-             FROM student_plan_sessions s
-             JOIN student_plan_content c ON c.content_id = s.content_id
-             WHERE s.plan_id = ?`;
+}) {/*library_id, library_name, description, difficulty_level, estimated_time, status, created_at, updated_at, created_by, updated_by, topic_id, module_id */
+  let sql = `SELECT *,
+  JSON_OBJECT(
+    'qbank_id', qbank.qbank_id,
+    'qbank_name', qbank.qbank_name,
+    'qbank_created_at', qbank.created_at
+  ) as qbank,
+  JSON_OBJECT(
+    'exam_id', exams.exam_id,
+    'exam_name', exams.title,
+    'difficulty', exams.difficulty,
+    'exam_created_at', exams.created_at
+  ) as exams,
+  JSON_OBJECT(
+    'flashcarddeck_id', flashcard_libraries.library_id,
+    'flashcarddeck_name', flashcard_libraries.library_name,
+    'flashcarddeck_description', flashcard_libraries.description,
+    'flashcarddeck_created_at', flashcard_libraries.created_at
+  ) as flashcards_decks
+             FROM new_student_plan_sessions 
+             LEFT JOIN qbank ON new_student_plan_sessions.qbank_id = qbank.qbank_id
+             LEFT JOIN exams ON new_student_plan_sessions.exam_id = exams.exam_id
+             LEFT JOIN flashcard_libraries ON new_student_plan_sessions.flashcarddeck_id = flashcard_libraries.library_id
+            
+             WHERE new_student_plan_sessions.plan_id = ?`;
 
   let params = [planId];
 
-  if (date) {
-    sql += ` AND s.session_date = ?`;
-    params.push(date);
-  }
-
-  if (status) {
-    sql += ` AND s.status = ?`;
-    params.push(status);
-  }
-
-  sql += ` ORDER BY s.session_date ASC, s.created_at ASC`;
-
-  const [rows] = await client.execute(sql, params);
-
-  // Parse JSON fields
-  const parsedSessions = rows.map((row) => ({
-    ...row,
-    exams_modules: row.exams_modules ? JSON.parse(row.exams_modules) : [],
-    exams_topics: row.exams_topics ? JSON.parse(row.exams_topics) : [],
-    flashcards_modules: row.flashcards_modules
-      ? JSON.parse(row.flashcards_modules)
-      : [],
-    flashcards_topics: row.flashcards_topics
-      ? JSON.parse(row.flashcards_topics)
-      : [],
-    question_bank_modules: row.question_bank_modules
-      ? JSON.parse(row.question_bank_modules)
-      : [],
-    question_bank_topics: row.question_bank_topics
-      ? JSON.parse(row.question_bank_topics)
-      : [],
-    question_bank_quizzes: row.question_bank_quizzes
-      ? JSON.parse(row.question_bank_quizzes)
-      : [],
-    subjects: row.subjects ? JSON.parse(row.subjects) : JSON.stringify(['all']),
-  }));
-
-  // Get detailed information for each session
-  const detailedSessions = await Promise.all(
-    parsedSessions.map(async (session) => {
-      const detailedContent = await getDetailedContentInfo(session);
-      return detailedContent;
-    })
-  );
-
-  return detailedSessions;
+  let [rows] = await client.execute(sql, params);
+rows.map((item)=>{
+  item.flashcards_decks = JSON.parse(item.flashcards_decks) ;
+  item.exams = JSON.parse(item.exams);
+  item.qbank = JSON.parse(item.qbank);
+  item.flashcards_decks =  item.flashcards_decks?.flashcarddeck_id ? item.flashcards_decks : {};
+  item.exams = item.exams?.exam_id ? item.exams : {};
+  item.qbank = item.qbank?.qbank_id ? item.qbank : {};
+    return item;
+})  
+  return rows;
 }
 
 // Get a single session details (questions + flashcards + progress)

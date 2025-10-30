@@ -475,7 +475,7 @@ const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filt
 
 const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, selected_modules,
     selected_subjects, day,
-    selected_topics, question_level, numQuestions, question_mode = ["unused"], plan_id = 0 }) => {
+    selected_topics, question_level, numQuestions, question_mode = ["unused"], plan_id = 0, date_schedule = null }) => {
     /**
   numQuestions:null,
   question_mode:"",
@@ -509,9 +509,9 @@ const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, s
     const questions = await fetchModulesSubjectsTopicsQuestions({ studentId, filters })
 
     const [insertQbank] = await client.execute(
-        `INSERT INTO qbank (qbank_name, tutor_mode, timed, time_type, active, deleted, student_id, plan_id, day)
-         VALUES (?, ?, ?, ?,?, ?,? ,? ,? )`,
-        [qbankName ? qbankName : new Date(), tutorMode, timed, timeType, '1', '0', studentId, plan_id ? plan_id : 0, day ? day : "---"]
+        `INSERT INTO qbank (qbank_name, tutor_mode, timed, time_type, active, deleted, student_id, plan_id, day, date_schedule)
+         VALUES (?, ?, ?, ?,?, ?,? ,? ,?, ? )`,
+        [qbankName ? qbankName : new Date(), tutorMode, timed, timeType, '1', '0', studentId, plan_id ? plan_id : 0, day ? day : "---", date_schedule ? date_schedule : null]
     );
     const rows = (questions?.questions || []).map(q => [
         q.question_id,

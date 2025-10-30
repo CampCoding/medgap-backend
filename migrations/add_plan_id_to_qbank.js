@@ -23,10 +23,29 @@ async function migrateMySQL() {
       // await conn.query(`ALTER TABLE student_study_plans ADD COLUMN exams text DEFAULT NULL`);
       // await conn.query(`ALTER TABLE student_study_plans ADD COLUMN questionBankModules text DEFAULT NULL`);
       // await conn.query(`ALTER TABLE student_study_plans ADD COLUMN questionBankTopics text DEFAULT NULL`);
-      // await conn.query(`ALTER TABLE student_study_plans ADD COLUMN questionBankSubject text DEFAULT NULL`);
+      await conn.query(`ALTER TABLE new_student_plan_sessions ADD COLUMN study_day_date datetime DEFAULT NULL`);
       
       // await conn.query(`ALTER TABLE ebooks ADD COLUMN type ENUM('ebook', 'video', 'audio', 'summary', 'quiz', 'other') DEFAULT 'ebook'`);
-      await conn.query(`ALTER TABLE qbank ADD COLUMN day ENUM('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat') DEFAULT 'Sun'`);
+//       await conn.query(`
+//   CREATE TABLE new_student_plan_sessions (
+//     session_id INT AUTO_INCREMENT PRIMARY KEY,
+//     plan_id INT NOT NULL,
+//     student_id INT NOT NULL,
+//     study_day INT NOT NULL,
+//     study_day_name VARCHAR(16),
+//     qbank_id INT DEFAULT NULL,
+//     exam_id INT DEFAULT NULL,
+//     flashcarddeck_id INT DEFAULT NULL ,
+//     ebook_id INT DEFAULT NULL, 
+//     index_id INT DEFAULT NULL,
+//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+//     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+//     -- Foreign key constraints (assuming other tables exist - adjust names if not)
+//     FOREIGN KEY (plan_id) REFERENCES student_study_plans(plan_id) ON DELETE CASCADE,
+//     FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+// );
+        // `);
 
     
      

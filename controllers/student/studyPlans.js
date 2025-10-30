@@ -66,7 +66,7 @@ async function createPlan(req, res) {
     question_bank_topics,
     books_module,
     books,
-    books_indeces,
+    book_indeces,
   } = req.body || {};
 
   // Normalize helpers
@@ -89,7 +89,7 @@ async function createPlan(req, res) {
       questionBankTopics: question_bank_topics || [],
       questionBankSubject: question_bank_subject || [],
       booksModule: books_module || [],
-      booksIndeces: books_indeces || [],
+      booksIndeces: book_indeces || [],
       books: books || [],
       flashcardsDecks: flashcards_decks || [],
       flashcardsModules: flashcards_modules || [],

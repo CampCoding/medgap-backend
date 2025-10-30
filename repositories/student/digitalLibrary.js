@@ -96,6 +96,7 @@ async function listBooksByModule({
   
   return {
     data: rows.map((r) => ({
+      ...r,
       ebook_id: r.ebook_id,
       title: r.book_title,
       description: r.book_description,
@@ -187,6 +188,7 @@ async function listBooksByModuleByBulk({
   
   return {
     data: rows.map((r) => ({
+      ...r,
       ebook_id: r.ebook_id,
       title: r.book_title,
       description: r.book_description,
@@ -226,6 +228,7 @@ async function getBookDetails({ ebookId }) {
   if (!rows.length) return null;
   const f = rows[0];
   return {
+    ...f,
     ebook_id: f.ebook_id,
     title: f.book_title,
     description: f.book_description,
