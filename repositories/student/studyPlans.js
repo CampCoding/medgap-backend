@@ -646,8 +646,10 @@ async function getPlanSessions({
   date = null,
   status = null,
 }) {/*library_id, library_name, description, difficulty_level, estimated_time, status, created_at, updated_at, created_by, updated_by, topic_id, module_id */
-  let sql = `SELECT new_student_plan_sessions.*,
+  let sql = `SELECT 
+  
   new_student_plan_content.*,
+  new_student_plan_sessions.*,
   JSON_OBJECT(
     'qbank_id', qbank.qbank_id,
     'qbank_name', qbank.qbank_name,

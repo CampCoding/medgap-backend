@@ -23,8 +23,23 @@ async function migrateMySQL() {
       // await conn.query(`ALTER TABLE student_study_plans ADD COLUMN exams text DEFAULT NULL`);
       // await conn.query(`ALTER TABLE student_study_plans ADD COLUMN questionBankModules text DEFAULT NULL`);
       // await conn.query(`ALTER TABLE student_study_plans ADD COLUMN questionBankTopics text DEFAULT NULL`);
-      await conn.query(`ALTER TABLE new_student_plan_sessions ADD COLUMN study_day_date datetime DEFAULT NULL`);
-      
+      // await conn.query(`ALTER TABLE new_student_plan_sessions ADD COLUMN study_day_date datetime DEFAULT NULL`);
+      await conn.query(`CREATE TABLE new_student_plan_content (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    plan_id INT NOT NULL,
+    student_id INT NOT NULL,
+    session_id INT NOT NULL,
+    content_type VARCHAR(32) NOT NULL,
+    content_id INT,
+    progress FLOAT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    -- Foreign keys for data integrity (adjust table/column names if your schema is different!)
+    FOREIGN KEY (plan_id) REFERENCES student_study_plans(plan_id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+    FOREIGN KEY (session_id) REFERENCES student_plan_sessions(session_id) ON DELETE CASCADE
+);`);
       // await conn.query(`ALTER TABLE ebooks ADD COLUMN type ENUM('ebook', 'video', 'audio', 'summary', 'quiz', 'other') DEFAULT 'ebook'`);
 //       await conn.query(`
 //   CREATE TABLE new_student_plan_sessions (
