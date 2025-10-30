@@ -645,47 +645,47 @@ async function getPlanSessions({
   studentId,
   date = null,
   status = null,
-}) {/*library_id, library_name, description, difficulty_level, estimated_time, status, created_at, updated_at, created_by, updated_by, topic_id, module_id */
+}) {
   let sql = `SELECT 
-  
-  new_student_plan_content.*,
-  new_student_plan_sessions.*,
+  nsps.*,
   JSON_OBJECT(
-    'qbank_id', qbank.qbank_id,
-    'qbank_name', qbank.qbank_name,
-    'qbank_created_at', qbank.created_at
-  ) as qbank,
+    'qbank_id', q.qbank_id,
+    'qbank_name', q.qbank_name,
+    'qbank_created_at', q.created_at,
+    'started', COALESCE((SELECT new_student_plan_content.id FROM new_student_plan_content WHERE content_type = 'qbank' AND content_id = q.qbank_id AND session_id = nsps.session_id), 0)
+  ) AS qbank,
   JSON_OBJECT(
-    'exam_id', exams.exam_id,
-    'exam_name', exams.title,
-    'difficulty', exams.difficulty,
-    'exam_created_at', exams.created_at
-  ) as exams,
+    'exam_id', e.exam_id,
+    'exam_name', e.title,
+    'difficulty', e.difficulty,
+    'exam_created_at', e.created_at,
+    'started', COALESCE((SELECT new_student_plan_content.id  FROM new_student_plan_content WHERE content_type = 'exam' AND content_id = e.exam_id AND session_id = nsps.session_id), 0) 
+  ) AS exams,
   JSON_OBJECT(
-    'flashcarddeck_id', flashcard_libraries.library_id,
-    'flashcarddeck_name', flashcard_libraries.library_name,
-    'flashcarddeck_description', flashcard_libraries.description,
-    'flashcarddeck_created_at', flashcard_libraries.created_at
-  ) as flashcards_decks,
+    'flashcarddeck_id', fl.library_id,
+    'flashcarddeck_name', fl.library_name,
+    'flashcarddeck_description', fl.description,
+    'flashcarddeck_created_at', fl.created_at,
+    'started', COALESCE((SELECT new_student_plan_content.id  FROM new_student_plan_content WHERE content_type = 'flashcard' AND content_id = fl.library_id AND session_id = nsps.session_id), 0)
+  ) AS flashcards_decks,
    JSON_OBJECT(
-    'ebook_id', ebooks.ebook_id,
-    'ebook_name', ebooks.book_title,
-    'ebook_description', ebooks.book_description,
-    'ebook_created_at', ebooks.created_at,
-    'index_id', ebook_indeces.ebook_index_id,
-    'index_title', ebook_indeces.index_title,
-    'index_page', ebook_indeces.page_number,
-    'index_order', ebook_indeces.order_index
-  ) as ebooks
-             FROM new_student_plan_sessions 
-             LEFT JOIN qbank ON new_student_plan_sessions.qbank_id = qbank.qbank_id
-             LEFT JOIN exams ON new_student_plan_sessions.exam_id = exams.exam_id
-             LEFT JOIN flashcard_libraries ON new_student_plan_sessions.flashcarddeck_id = flashcard_libraries.library_id
-             LEFT JOIN ebooks ON new_student_plan_sessions.ebook_id = ebooks.ebook_id
-             LEFT JOIN ebook_indeces ON new_student_plan_sessions.index_id = ebook_indeces.ebook_index_id
-             LEFT JOIN new_student_plan_content ON new_student_plan_sessions.session_id = new_student_plan_content.session_id
-
-             WHERE new_student_plan_sessions.plan_id = ?`;
+    'ebook_id', eb.ebook_id,
+    'ebook_name', eb.book_title,
+    'ebook_description', eb.book_description,
+    'ebook_created_at', eb.created_at,
+    'index_id', ei.ebook_index_id,
+    'index_title', ei.index_title,
+    'index_page', ei.page_number,
+    'index_order', ei.order_index,
+    'started', COALESCE((SELECT new_student_plan_content.id  FROM new_student_plan_content WHERE content_type = 'ebook' AND content_id = eb.ebook_id AND session_id = nsps.session_id), 0)
+  ) AS ebooks
+             FROM new_student_plan_sessions AS nsps
+             LEFT JOIN qbank AS q ON nsps.qbank_id = q.qbank_id
+             LEFT JOIN exams AS e ON nsps.exam_id = e.exam_id
+             LEFT JOIN flashcard_libraries AS fl ON nsps.flashcarddeck_id = fl.library_id
+             LEFT JOIN ebooks AS eb ON nsps.ebook_id = eb.ebook_id
+             LEFT JOIN ebook_indeces AS ei ON nsps.index_id = ei.ebook_index_id
+             WHERE nsps.plan_id = ?`;
 
   let params = [planId];
   const [rows] = await client.execute(sql, params);
@@ -2233,5 +2233,6 @@ module.exports = {
   reviewSessionFlashcard,
   getTodayOverview,
   getDashboardOverview,
-  getMarkedCategoriesAndQuestions
+  getMarkedCategoriesAndQuestions,
+  startSessionContent
 };

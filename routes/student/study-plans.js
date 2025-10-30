@@ -12,6 +12,7 @@ router.get("/", ctrl.getPlans);
 router.get("/:plan_id", ctrl.getPlan);
 router.put("/:plan_id", ctrl.updatePlan);
 router.delete("/:plan_id", ctrl.deletePlan);
+router.post("/sessions/start", ctrl.startSessionContent);
 
 router.post("/:plan_id/content", ctrl.addContent);
 router.get("/:plan_id/content", ctrl.getContent);

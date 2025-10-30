@@ -232,6 +232,34 @@ async function deletePlan(req, res) {
     message: "Study plan deleted successfully",
   });
 }
+async function startSessionContent(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) {
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  }
+  // Get needed params from request
+  const { planId, sessionId, contentType, contentId } = req.body;
+  if (!planId || !sessionId || !contentType) {
+    return responseBuilder.badRequest(res, "Missing required parameters");
+  }
+  try {
+    const result = await repo.startSessionContent({
+      planId,
+      studentId,
+      sessionId,
+      contentType,
+      contentId
+    });
+    return responseBuilder.success(res, {
+      data: { id: result },
+      message: "Session content started"
+    });
+  } catch (err) {
+    console.error("startSessionContent error:", err);
+    return responseBuilder.serverError(res, "Failed to start session content");
+  }
+}
+
 
 // Step 3: Content Management - Add all content at once
 async function addContent(req, res) {
@@ -733,5 +761,6 @@ module.exports = {
   reviewSessionFlashcard,
   getToday,
   getDashboard,
+  startSessionContent,
   getStudentId
 };
