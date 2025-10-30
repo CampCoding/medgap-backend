@@ -663,28 +663,31 @@ async function getPlanSessions({
     'flashcarddeck_name', flashcard_libraries.library_name,
     'flashcarddeck_description', flashcard_libraries.description,
     'flashcarddeck_created_at', flashcard_libraries.created_at
-  ) as flashcards_decks
+  ) as flashcards_decks,
+   JSON_OBJECT(
+    'ebook_id', ebooks.ebook_id,
+    'ebook_name', ebooks.book_title,
+    'ebook_description', ebooks.book_description,
+    'ebook_created_at', ebooks.created_at,
+    'index_id', ebook_indeces.ebook_index_id,
+    'index_title', ebook_indeces.index_title,
+    'index_page', ebook_indeces.page_number,
+    'index_order', ebook_indeces.order_index
+  ) as ebooks
              FROM new_student_plan_sessions 
              LEFT JOIN qbank ON new_student_plan_sessions.qbank_id = qbank.qbank_id
              LEFT JOIN exams ON new_student_plan_sessions.exam_id = exams.exam_id
              LEFT JOIN flashcard_libraries ON new_student_plan_sessions.flashcarddeck_id = flashcard_libraries.library_id
-            
+             LEFT JOIN ebooks ON new_student_plan_sessions.ebook_id = ebooks.ebook_id
+             LEFT JOIN ebook_indeces ON new_student_plan_sessions.index_id = ebook_indeces.ebook_index_id
              WHERE new_student_plan_sessions.plan_id = ?`;
 
   let params = [planId];
-
-  let [rows] = await client.execute(sql, params);
-rows.map((item)=>{
-  item.flashcards_decks = JSON.parse(item.flashcards_decks) ;
-  item.exams = JSON.parse(item.exams);
-  item.qbank = JSON.parse(item.qbank);
-  item.flashcards_decks =  item.flashcards_decks?.flashcarddeck_id ? item.flashcards_decks : {};
-  item.exams = item.exams?.exam_id ? item.exams : {};
-  item.qbank = item.qbank?.qbank_id ? item.qbank : {};
-    return item;
-})  
-  return rows;
 }
+
+/**
+ ebook_index_id, ebook_id, parent_id, level, order_index, index_title, page_number, created_at
+ */
 
 // Get a single session details (questions + flashcards + progress)
 async function getSessionDetails({ planId, studentId, sessionId }) {
