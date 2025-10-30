@@ -646,7 +646,8 @@ async function getPlanSessions({
   date = null,
   status = null,
 }) {/*library_id, library_name, description, difficulty_level, estimated_time, status, created_at, updated_at, created_by, updated_by, topic_id, module_id */
-  let sql = `SELECT *,
+  let sql = `SELECT new_student_plan_sessions.*,
+  new_student_plan_content.*,
   JSON_OBJECT(
     'qbank_id', qbank.qbank_id,
     'qbank_name', qbank.qbank_name,
@@ -680,6 +681,8 @@ async function getPlanSessions({
              LEFT JOIN flashcard_libraries ON new_student_plan_sessions.flashcarddeck_id = flashcard_libraries.library_id
              LEFT JOIN ebooks ON new_student_plan_sessions.ebook_id = ebooks.ebook_id
              LEFT JOIN ebook_indeces ON new_student_plan_sessions.index_id = ebook_indeces.ebook_index_id
+             LEFT JOIN new_student_plan_content ON new_student_plan_sessions.session_id = new_student_plan_content.session_id
+
              WHERE new_student_plan_sessions.plan_id = ?`;
 
   let params = [planId];
@@ -703,6 +706,15 @@ async function getPlanSessions({
     }
   })
 }
+
+const startSessionContent = async ({ planId, studentId, sessionId, contentType, contentId}) => {
+  const sql = `INSERT INTO new_student_plan_content (plan_id, student_id, session_id, content_type, content_id, progress) VALUES (?, ?, ?, ?, ?, ?)`;
+  const params = [planId, studentId, sessionId, contentType, contentId, 0];
+  const [result] = await client.execute(sql, params);
+  return result.insertId;
+}
+
+
 
 /**
  ebook_index_id, ebook_id, parent_id, level, order_index, index_title, page_number, created_at
