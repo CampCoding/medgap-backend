@@ -691,7 +691,7 @@ async function getPlanSessions({
     item.ebooks = JSON.parse(item.ebooks);
     item.ebooks = item.ebooks?.ebook_id ? item.ebooks : {};
     item.ebooks = item.ebooks?.index_id ? item.ebooks : {};
-    item.flashcards_decks = item.flashcards_decks?.library_id ? item.flashcards_decks : {};
+    item.flashcards_decks = item.flashcards_decks?.flashcarddeck_id ? item.flashcards_decks : {};
     item.exams = item.exams?.exam_id ? item.exams : {};
     item.qbank = item.qbank?.qbank_id ? item.qbank : {};
     return item;
