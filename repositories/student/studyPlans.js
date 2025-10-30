@@ -56,27 +56,28 @@ async function createStudyPlan({
   ];
 
   const [result] = await client.execute(sql, params);
-  await Promise.all(studyDays.map(async (day) => {
-  await createQbank({
-    studentId,
-    qbankName: planName,
-    tutorMode: 0,
-    timed: 0,
-    timeType: "none",
-    plan_id: result.insertId,
-      day: day,
-    selected_modules: questionBankModules,
-    selected_subjects: questionBankSubject,
-    selected_topics: questionBankTopics,
-    question_level: question_level,
-    numQuestions: questionsPerSession,
-    question_mode: questionMode,
-    });
-  }));
+  console.log("qbankId", [1, 2, 3, 4, 5, 6, 7]);
+  const qbankId = await Promise.all(
+    studyDays.map(async (day) => {
+      return await createQbank({
+        studentId,
+        qbankName: planName,
+        tutorMode: 0,
+        timed: 0,
+        timeType: "none",
+        plan_id: result.insertId,
+        day: day,
+        selected_modules: questionBankModules,
+        selected_subjects: questionBankSubject,
+        selected_topics: questionBankTopics,
+        question_level: question_level,
+        numQuestions: questionsPerSession,
+        question_mode: questionMode,
+      });
+    }));
 
-  
 
-  await generatePlanSessions({ planId: result.insertId, studentId: studentId, studyDaysNumbers: studyDays });
+  // await generatePlanSessions({ planId: result.insertId, studentId: studentId, studyDaysNumbers: studyDays });
 
   return { plan_id: result.insertId };
 }
@@ -170,7 +171,7 @@ async function generatePlanSessions({ planId, studentId, studyDaysNumbers }) {
       questionBankModules ? JSON.stringify(questionBankModules) : null,
       questionBankTopics ? JSON.stringify(questionBankTopics) : null,
       questionBankQuizzes ? JSON.stringify(questionBankQuizzes) : null,
-      subjects ? JSON.stringify(subjects) : null,
+      subjects ? JSON.stringify(subjects) : JSON.stringify(['all']),
     ];
     const [ins] = await client.execute(sql, params);
     return ins.insertId;
@@ -552,7 +553,7 @@ async function addPlanContent({
     questionBankModules ? JSON.stringify(questionBankModules) : null,
     questionBankTopics ? JSON.stringify(questionBankTopics) : null,
     questionBankQuizzes ? JSON.stringify(questionBankQuizzes) : null,
-    subjects ? JSON.stringify(subjects) : null,
+    subjects ? JSON.stringify(subjects) : JSON.stringify(['all']),
   ];
 
   const [result] = await client.execute(sql, params);
@@ -589,7 +590,7 @@ async function getPlanContent({ planId }) {
     question_bank_quizzes: content.question_bank_quizzes
       ? JSON.parse(content.question_bank_quizzes)
       : [],
-    subjects: content.subjects ? JSON.parse(content.subjects) : [],
+    subjects: content.subjects ? JSON.parse(content.subjects) : JSON.stringify(['all']),
   };
 
   // Get detailed module and topic information
@@ -657,7 +658,7 @@ async function getPlanSessions({
     question_bank_quizzes: row.question_bank_quizzes
       ? JSON.parse(row.question_bank_quizzes)
       : [],
-    subjects: row.subjects ? JSON.parse(row.subjects) : [],
+    subjects: row.subjects ? JSON.parse(row.subjects) : JSON.stringify(['all']),
   }));
 
   // Get detailed information for each session

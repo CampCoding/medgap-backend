@@ -477,7 +477,7 @@ const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, s
     selected_subjects, day,
     selected_topics, question_level, numQuestions, question_mode = ["unused"], plan_id = 0 }) => {
     /**
-      numQuestions:null,
+  numQuestions:null,
   question_mode:"",
   question_level:"",
   selected_modules:[],
