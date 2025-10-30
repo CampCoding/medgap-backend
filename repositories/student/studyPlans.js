@@ -683,6 +683,25 @@ async function getPlanSessions({
              WHERE new_student_plan_sessions.plan_id = ?`;
 
   let params = [planId];
+  const [rows] = await client.execute(sql, params);
+  rows.map((item)=>{ 
+    item.flashcards_decks = JSON.parse(item.flashcards_decks);
+    item.exams = JSON.parse(item.exams);
+    item.qbank = JSON.parse(item.qbank);
+    item.ebooks = JSON.parse(item.ebooks);
+    item.ebooks = item.ebooks?.ebook_id ? item.ebooks : {};
+    item.ebooks = item.ebooks?.index_id ? item.ebooks : {};
+    item.flashcards_decks = item.flashcards_decks?.library_id ? item.flashcards_decks : {};
+    item.exams = item.exams?.exam_id ? item.exams : {};
+    item.qbank = item.qbank?.qbank_id ? item.qbank : {};
+    return item;
+  })
+  return rows.map((item)=>{
+    return {
+      ...item,
+      ebooks: item.ebooks?.ebook_id ? item.ebooks : {},
+    }
+  })
 }
 
 /**
