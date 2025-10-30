@@ -112,8 +112,7 @@ async function listDay(req, res) {
   const studentId = getStudentId(req, res);
   if (!studentId) return;
   const { date } = req.query;
-  if (!date)
-    return responseBuilder.badRequest(res, "date is required (YYYY-MM-DD)");
+ 
   const rows = await repo.listDaySchedule({ studentId, scheduledDate: date });
   return responseBuilder.success(res, {
     data: rows,

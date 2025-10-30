@@ -91,13 +91,24 @@ async function scheduleTask({ studentId, backlogTaskId, scheduledDate }) {
 }
 
 async function listDaySchedule({ studentId, scheduledDate }) {
-  const sql = `SELECT s.*, b.title, b.task_type, b.priority
+  if(scheduledDate) {
+    const sql = `SELECT s.*, b.title, b.task_type, b.priority
                FROM student_task_schedule s
                LEFT JOIN student_tasks_backlog b ON b.backlog_task_id = s.backlog_task_id
                WHERE s.student_id = ? AND s.scheduled_date = ?
                ORDER BY s.start_time ASC`;
   const [rows] = await client.execute(sql, [studentId, scheduledDate]);
   return rows;
+  }else{
+    const sql = `SELECT s.*, b.title, b.task_type, b.priority
+               FROM student_task_schedule s
+               LEFT JOIN student_tasks_backlog b ON b.backlog_task_id = s.backlog_task_id
+               WHERE s.student_id = ?
+               ORDER BY s.start_time ASC`;
+  const [rows] = await client.execute(sql, [studentId]);
+  return rows;
+  }
+  
 }
 
 async function moveScheduledTask({ scheduleId, studentId, scheduledDate }) {

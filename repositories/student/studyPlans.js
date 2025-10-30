@@ -82,6 +82,11 @@ async function createStudyPlan({
   return { plan_id: result.insertId };
 }
 
+
+const createSession = async ({ planId, studentId, studyDay, studyDayName, qbankId, examId, flashcarddeckId, ebookId, indexId }) => {
+ 
+}
+
 // Plan Sessions Management
 async function generatePlanSessions({ planId, studentId, studyDaysNumbers }) {
   // Get plan details
