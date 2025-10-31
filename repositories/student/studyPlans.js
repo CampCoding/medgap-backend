@@ -1912,9 +1912,9 @@ async function getTopicsBySubject({ moduleId, studentId }) {
 
   // --- 4. Combine and return ---
   return topicRows.map(topic => {
-    const distinct = [
+    const distinct = questionsByTopic[topic.topic_id] ? [
       ...new Map(questionsByTopic[topic.topic_id].map(item => [item.question_id, item])).values()
-    ];
+    ] : [];
 
     topic.wrong_count = distinct?.filter(item => !item?.correct && item?.attempted)?.length || 0;
     topic.correct_count = distinct?.filter(item => item?.correct && item?.attempted)?.length || 0;
