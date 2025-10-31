@@ -794,9 +794,11 @@ const listFlashcardsByDeck = async ({ studentId, deck_id, mode = 'all' }) => {
     } else if (mode === 'used') {
         where += ` AND sfc.card_solved = '1'`;
         order = `ORDER BY (sfc.last_reviewed IS NULL), sfc.last_reviewed DESC`;
-    } else if (mode === "spaced-repetition" || mode == "due-now") {
+    } else if (mode == "spaced-repetition" || mode == "due-now") {
         where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review = NOW())`;
-        order = `ORDER BY COALESCE(sfc.next_review, sfc.created_at) ASC`;
+    } else {
+
+        order = `ORDER BY sfc.created_at DESC`;
     }
 
     const [rows] = await client.execute(
