@@ -7,7 +7,7 @@ async function listLibrariesByModule({
   limit = 12,
   search = "",
 }) {
-  const where = ["fl.status = 'active'", "fl.module_id = ?"];
+  const where = ["fl.status = 'active'"];
   const params = [moduleId];
   if (search && search.trim()) {
     where.push("(fl.library_name LIKE ? OR fl.description LIKE ?)");
@@ -16,7 +16,7 @@ async function listLibrariesByModule({
   const offset = (Math.max(1, page) - 1) * Math.max(1, limit);
 
   const sql = `
-    SELECT fl.library_id, fl.library_name, fl.description, fl.difficulty_level,
+    SELECT u.*, fl.library_id, fl.library_name, fl.description, fl.difficulty_level,
            fl.estimated_time, fl.created_at,
            COUNT(f.flashcard_id) AS total_cards,
            COALESCE(slp.studied_count, 0) AS studied_count,
@@ -25,9 +25,12 @@ async function listLibrariesByModule({
            COALESCE(slp.status, 'not_started') AS progress_status
     FROM flashcard_libraries fl
     LEFT JOIN flashcards f ON f.library_id = fl.library_id
+    LEFT JOIN topics t ON t.topic_id = fl.topic_id
+    LEFT JOIN units u ON u.unit_id = t.unit_id
+    LEFT JOIN modules m ON m.module_id = u.module_id
     LEFT JOIN student_flashcard_library_progress slp
       ON slp.library_id = fl.library_id AND slp.student_id = ?
-    WHERE ${where.join(" AND ")}
+    WHERE m.module_id = ? AND ${where.join(" AND ")}
     GROUP BY fl.library_id
     ORDER BY fl.created_at DESC
     LIMIT ? OFFSET ?

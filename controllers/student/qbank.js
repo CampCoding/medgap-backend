@@ -133,11 +133,11 @@ async function updateDeck(req, res) {
     const studentId = getStudentId(req, res);
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
     const { deck_id, deck_title, deck_description } = req.body;
-    
+
     if (!deck_id) {
         return responseBuilder.badRequest(res, "Deck ID is required");
     }
-    
+
     try {
         const success = await repo.updateDeck({ deckId: deck_id, deck_title, deck_description });
         if (success) {
@@ -154,11 +154,11 @@ async function deleteDeck(req, res) {
     const studentId = getStudentId(req, res);
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
     const { deck_id } = req.body;
-    
+
     if (!deck_id) {
         return responseBuilder.badRequest(res, "Deck ID is required");
     }
-    
+
     try {
         const success = await repo.deleteDeck({ deckId: deck_id });
         if (success) {
@@ -204,7 +204,7 @@ async function createQbankController(req, res) {
     const { tutorMode: tutorMode, timed: timed, timeAcc: timeType, selected_modules,
         selected_subjects,
         selected_topics, question_level, numQuestions, question_mode } = req.body;
-        const qbankName = req?.body?.quiz_name || new Date().toLocaleDateString();
+    const qbankName = req?.body?.quiz_name || new Date().toLocaleDateString();
     const qbank_id = await repo.createQbank({
         qbankName,
         tutorMode,
@@ -288,24 +288,24 @@ async function reviewFlashcard(req, res) {
 async function getStudentExams(req, res) {
     const studentId = getStudentId(req, res);
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
-    
+
     const { page = 1, limit = 20, search = "", status = "published", difficulty = "" } = req.query;
-    
+
     try {
-        const result = await repo.getStudentExams({ 
-            studentId, 
-            page: parseInt(page), 
-            limit: parseInt(limit), 
-            search, 
-            status, 
-            difficulty 
+        const result = await repo.getStudentExams({
+            studentId,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            search,
+            status,
+            difficulty
         });
-        
+
         // Return data in the same format as your frontend expects
-        return responseBuilder.success(res, { 
-            data: result.exams, 
+        return responseBuilder.success(res, {
+            data: result.exams,
             pagination: result.pagination,
-            message: "Student exams retrieved successfully" 
+            message: "Student exams retrieved successfully"
         });
     } catch (err) {
         console.error("Get student exams error:", err);
@@ -316,22 +316,22 @@ async function getStudentExams(req, res) {
 async function getUpcomingExams(req, res) {
     const studentId = getStudentId(req, res);
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
-    
+
     const { page = 1, limit = 20, search = "", difficulty = "" } = req.query;
-    
+
     try {
-        const result = await repo.getUpcomingExams({ 
-            studentId, 
-            page: parseInt(page), 
-            limit: parseInt(limit), 
-            search, 
-            difficulty 
+        const result = await repo.getUpcomingExams({
+            studentId,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            search,
+            difficulty
         });
-        
-        return responseBuilder.success(res, { 
-            data: result.exams, 
+
+        return responseBuilder.success(res, {
+            data: result.exams,
             pagination: result.pagination,
-            message: "Upcoming exams retrieved successfully" 
+            message: "Upcoming exams retrieved successfully"
         });
     } catch (err) {
         console.error("Get upcoming exams error:", err);
@@ -342,22 +342,22 @@ async function getUpcomingExams(req, res) {
 async function getOnDemandExams(req, res) {
     const studentId = getStudentId(req, res);
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
-    
+
     const { page = 1, limit = 20, search = "", difficulty = "" } = req.query;
-    
+
     try {
-        const result = await repo.getOnDemandExams({ 
-            studentId, 
-            page: parseInt(page), 
-            limit: parseInt(limit), 
-            search, 
-            difficulty 
+        const result = await repo.getOnDemandExams({
+            studentId,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            search,
+            difficulty
         });
-        
-        return responseBuilder.success(res, { 
-            data: result.exams, 
+
+        return responseBuilder.success(res, {
+            data: result.exams,
             pagination: result.pagination,
-            message: "On-demand exams retrieved successfully" 
+            message: "On-demand exams retrieved successfully"
         });
     } catch (err) {
         console.error("Get on-demand exams error:", err);
@@ -368,22 +368,22 @@ async function getOnDemandExams(req, res) {
 async function getExamResults(req, res) {
     const studentId = getStudentId(req, res);
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
-    
+
     const { page = 1, limit = 20, search = "", difficulty = "" } = req.query;
-    
+
     try {
-        const result = await repo.getExamResults({ 
-            studentId, 
-            page: parseInt(page), 
-            limit: parseInt(limit), 
-            search, 
-            difficulty 
+        const result = await repo.getExamResults({
+            studentId,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            search,
+            difficulty
         });
-        
-        return responseBuilder.success(res, { 
-            data: result.results, 
+
+        return responseBuilder.success(res, {
+            data: result.results,
             pagination: result.pagination,
-            message: "Exam results retrieved successfully" 
+            message: "Exam results retrieved successfully"
         });
     } catch (err) {
         console.error("Get exam results error:", err);
@@ -394,14 +394,14 @@ async function getExamResults(req, res) {
 async function startExamAttempt(req, res) {
     const studentId = getStudentId(req, res);
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
-    
+
     const { examId } = req.params;
-    
+
     try {
         const attemptId = await repo.startExam({ studentId, examId });
-        return responseBuilder.success(res, { 
+        return responseBuilder.success(res, {
             attemptId,
-            message: "Exam started successfully" 
+            message: "Exam started successfully"
         });
     } catch (err) {
         console.error("Start exam error:", err);
@@ -412,21 +412,21 @@ async function startExamAttempt(req, res) {
 async function submitExamAnswer(req, res) {
     const studentId = getStudentId(req, res);
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
-    
+
     const { attemptId, examQuestionId, answerText, selectedOptionId, timeSpent } = req.body;
-    
+
     try {
-        const success = await repo.submitExamAnswer({ 
-            attemptId, 
-            examQuestionId, 
-            answerText, 
-            selectedOptionId, 
-            timeSpent 
+        const success = await repo.submitExamAnswer({
+            attemptId,
+            examQuestionId,
+            answerText,
+            selectedOptionId,
+            timeSpent
         });
-        
-        return responseBuilder.success(res, { 
+
+        return responseBuilder.success(res, {
             success,
-            message: "Answer submitted successfully" 
+            message: "Answer submitted successfully"
         });
     } catch (err) {
         console.error("Submit answer error:", err);
@@ -437,14 +437,14 @@ async function submitExamAnswer(req, res) {
 async function submitExamAttempt(req, res) {
     const studentId = getStudentId(req, res);
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
-    
+
     const { attemptId } = req.params;
-    
+
     try {
         const result = await repo.submitExam({ attemptId, studentId });
-        return responseBuilder.success(res, { 
+        return responseBuilder.success(res, {
             ...result,
-            message: "Exam submitted successfully" 
+            message: "Exam submitted successfully"
         });
     } catch (err) {
         console.error("Submit exam error:", err);
@@ -455,14 +455,14 @@ async function submitExamAttempt(req, res) {
 async function getExamQuestions(req, res) {
     const studentId = getStudentId(req, res);
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
-    
+
     const { examId } = req.params;
-    
+
     try {
         const result = await repo.getExamQuestions({ examId, studentId });
-        return responseBuilder.success(res, { 
+        return responseBuilder.success(res, {
             data: result,
-            message: "Exam questions retrieved successfully" 
+            message: "Exam questions retrieved successfully"
         });
     } catch (err) {
         console.error("Get exam questions error:", err);

@@ -20,7 +20,7 @@ async function listLibraries(req, res) {
     return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
   const { module_id } = req.params;
   const { page = 1, limit = 12, search = "" } = req.query;
-  try {
+  // try {
     const result = await repo.listLibrariesByModule({
       moduleId: Number(module_id),
       studentId,
@@ -32,9 +32,9 @@ async function listLibraries(req, res) {
       data: result,
       message: "Flashcard libraries retrieved successfully",
     });
-  } catch (e) {
-    return responseBuilder.serverError(res, "Failed to get libraries");
-  }
+  // } catch (e) {
+  //   return responseBuilder.serverError(res, "Failed to get libraries");
+  // }
 }
 
 

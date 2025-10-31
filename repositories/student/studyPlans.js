@@ -740,8 +740,6 @@ const startSessionContent = async ({ planId, studentId, sessionId, contentType, 
   return result.insertId;
 }
 
-
-
 /**
  ebook_index_id, ebook_id, parent_id, level, order_index, index_title, page_number, created_at
  */
