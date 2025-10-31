@@ -185,9 +185,9 @@ async function listDecks(req, res) {
 async function listFlashcardsByDeck(req, res) {
     const studentId = getStudentId(req, res);
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
-    const { deck_id } = req.params;
+    const { deck_id, mode } = req.params;
     try {
-        const cards = await repo.listFlashcardsByDeck({ studentId, deck_id });
+        const cards = await repo.listFlashcardsByDeck({ studentId, deck_id, mode });
         return responseBuilder.success(res, { cards });
     } catch (err) {
         return responseBuilder.badRequest(res, err.message);

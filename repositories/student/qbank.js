@@ -783,14 +783,29 @@ const deleteFlashCard = async ({ student_flash_card_id }) => {
     return res.affectedRows;
 }
 
-const listFlashcardsByDeck = async ({ studentId, deck_id }) => {
+const listFlashcardsByDeck = async ({ studentId, deck_id, mode = 'all' }) => {
+    let where = `sd.student_id = ? AND sfc.deck_id = ?`;
+    let order = `ORDER BY sfc.created_at DESC`;
+    const values = [studentId, deck_id];
+
+    if (mode === 'new') {
+        where += ` AND sfc.card_solved = '0'`;
+        order = `ORDER BY sfc.created_at DESC`;
+    } else if (mode === 'used') {
+        where += ` AND sfc.card_solved = '1'`;
+        order = `ORDER BY (sfc.last_reviewed IS NULL), sfc.last_reviewed DESC`;
+    } else if (mode === "spaced-repetition") {
+        where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review = NOW())`;
+        order = `ORDER BY COALESCE(sfc.next_review, sfc.created_at) ASC`;
+    }
+
     const [rows] = await client.execute(
         `SELECT sfc.*
          FROM student_flash_cards sfc
          INNER JOIN student_deck sd ON sd.student_deck_id = sfc.deck_id
-         WHERE sd.student_id = ? AND sfc.deck_id = ?
-         ORDER BY sfc.created_at DESC`,
-        [studentId, deck_id]
+         WHERE ${where}
+         ${order}`,
+        values
     );
     for (const r of rows) {
         try { if (typeof r.tags === 'string') r.tags = JSON.parse(r.tags).filter(Boolean); } catch { }
@@ -803,7 +818,6 @@ const getFlashcardsByMode = async ({ studentId, mode = 'repetition', limit = 20,
     let where = `sd.student_id = ?`;
     let order = `ORDER BY COALESCE(sfc.next_review, sfc.created_at) ASC`;
     const values = [studentId];
-
     if (mode === 'new') {
         where += ` AND sfc.card_solved = '0'`;
         order = `ORDER BY sfc.created_at DESC`;
@@ -811,7 +825,7 @@ const getFlashcardsByMode = async ({ studentId, mode = 'repetition', limit = 20,
         where += ` AND sfc.card_solved = '1'`;
         order = `ORDER BY (sfc.last_reviewed IS NULL), sfc.last_reviewed DESC`;
     } else if (mode == "spaced-repetition") {
-        where += ` AND (sfc.next_review IS NOT NULL OR sfc.next_review <= NOW())`;
+        where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review = NOW())`;
     } else {
 
         order = `ORDER BY sfc.created_at DESC`;
