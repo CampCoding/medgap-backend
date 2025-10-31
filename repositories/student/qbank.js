@@ -1571,7 +1571,7 @@ const getExamQuestions = async ({ examId, studentId }) => {
     const [attemptRows] = await client.execute(`
         SELECT ea.exam_attempt_id
         FROM exam_attempts ea
-        WHERE ea.exam_id = ? AND ea.student_id = ? AND ea.status = 'in_progress'
+        WHERE ea.exam_id = ? AND ea.student_id = ? 
         ORDER BY ea.started_at DESC
         LIMIT 1
     `, [examId, studentId]);
