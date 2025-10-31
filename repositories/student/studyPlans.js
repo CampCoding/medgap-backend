@@ -1909,13 +1909,12 @@ async function getTopicsBySubject({ moduleId, studentId }) {
       marked: !!q.marked
     });
   });
-// console.log(topicRows)
+
   // --- 4. Combine and return ---
   return topicRows.map(topic => {
-    console.log("topic", questionsByTopic[topic.topic_id?.toString()])
-    const distinct = questionsByTopic[topic.topic_id?.toString()] ? [
-      ...new Map(questionsByTopic[topic.topic_id?.toString()].map(item => [item.question_id, item])).values()
-    ] : [];
+    const distinct = [
+      ...new Map(questionsByTopic[topic.topic_id].map(item => [item.question_id, item])).values()
+    ];
 
     topic.wrong_count = distinct?.filter(item => !item?.correct && item?.attempted)?.length || 0;
     topic.correct_count = distinct?.filter(item => item?.correct && item?.attempted)?.length || 0;

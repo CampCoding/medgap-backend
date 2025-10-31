@@ -795,7 +795,7 @@ const listFlashcardsByDeck = async ({ studentId, deck_id, mode = 'all' }) => {
         where += ` AND sfc.card_solved = '1'`;
         order = `ORDER BY (sfc.last_reviewed IS NULL), sfc.last_reviewed DESC`;
     } else if (mode === "spaced-repetition" || mode == "due-now") {
-        where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review <= NOW())`;
+        where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review = NOW())`;
         order = `ORDER BY COALESCE(sfc.next_review, sfc.created_at) ASC`;
     }
 
@@ -825,7 +825,7 @@ const getFlashcardsByMode = async ({ studentId, mode = 'repetition', limit = 20,
         where += ` AND sfc.card_solved = '1'`;
         order = `ORDER BY (sfc.last_reviewed IS NULL), sfc.last_reviewed DESC`;
     } else if (mode == "spaced-repetition" || mode == "due-now") {
-        where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review <= NOW())`;
+        where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review = NOW())`;
     } else {
 
         order = `ORDER BY sfc.created_at DESC`;
@@ -1567,7 +1567,18 @@ const getExamQuestions = async ({ examId, studentId }) => {
 
     const exam = examCheck[0][0];
 
-    // Get exam questions with options
+    // Find student's active attempt for this exam (if any)
+    const [attemptRows] = await client.execute(`
+        SELECT ea.exam_attempt_id
+        FROM exam_attempts ea
+        WHERE ea.exam_id = ? AND ea.student_id = ? AND ea.status = 'in_progress'
+        ORDER BY ea.started_at DESC
+        LIMIT 1
+    `, [examId, studentId]);
+
+    const activeAttemptId = attemptRows?.[0]?.exam_attempt_id || null;
+
+    // Get exam questions with options and any previously selected answer for the active attempt
     const [questions] = await client.execute(`
         SELECT 
             eq.id,
@@ -1587,19 +1598,26 @@ const getExamQuestions = async ({ examId, studentId }) => {
                         'explanation', qo.explanation
                     ) END
                 ), JSON_ARRAY()
-            ) AS options
+            ) AS options,
+            ea.selected_option_id AS selected_option_id,
+            ea.answer_text AS selected_answer_text
         FROM exam_questions eq
         INNER JOIN questions q ON eq.question_id = q.question_id
         LEFT JOIN question_options qo ON q.question_id = qo.question_id
+        LEFT JOIN exam_answers ea 
+          ON ea.exam_question_id = eq.id
+         AND ea.attempt_id = ${'?'}
         WHERE eq.exam_id = ?
         GROUP BY eq.id, q.question_id
         ORDER BY eq.order_index
-    `, [examId]);
+    `, [activeAttemptId, examId]);
 
     // Parse options for each question
     const questionsWithOptions = questions.map(q => ({
         ...q,
-        options: JSON.parse(q.options).filter(Boolean)
+        options: JSON.parse(q.options).filter(Boolean),
+        selected_option_id: q.selected_option_id || null,
+        selected_answer_text: q.selected_answer_text || null
     }));
 
     return {
