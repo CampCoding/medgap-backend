@@ -794,14 +794,12 @@ const listFlashcardsByDeck = async ({ studentId, deck_id, mode = 'all' }) => {
     } else if (mode === 'used') {
         where += ` AND sfc.card_solved = '1'`;
         order = `ORDER BY (sfc.last_reviewed IS NULL), sfc.last_reviewed DESC`;
-    } else if (mode == "spaced-repetition" || mode == "due-now") {
+    } else if (mode === "spaced-repetition" || mode == "due-now") {
         where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review = NOW())`;
-    } else {
-
-        order = `ORDER BY sfc.created_at DESC`;
+        order = `ORDER BY COALESCE(sfc.next_review, sfc.created_at) ASC`;
     }
 
-    const [rows] = await client.execute(
+    let [rows] = await client.execute(
         `SELECT sfc.*
          FROM student_flash_cards sfc
          INNER JOIN student_deck sd ON sd.student_deck_id = sfc.deck_id
@@ -809,6 +807,16 @@ const listFlashcardsByDeck = async ({ studentId, deck_id, mode = 'all' }) => {
          ${order}`,
         values
     );
+    if (mode == "new") {
+        rows = rows.filter(r => r.card_solved === '0');
+    } else if (mode == "used") {
+        rows = rows.filter(r => r.card_solved === '1');
+    } else if (mode == "spaced-repetition" || mode == "due-now") {
+        const nowTs = Date.now();
+        rows = rows.filter(r => r.next_review && new Date(r.next_review).getTime() <= nowTs);
+    } else {
+        rows = rows.filter(r => r.card_solved === '0');
+    }
     for (const r of rows) {
         try { if (typeof r.tags === 'string') r.tags = JSON.parse(r.tags).filter(Boolean); } catch { }
     }
