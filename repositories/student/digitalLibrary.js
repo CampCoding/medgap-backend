@@ -61,7 +61,7 @@ async function listBooksByModule({
       m.subject_name AS module_name,
       COALESCE(v.views, 0) AS views,
       ann.*,
-      JSON_ARRAYAGG(
+      JSON_ARRAYAGG(DISTINCT 
         JSON_OBJECT(
           'index_id', ei.ebook_index_id,
           'title', ei.index_title,
@@ -153,7 +153,7 @@ async function listBooksByModuleByBulk({
       m.subject_name AS module_name,
       COALESCE(v.views, 0) AS views,
       ann.*,
-      JSON_ARRAYAGG(
+      JSON_ARRAYAGG(DISTINCT 
         JSON_OBJECT(
           'index_id', ei.ebook_index_id,
           'title', ei.index_title,
