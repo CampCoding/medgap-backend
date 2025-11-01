@@ -643,10 +643,11 @@ const listQuestion = async ({ qbank_id, studentId, session_id }) => {
     let where = `WHERE qq.qbank_id = ?`;
     if (session_id) {
         where += ` AND sq.session_id = ?`;
-    }else{
+    } else {
         where += ` AND sq.session_id IS NULL`;
     }
     console.log(studentId)
+    const qbank = await client.execute(`SELECT * FROM qbank WHERE qbank_id = ?`, [qbank_id]);
     const [categories] = await client.query("SELECT * FROM student_mark_categories WHERE student_id = ?", [studentId])
     const [rows] = await client.query(
         `SELECT 
@@ -755,7 +756,7 @@ const listQuestion = async ({ qbank_id, studentId, session_id }) => {
             if (typeof r.tags === 'string') r.tags = JSON.parse(r.tags).filter(Boolean);
         } catch { }
     }
-    return { questions: rows, categories };
+    return { questions: rows, categories, qbank };
 };
 
 
@@ -1450,7 +1451,13 @@ const getExamResults = async ({ studentId, page = 1, limit = 20, search = "", di
 };
 
 // Start an exam (create exam attempt)
-const startExam = async ({ studentId, examId }) => {
+const startExam = async ({ studentId, examId, session_id }) => {
+    let where = `WHERE e.exam_id = ?`;
+    if (session_id) {
+        where += ` AND ea.session_id = ?`;
+    } else {
+        where += ` AND ea.session_id IS NULL`;
+    }
     // Check if exam exists and student has access
     const examCheck = await client.execute(`
         SELECT e.exam_id, e.title, e.duration, e.status
@@ -1472,8 +1479,8 @@ const startExam = async ({ studentId, examId }) => {
     // Check if student already has an active attempt
     const activeAttempt = await client.execute(`
         SELECT exam_attempt_id FROM exam_attempts 
-        WHERE exam_id = ? AND student_id = ? AND status = 'in_progress'
-    `, [examId, studentId]);
+        ${where} 
+    `, session_id ? [examId, studentId, session_id] : [examId, studentId]);
 
     if (activeAttempt[0].length > 0) {
         return activeAttempt[0][0].exam_attempt_id; // Return existing attempt
@@ -1483,13 +1490,13 @@ const startExam = async ({ studentId, examId }) => {
     const [result] = await client.execute(`
         INSERT INTO exam_attempts (exam_id, student_id, status, started_at)
         VALUES (?, ?, 'in_progress', NOW())
-    `, [examId, studentId]);
+    `, session_id ? [examId, studentId, session_id] : [examId, studentId]);
 
     return result.insertId;
 };
 
 // Submit exam answers
-const submitExamAnswer = async ({ attemptId, examQuestionId, answerText, selectedOptionId, timeSpent }) => {
+const submitExamAnswer = async ({ attemptId, examQuestionId, answerText, selectedOptionId, timeSpent, }) => {
     // Check if answer already exists
     const existingAnswer = await client.execute(`
         SELECT exam_answer_id FROM exam_answers 
@@ -1566,7 +1573,7 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
     let where = `WHERE eq.exam_id = ?`;
     if (session_id) {
         where += ` AND ea.session_id = ?`;
-    }else{
+    } else {
         where += ` AND ea.session_id IS NULL`;
     }
     // Verify student has access to exam

@@ -397,9 +397,9 @@ async function startExamAttempt(req, res) {
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
 
     const { examId } = req.params;
-
+    const { session_id } = req.query;
     try {
-        const attemptId = await repo.startExam({ studentId, examId });
+        const attemptId = await repo.startExam({ studentId, examId, session_id });
         return responseBuilder.success(res, {
             attemptId,
             message: "Exam started successfully"
@@ -458,9 +458,10 @@ async function getExamQuestions(req, res) {
     if (!studentId) return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
 
     const { examId } = req.params;
+    const { session_id } = req.query;
 
     try {
-        const result = await repo.getExamQuestions({ examId, studentId });
+        const result = await repo.getExamQuestions({ examId, studentId, session_id });
         return responseBuilder.success(res, {
             data: result,
             message: "Exam questions retrieved successfully"
