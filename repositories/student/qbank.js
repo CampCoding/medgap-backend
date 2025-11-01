@@ -1741,10 +1741,13 @@ const getExamCount = async (studentId, statuses, search, difficulty, upcomingOnl
         FROM exams e
         LEFT JOIN modules m ON e.subject_id = m.module_id
         WHERE e.status IN (${statuses.map(() => '?').join(',')}) 
-        AND m.module_id IN (
-            SELECT se.module_id
-            FROM student_enrollments se
-            WHERE se.student_id = ? AND se.status = 'active'
+        AND (
+            m.module_id IS NULL 
+            OR m.module_id IN (
+                SELECT se.module_id
+                FROM student_enrollments se
+                WHERE se.student_id = ? AND se.status = 'active'
+            )
         )
     `;
 
