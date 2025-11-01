@@ -639,7 +639,11 @@ const unAssignFromCategory = async ({ mark_id }) => {
     return deleteMark.affectedRows;
 }
 
-const listQuestion = async ({ qbank_id, studentId }) => {
+const listQuestion = async ({ qbank_id, studentId, session_id }) => {
+    let where = `WHERE qq.qbank_id = ?`;
+    if (session_id) {
+        where += ` AND sq.session_id = ?`;
+    }
     console.log(studentId)
     const [categories] = await client.query("SELECT * FROM student_mark_categories WHERE student_id = ?", [studentId])
     const [rows] = await client.query(
@@ -716,7 +720,7 @@ const listQuestion = async ({ qbank_id, studentId }) => {
 	   AND sq.student_id = ?
 	  LEFT JOIN question_notes notes ON notes.question_id = sq.question_id AND sq.qbank_id = notes.qbank_id
 	  LEFT JOIN student_flash_cards sfc ON sfc.question_id = q.question_id AND sfc.qbank_id = qq.qbank_id
-	  WHERE qq.qbank_id = ?
+	  WHERE qq.qbank_id = ? AND 
 	  GROUP BY q.question_id, qq.qbank_id
 	  ORDER BY q.question_id
 	  `,

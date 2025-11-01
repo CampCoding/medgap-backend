@@ -511,7 +511,7 @@ class QuestionsController {
   // رفع ملف أسئلة وإنشاءها (محسن للأداء ومتوافق مع Vercel)
   async uploadQuestionsFromFile(req, res) {
     const startTime = Date.now();
-      const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+    const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
     
     try {
       if (!req.file) {
@@ -520,16 +520,32 @@ class QuestionsController {
 
       const createdBy = req.user?.admin_id || 1; // TODO: Get from JWT
       const topicId = req.body.topic_id ? parseInt(req.body.topic_id) : null;
+      
       // Parse questions from file (handle both file path and buffer)
       const parseStartTime = Date.now();
       let parseResult;
       
-      if (isServerless) {
-        // In serverless, file is in memory as buffer
-        parseResult = parseQuestionsFromText(req.file.buffer);
-      } else {
-        // In local development, file is on disk
-        parseResult = parseQuestionsFromText(req.file.path);
+      try {
+        if (isServerless) {
+          // In serverless, file is in memory as buffer
+          parseResult = parseQuestionsFromText(req.file.buffer);
+        } else {
+          // In local development, file is on disk
+          parseResult = parseQuestionsFromText(req.file.path);
+        }
+      } catch (parseError) {
+        console.error("Error parsing questions file:", parseError);
+        
+        // Clean up uploaded file if it exists (only in non-serverless environments)
+        if (!isServerless && req.file && req.file.path) {
+          try {
+            fs.unlinkSync(req.file.path);
+          } catch (cleanupError) {
+            console.warn("Failed to clean up uploaded file after parse error:", cleanupError.message);
+          }
+        }
+        
+        return responseBuilder.badRequest(res, `Failed to parse questions file: ${parseError.message}`);
       }
       
       const parseTime = Date.now() - parseStartTime;
@@ -543,10 +559,25 @@ class QuestionsController {
 
       if (parseResult.questions.length === 0) {
         console.log("No valid questions found in file");
-        return responseBuilder.badRequest(res, "No valid questions found in the file");
+        
+        // Clean up uploaded file if it exists (only in non-serverless environments)
+        if (!isServerless && req.file && req.file.path) {
+          try {
+            fs.unlinkSync(req.file.path);
+          } catch (cleanupError) {
+            console.warn("Failed to clean up uploaded file:", cleanupError.message);
+          }
+        }
+        
+        return responseBuilder.badRequest(res, {
+          message: "No valid questions found in the file",
+          parsing_results: {
+            total_lines: parseResult.totalLines,
+            parsing_errors: parseResult.errors,
+            parsing_error_count: parseResult.errorCount
+          }
+        });
       }
-
-      
 
       // Only log first question in development environment
       if (process.env.NODE_ENV === 'development') {
@@ -563,10 +594,28 @@ class QuestionsController {
 
       // Create questions in database with optimized batch processing
       const createStartTime = Date.now();
-      const createResult = await questionsRepository.createQuestionsFromFile(
-        parseResult.questions,
-        createdBy
-      );
+      let createResult;
+      
+      try {
+        createResult = await questionsRepository.createQuestionsFromFile(
+          parseResult.questions,
+          createdBy
+        );
+      } catch (createError) {
+        console.error("Error creating questions in database:", createError);
+        
+        // Clean up uploaded file if it exists (only in non-serverless environments)
+        if (!isServerless && req.file && req.file.path) {
+          try {
+            fs.unlinkSync(req.file.path);
+          } catch (cleanupError) {
+            console.warn("Failed to clean up uploaded file after create error:", cleanupError.message);
+          }
+        }
+        
+        return responseBuilder.serverError(res, `Failed to create questions in database: ${createError.message}`);
+      }
+      
       const createTime = Date.now() - createStartTime;
 
       console.log(`Database creation completed in ${createTime}ms: ${createResult.successCount} created, ${createResult.failureCount} failed`);
@@ -589,7 +638,7 @@ class QuestionsController {
           total_processing_time_ms: totalTime,
           parsing_time_ms: parseTime,
           database_time_ms: createTime,
-          questions_per_second: Math.round((createResult.successCount / totalTime) * 1000),
+          questions_per_second: totalTime > 0 ? Math.round((createResult.successCount / totalTime) * 1000) : 0,
           environment: isServerless ? 'serverless' : 'local'
         },
         file_info: {
@@ -609,8 +658,8 @@ class QuestionsController {
         },
         creation_results: {
           total_processed: createResult.totalProcessed,
-          successful: createResult.successful,
-          failed: createResult.failed,
+          successful: createResult.successful || [],
+          failed: createResult.failed || [],
           success_count: createResult.successCount,
           failure_count: createResult.failureCount
         }
@@ -619,7 +668,10 @@ class QuestionsController {
       if (createResult.successCount > 0) {
         return responseBuilder.success(res, response, 201);
       } else {
-        return responseBuilder.badRequest(res, "No questions could be created from the file", response);
+        return responseBuilder.badRequest(res, {
+          message: "No questions could be created from the file",
+          ...response
+        });
       }
 
     } catch (error) {
@@ -634,7 +686,7 @@ class QuestionsController {
         }
       }
 
-      return responseBuilder.serverError(res, "Failed to process questions file");
+      return responseBuilder.serverError(res, `Failed to process questions file: ${error.message}`);
     }
   }
 
