@@ -1,8 +1,31 @@
 const path = require("path");
+const fs = require("fs");
 const multer = require("multer");
 
-// Use memory storage for better compatibility
-const storage = multer.memoryStorage();
+// Use disk storage
+const uploadDir = path.resolve(process.cwd(), "uploads/questions");
+
+// Create upload directory if it doesn't exist
+try {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log(`Upload directory created/verified: ${uploadDir}`);
+} catch (error) {
+  console.warn("Could not create upload directory:", error.message);
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = (path.extname(file.originalname || "") || "").toLowerCase();
+    const base = path
+      .basename(file.originalname || "questions", ext)
+      .replace(/[^a-z0-9-_]+/gi, "_")
+      .toLowerCase();
+    cb(null, `${base}-${Date.now()}${ext}`);
+  }
+});
 
 const allowed = new Set([
   "text/plain",

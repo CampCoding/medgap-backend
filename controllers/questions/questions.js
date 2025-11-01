@@ -535,15 +535,16 @@ class QuestionsController {
       let parseResult;
       
       try {
-        // Try buffer first (memory storage), then fallback to path (disk storage)
-        if (req.file.buffer && Buffer.isBuffer(req.file.buffer)) {
-          console.log("Parsing from buffer");
-          parseResult = parseQuestionsFromText(req.file.buffer);
-        } else if (req.file.path && fs.existsSync(req.file.path)) {
+        // Use file path (disk storage)
+        if (req.file.path && fs.existsSync(req.file.path)) {
           console.log("Parsing from file path:", req.file.path);
           parseResult = parseQuestionsFromText(req.file.path);
+        } else if (req.file.buffer && Buffer.isBuffer(req.file.buffer)) {
+          // Fallback to buffer if path is not available
+          console.log("Parsing from buffer (fallback)");
+          parseResult = parseQuestionsFromText(req.file.buffer);
         } else {
-          throw new Error("File not found. Neither buffer nor path is available.");
+          throw new Error("File not found. Neither path nor buffer is available.");
         }
       } catch (parseError) {
         console.error("Error parsing questions file:", parseError);
