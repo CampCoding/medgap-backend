@@ -55,7 +55,7 @@ class TopicsController {
   // جميع الموضوعات
   async getAllTopics(req, res) {
     try {
-      const { status, unit_id, search, tags, limit = 10, page = 1 } = req.query;
+      const { status, unit_id, search, tags, limit = 100000, page = 1 } = req.query;
 
       const limitNum = parseInt(limit);
       const pageNum = parseInt(page);
