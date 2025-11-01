@@ -382,8 +382,11 @@ class ModulesController {
       if (!existingModule) {
         return responseBuilder.notFound(res, "Module not found");
       }
-      console.log("teacherId", req.user)
-      const units = await modulesRepository.getModuleUnits(parseInt(id), req?.user?.teacher_id);
+      // Extract teacher_id from JWT token if available (for teacher access)
+      const teacherId = req?.user?.user?.teacher_id || null;
+      console.log("teacherId from token:", teacherId);
+      
+      const units = await modulesRepository.getModuleUnits(parseInt(id), teacherId);
 
       return responseBuilder.success(res, {
         message: "Module units retrieved successfully",
