@@ -1244,11 +1244,19 @@ const getUpcomingExams = async ({ studentId, page = 1, limit = 20, search = "", 
         LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
         LEFT JOIN exam_registrations er ON er.exam_id = e.exam_id AND er.student_id = ?
         WHERE e.status IN ('published', 'scheduled') 
-        AND (e.scheduled_date > NOW() OR e.start_date > NOW() OR e.end_date > NOW())
-        AND m.module_id IN (
-            SELECT se.module_id
-            FROM student_enrollments se
-            WHERE se.student_id = ?
+        AND (
+            (e.scheduled_date IS NOT NULL AND e.scheduled_date > NOW()) 
+            OR (e.start_date IS NOT NULL AND e.start_date > NOW()) 
+            OR (e.end_date IS NOT NULL AND e.end_date > NOW())
+            OR (e.scheduled_date IS NULL AND e.start_date IS NULL AND e.end_date IS NULL AND e.status = 'published')
+        )
+        AND (
+            m.module_id IS NULL 
+            OR m.module_id IN (
+                SELECT se.module_id
+                FROM student_enrollments se
+                WHERE se.student_id = ? AND se.status = 'active'
+            )
         )
     `;
 
@@ -1748,7 +1756,12 @@ const getExamCount = async (studentId, statuses, search, difficulty, upcomingOnl
     let params = [...statuses, studentId];
 
     if (upcomingOnly) {
-        sql += ` AND (e.scheduled_date > NOW() OR e.start_date > NOW() OR e.end_date > NOW())`;
+        sql += ` AND (
+            (e.scheduled_date IS NOT NULL AND e.scheduled_date > NOW()) 
+            OR (e.start_date IS NOT NULL AND e.start_date > NOW()) 
+            OR (e.end_date IS NOT NULL AND e.end_date > NOW())
+            OR (e.scheduled_date IS NULL AND e.start_date IS NULL AND e.end_date IS NULL AND e.status = 'published')
+        )`;
     }
 
     if (search) {
