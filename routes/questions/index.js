@@ -99,8 +99,15 @@ router.post(
         message: req.fileValidationError
       });
     }
-    
+    console.log(req.file)
     if (!req.file) {
+      // Check if file content was sent as text field instead
+      if (req.body && req.body.questionsFile && typeof req.body.questionsFile === 'string') {
+        console.log("File sent as text field, will be handled by controller");
+        // Let the controller handle it - it already has logic for this
+        return next();
+      }
+      
       // Check if it's a multer rejection (file was sent but rejected)
       const contentType = req.headers['content-type'] || '';
       if (contentType.includes('multipart/form-data')) {
