@@ -209,9 +209,9 @@ async function createExam(examData) {
     duration,
     instructions,
     settings,
-    start_date, 
-    end_date,
-    scheduled_date,
+    start_date = null, 
+    end_date = null,
+    scheduled_date = null,
     created_by,
     question_ids = [], // Array of question IDs to add to exam
   } = examData;
@@ -234,9 +234,9 @@ async function createExam(examData) {
         instructions,
         settings,
         created_by,
-        start_date,
-        end_date,
-        scheduled_date,
+        start_date || null,
+        end_date || null,
+        scheduled_date || null,
       ])
     : await client.query(sql, [
         title,
@@ -246,10 +246,10 @@ async function createExam(examData) {
         duration,
         instructions,
         settings,
-        start_date,
-        end_date,
-        scheduled_date,
         created_by,
+        start_date || null,
+        end_date || null,
+        scheduled_date || null,
       ]);
 
   // Get the auto-generated exam ID

@@ -124,6 +124,9 @@ async function createExam(req, res) {
       duration,
       instructions = "",
       settings = {},
+      start_date = null,
+      end_date = null,
+      scheduled_date = null,
       question_ids = [], // Array of question IDs to add to exam
       // Question selection parameters
       question_selection_type,
@@ -158,6 +161,9 @@ console.log({
       duration: parseInt(duration),
       instructions: instructions.trim(),
       settings: JSON.stringify(settings),
+      start_date: start_date || null,
+      end_date: end_date || null,
+      scheduled_date: scheduled_date || null,
       created_by: teacherId,
       question_ids, // Pass question IDs to repository
       // Question selection parameters
