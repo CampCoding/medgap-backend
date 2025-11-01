@@ -795,11 +795,31 @@ class QuestionsRepository {
   // إنشاء عدة أسئلة من ملف (محسن للأداء)
   async createQuestionsFromFile(questionsData, createdBy = null) {
     try {
+      console.log("=== Starting createQuestionsFromFile ===");
       console.log("Processing questions data, count:", questionsData.length);
+      console.log("Created by:", createdBy);
+      
+      if (!questionsData || questionsData.length === 0) {
+        throw new Error("No questions data provided");
+      }
+      
+      // Log first question structure for debugging
+      if (questionsData.length > 0) {
+        console.log("Sample question data structure:", {
+          has_question_text: !!questionsData[0].question_text,
+          has_question_type: !!questionsData[0].question_type,
+          has_topic_id: !!questionsData[0].topic_id,
+          has_options: !!questionsData[0].options,
+          options_count: questionsData[0].options?.length || 0,
+          status: questionsData[0].status,
+          keys: Object.keys(questionsData[0])
+        });
+      }
       
       // Test database connection
       try {
         const [testResult] = await client.execute("SELECT 1 as test");
+        console.log("Database connection test successful");
       } catch (dbError) {
         console.error("Database connection test failed:", dbError.message);
         throw new Error(`Database connection failed: ${dbError.message}`);
@@ -837,7 +857,16 @@ class QuestionsRepository {
             const globalIndex = batchIndex * batchSize + index + 1;
             
             try {
+              console.log(`Creating question ${globalIndex}/${questionsData.length}:`, {
+                question_text: questionData.question_text?.substring(0, 50) + "...",
+                question_type: questionData.question_type,
+                topic_id: questionData.topic_id
+              });
+              
               const question = await this.createQuestionInBatch(questionData, createdBy);
+              
+              console.log(`Question ${globalIndex} created successfully with ID: ${question.question_id}`);
+              
               batchResults.push({
                 success: true,
                 index: globalIndex,
@@ -850,6 +879,14 @@ class QuestionsRepository {
               }
             } catch (error) {
               console.error(`Failed to create question ${globalIndex}:`, error.message);
+              console.error(`Error stack:`, error.stack);
+              console.error(`Question data that failed:`, {
+                question_text: questionData.question_text?.substring(0, 50),
+                question_type: questionData.question_type,
+                topic_id: questionData.topic_id,
+                has_options: !!questionData.options
+              });
+              
               batchResults.push({
                 success: false,
                 index: globalIndex,
@@ -905,10 +942,24 @@ class QuestionsRepository {
         }
       }
       
+      console.log("=== createQuestionsFromFile completed ===");
+      console.log("Results summary:", {
+        totalProcessed: results.totalProcessed,
+        successCount: results.successCount,
+        failureCount: results.failureCount,
+        successful_ids: results.successful.map(s => s.question_id).slice(0, 10),
+        failed_count: results.failed.length
+      });
+      
+      if (results.failed.length > 0) {
+        console.log("Failed questions sample (first 3):", results.failed.slice(0, 3));
+      }
+      
       return results;
 
     } catch (error) {
       console.error("Error creating questions from file:", error.message);
+      console.error("Error stack:", error.stack);
       throw new Error(`Error creating questions from file: ${error.message}`);
     }
   }
@@ -927,9 +978,17 @@ class QuestionsRepository {
       tags = [],
       help_guidance,
       points = 1,
-      status = "draft",
+      status = "approved", // Use status from parser, default to "approved"
       options
     } = questionData;
+    
+    // Validate required fields
+    if (!question_text || !question_text.trim()) {
+      throw new Error("question_text is required");
+    }
+    if (!question_type) {
+      throw new Error("question_type is required");
+    }
 
     // إنشاء السؤال
     const questionQuery = `

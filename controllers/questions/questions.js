@@ -596,9 +596,18 @@ class QuestionsController {
         });
       }
 
-      // Log first question in development
-      if (process.env.NODE_ENV === 'development') {
-        console.log("First parsed question:", JSON.stringify(parseResult.questions[0], null, 2));
+      // Log parsed questions details
+      console.log(`Parsed ${parseResult.questions.length} questions successfully`);
+      if (parseResult.questions.length > 0) {
+        console.log("First parsed question sample:", {
+          question_text: parseResult.questions[0].question_text?.substring(0, 50) + "...",
+          question_type: parseResult.questions[0].question_type,
+          difficulty_level: parseResult.questions[0].difficulty_level,
+          has_options: !!parseResult.questions[0].options && parseResult.questions[0].options.length > 0,
+          options_count: parseResult.questions[0].options?.length || 0,
+          topic_id: parseResult.questions[0].topic_id,
+          status: parseResult.questions[0].status
+        });
       }
 
       // Add topic_id to all questions if provided
