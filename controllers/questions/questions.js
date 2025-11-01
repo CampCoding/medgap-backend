@@ -508,36 +508,49 @@ class QuestionsController {
     }
   }
 
-  // رفع ملف أسئلة وإنشاءها (محسن للأداء ومتوافق مع Vercel)
+  // رفع ملف أسئلة وإنشاءها
   async uploadQuestionsFromFile(req, res) {
     const startTime = Date.now();
-    const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
     
     try {
+      console.log("Upload request received:", {
+        hasFile: !!req.file,
+        fileName: req.file?.originalname,
+        fileSize: req.file?.size,
+        hasBuffer: !!req.file?.buffer,
+        hasPath: !!req.file?.path,
+        topicId: req.body?.topic_id
+      });
+
       if (!req.file) {
+        console.error("No file in request");
         return responseBuilder.badRequest(res, "No file uploaded. Please upload a .txt file.");
       }
 
-      const createdBy = req.user?.admin_id || 1; // TODO: Get from JWT
+      const createdBy = req.user?.admin_id || 1;
       const topicId = req.body.topic_id ? parseInt(req.body.topic_id) : null;
       
-      // Parse questions from file (handle both file path and buffer)
+      // Parse questions from file - handle both buffer and path
       const parseStartTime = Date.now();
       let parseResult;
       
       try {
-        if (isServerless) {
-          // In serverless, file is in memory as buffer
+        // Try buffer first (memory storage), then fallback to path (disk storage)
+        if (req.file.buffer && Buffer.isBuffer(req.file.buffer)) {
+          console.log("Parsing from buffer");
           parseResult = parseQuestionsFromText(req.file.buffer);
-        } else {
-          // In local development, file is on disk
+        } else if (req.file.path && fs.existsSync(req.file.path)) {
+          console.log("Parsing from file path:", req.file.path);
           parseResult = parseQuestionsFromText(req.file.path);
+        } else {
+          throw new Error("File not found. Neither buffer nor path is available.");
         }
       } catch (parseError) {
         console.error("Error parsing questions file:", parseError);
+        console.error("Parse error stack:", parseError.stack);
         
-        // Clean up uploaded file if it exists (only in non-serverless environments)
-        if (!isServerless && req.file && req.file.path) {
+        // Clean up uploaded file if it exists on disk
+        if (req.file && req.file.path && fs.existsSync(req.file.path)) {
           try {
             fs.unlinkSync(req.file.path);
           } catch (cleanupError) {
@@ -545,7 +558,10 @@ class QuestionsController {
           }
         }
         
-        return responseBuilder.badRequest(res, `Failed to parse questions file: ${parseError.message}`);
+        return responseBuilder.badRequest(res, {
+          message: `Failed to parse questions file: ${parseError.message}`,
+          error: parseError.message
+        });
       }
       
       const parseTime = Date.now() - parseStartTime;
@@ -557,11 +573,11 @@ class QuestionsController {
         console.log("First few parsing errors:", parseResult.errors.slice(0, 3));
       }
 
-      if (parseResult.questions.length === 0) {
+      if (!parseResult.questions || parseResult.questions.length === 0) {
         console.log("No valid questions found in file");
         
-        // Clean up uploaded file if it exists (only in non-serverless environments)
-        if (!isServerless && req.file && req.file.path) {
+        // Clean up uploaded file if it exists on disk
+        if (req.file && req.file.path && fs.existsSync(req.file.path)) {
           try {
             fs.unlinkSync(req.file.path);
           } catch (cleanupError) {
@@ -572,40 +588,45 @@ class QuestionsController {
         return responseBuilder.badRequest(res, {
           message: "No valid questions found in the file",
           parsing_results: {
-            total_lines: parseResult.totalLines,
-            parsing_errors: parseResult.errors,
-            parsing_error_count: parseResult.errorCount
+            total_lines: parseResult.totalLines || 0,
+            parsing_errors: parseResult.errors || [],
+            parsing_error_count: parseResult.errorCount || 0
           }
         });
       }
 
-      // Only log first question in development environment
+      // Log first question in development
       if (process.env.NODE_ENV === 'development') {
-        console.log("parseResult.questions[0]", parseResult.questions[0]);
+        console.log("First parsed question:", JSON.stringify(parseResult.questions[0], null, 2));
       }
 
-      // Add topic_id to all questions if provided - using faster method
+      // Add topic_id to all questions if provided
       if (topicId && !isNaN(topicId)) {
-        // Use direct assignment instead of forEach for better performance
         for (let i = 0; i < parseResult.questions.length; i++) {
           parseResult.questions[i].topic_id = topicId;
         }
       }
 
-      // Create questions in database with optimized batch processing
+      // Create questions in database
       const createStartTime = Date.now();
       let createResult;
       
       try {
+        console.log(`Creating ${parseResult.questions.length} questions in database...`);
         createResult = await questionsRepository.createQuestionsFromFile(
           parseResult.questions,
           createdBy
         );
+        console.log("Database creation completed:", {
+          successCount: createResult.successCount,
+          failureCount: createResult.failureCount
+        });
       } catch (createError) {
         console.error("Error creating questions in database:", createError);
+        console.error("Create error stack:", createError.stack);
         
-        // Clean up uploaded file if it exists (only in non-serverless environments)
-        if (!isServerless && req.file && req.file.path) {
+        // Clean up uploaded file if it exists on disk
+        if (req.file && req.file.path && fs.existsSync(req.file.path)) {
           try {
             fs.unlinkSync(req.file.path);
           } catch (cleanupError) {
@@ -613,15 +634,18 @@ class QuestionsController {
           }
         }
         
-        return responseBuilder.serverError(res, `Failed to create questions in database: ${createError.message}`);
+        return responseBuilder.serverError(res, {
+          message: `Failed to create questions in database: ${createError.message}`,
+          error: createError.message
+        });
       }
       
       const createTime = Date.now() - createStartTime;
 
       console.log(`Database creation completed in ${createTime}ms: ${createResult.successCount} created, ${createResult.failureCount} failed`);
 
-      // Clean up uploaded file (only in non-serverless environments)
-      if (!isServerless && req.file && req.file.path) {
+      // Clean up uploaded file if it exists on disk
+      if (req.file && req.file.path && fs.existsSync(req.file.path)) {
         try {
           fs.unlinkSync(req.file.path);
         } catch (cleanupError) {
@@ -638,30 +662,28 @@ class QuestionsController {
           total_processing_time_ms: totalTime,
           parsing_time_ms: parseTime,
           database_time_ms: createTime,
-          questions_per_second: totalTime > 0 ? Math.round((createResult.successCount / totalTime) * 1000) : 0,
-          environment: isServerless ? 'serverless' : 'local'
+          questions_per_second: totalTime > 0 ? Math.round((createResult.successCount / totalTime) * 1000) : 0
         },
         file_info: {
           original_name: req.file.originalname,
           file_size: req.file.size,
-          uploaded_at: new Date().toISOString(),
-          processing_method: isServerless ? 'memory' : 'disk'
+          uploaded_at: new Date().toISOString()
         },
         topic_info: {
           topic_id: topicId,
           applied_to_all_questions: topicId ? true : false
         },
         parsing_results: {
-          total_lines: parseResult.totalLines,
-          parsing_errors: parseResult.errors,
-          parsing_error_count: parseResult.errorCount
+          total_lines: parseResult.totalLines || 0,
+          parsing_errors: parseResult.errors || [],
+          parsing_error_count: parseResult.errorCount || 0
         },
         creation_results: {
-          total_processed: createResult.totalProcessed,
+          total_processed: createResult.totalProcessed || parseResult.questions.length,
           successful: createResult.successful || [],
           failed: createResult.failed || [],
-          success_count: createResult.successCount,
-          failure_count: createResult.failureCount
+          success_count: createResult.successCount || 0,
+          failure_count: createResult.failureCount || 0
         }
       };
 
@@ -676,9 +698,10 @@ class QuestionsController {
 
     } catch (error) {
       console.error("Error uploading questions file:", error);
+      console.error("Error stack:", error.stack);
       
-      // Clean up uploaded file if it exists (only in non-serverless environments)
-      if (!isServerless && req.file && req.file.path) {
+      // Clean up uploaded file if it exists on disk
+      if (req.file && req.file.path && fs.existsSync(req.file.path)) {
         try {
           fs.unlinkSync(req.file.path);
         } catch (cleanupError) {
@@ -686,7 +709,10 @@ class QuestionsController {
         }
       }
 
-      return responseBuilder.serverError(res, `Failed to process questions file: ${error.message}`);
+      return responseBuilder.serverError(res, {
+        message: `Failed to process questions file: ${error.message}`,
+        error: error.message
+      });
     }
   }
 

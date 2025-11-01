@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
 const questionsController = require("../../controllers/questions/questions");
 const {
   createQuestionValidation,
@@ -29,12 +30,59 @@ router.get("/:id/options", questionsController.getQuestionOptions);
 // Get question usage statistics
 router.get("/:id/usage-stats", questionsController.getQuestionUsageStats);
 
+// Multer error handling middleware
+const handleMulterError = (err, req, res, next) => {
+  if (err) {
+    console.error("Multer error:", err);
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          status: "error",
+          message: `File too large. Maximum size is 10MB.`
+        });
+      }
+      if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+        return res.status(400).json({
+          status: "error",
+          message: `Unexpected file field. Use 'questionsFile' as the field name.`
+        });
+      }
+      return res.status(400).json({
+        status: "error",
+        message: `Upload error: ${err.message}`
+      });
+    }
+    return res.status(400).json({
+      status: "error",
+      message: `Upload error: ${err.message}`
+    });
+  }
+  next();
+};
+
 // Upload questions from .txt file (Admin/Teacher only)
 router.post(
   "/upload",
   // jwtMiddleware.verifyToken,
   // jwtMiddleware.requireAdminOrTeacher,
   uploadQuestions.single("questionsFile"),
+  handleMulterError,
+  (req, res, next) => {
+    // Handle file validation errors
+    if (req.fileValidationError) {
+      return res.status(400).json({
+        status: "error",
+        message: req.fileValidationError
+      });
+    }
+    if (!req.file) {
+      return res.status(400).json({
+        status: "error",
+        message: "No file uploaded. Please upload a .txt file with field name 'questionsFile'."
+      });
+    }
+    next();
+  },
   questionsController.uploadQuestionsFromFile
 );
 
