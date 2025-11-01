@@ -1,0 +1,20 @@
+# Flashcard Import Template
+# Format: Front Text: [question] | Back Text: [answer] | Difficulty: [easy|medium|hard] | Card Order: [number] | Status: [draft|active|inactive]
+# 
+# Instructions:
+# - Each flashcard must be on a single line
+# - Fields are separated by pipe character (|)
+# - All fields except Front Text and Back Text are optional
+# - Difficulty options: easy, medium, hard (default: medium)
+# - Status options: draft, active, inactive (default: draft)
+# - Card Order must be a positive integer (default: 1)
+# - Empty lines and lines starting with # are ignored
+# - Field names are case-insensitive but must be spelled correctly
+#
+# Examples:
+Front Text: What is the normal range for adult blood pressure? | Back Text: 120/80 mmHg | Difficulty: easy | Card Order: 1 | Status: draft
+Front Text: What is the primary function of insulin? | Back Text: To regulate blood glucose levels by facilitating glucose uptake into cells | Difficulty: medium | Card Order: 2 | Status: draft
+Front Text: What is the normal heart rate range for adults at rest? | Back Text: 60-100 beats per minute | Difficulty: easy | Card Order: 3 | Status: draft
+Front Text: What does COPD stand for? | Back Text: Chronic Obstructive Pulmonary Disease | Difficulty: medium | Card Order: 4 | Status: draft
+Front Text: What is the normal body temperature in Celsius? | Back Text: 37°C (98.6°F) | Difficulty: easy | Card Order: 5 | Status: draft
+

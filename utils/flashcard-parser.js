@@ -3,7 +3,10 @@ const fs = require("fs");
 /**
  * Parse flashcards from .txt file content
  * Expected format:
- * Front Text: What is the capital of France? | Back Text: Paris | Difficulty: easy | Tags: geography, Europe | Keywords: capital, city, France | Hint: Think about the most famous city in France | Help: This is a basic geography question about European capitals
+ * Front Text: What is the capital of France? | Back Text: Paris | Difficulty: easy | Card Order: 1 | Status: draft
+ * 
+ * Optional fields: Difficulty (easy|medium|hard), Card Order (integer), Status (draft|active|inactive)
+ * Lines starting with # are treated as comments and ignored
  */
 function parseFlashcardsFromText(filePathOrBuffer) {
   try {
@@ -16,30 +19,42 @@ function parseFlashcardsFromText(filePathOrBuffer) {
       content = fs.readFileSync(filePathOrBuffer, "utf8");
     }
 
-    const lines = content.split("\n").filter(line => line.trim() !== "");
-
+    // Split all lines and track original line numbers
+    const allLines = content.split("\n");
     const flashcards = [];
     const errors = [];
 
-    lines.forEach((line, index) => {
+    allLines.forEach((line, originalLineNumber) => {
+      const trimmedLine = line.trim();
+      
+      // Skip empty lines and comment lines (starting with #)
+      if (trimmedLine === "" || trimmedLine.startsWith("#")) {
+        return;
+      }
+
       try {
-        const flashcard = parseFlashcardLine(line.trim(), index + 1);
+        const flashcard = parseFlashcardLine(trimmedLine, originalLineNumber + 1);
         if (flashcard) {
           flashcards.push(flashcard);
         }
       } catch (error) {
         errors.push({
-          line: index + 1,
-          content: line.trim(),
+          line: originalLineNumber + 1,
+          content: trimmedLine,
           error: error.message
         });
       }
     });
 
+    const totalProcessedLines = allLines.filter(line => {
+      const trimmed = line.trim();
+      return trimmed !== "" && !trimmed.startsWith("#");
+    }).length;
+
     return {
       flashcards,
       errors,
-      totalLines: lines.length,
+      totalLines: totalProcessedLines,
       successCount: flashcards.length,
       errorCount: errors.length
     };
@@ -79,13 +94,28 @@ function parseFlashcardLine(line, lineNumber) {
         flashcard.back_text = value;
         break;
       case "difficulty":
-        flashcard.difficulty_level = value.toLowerCase();
+        const difficultyValue = value.toLowerCase();
+        if (["easy", "medium", "hard"].includes(difficultyValue)) {
+          flashcard.difficulty_level = difficultyValue;
+        } else {
+          throw new Error(`Invalid difficulty level: ${value}. Must be one of: easy, medium, hard`);
+        }
         break;
       case "card order":
-        flashcard.card_order = parseInt(value) || 1;
+        const orderValue = parseInt(value);
+        if (!isNaN(orderValue) && orderValue > 0) {
+          flashcard.card_order = orderValue;
+        } else {
+          throw new Error(`Invalid card order: ${value}. Must be a positive integer`);
+        }
         break;
       case "status":
-        flashcard.status = value.toLowerCase();
+        const statusValue = value.toLowerCase();
+        if (["draft", "active", "inactive"].includes(statusValue)) {
+          flashcard.status = statusValue;
+        } else {
+          throw new Error(`Invalid status: ${value}. Must be one of: draft, active, inactive`);
+        }
         break;
       case "tags":
       case "keywords":
