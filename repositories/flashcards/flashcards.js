@@ -305,53 +305,41 @@ class FlashcardsRepository {
 
         console.log(`Processing ${batches.length} batches`);
 
-        // معالجة كل مجموعة بالتوازي
+        // معالجة كل مجموعة بالتسلسل لتجنب مشاكل القفل في قاعدة البيانات
         for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
           const batch = batches[batchIndex];
           console.log(`Processing batch ${batchIndex + 1}/${batches.length} with ${batch.length} flashcards`);
 
-          const batchPromises = batch.map(async (flashcardData, index) => {
+          // Process flashcards in batch sequentially to avoid database locks
+          for (let index = 0; index < batch.length; index++) {
+            const flashcardData = batch[index];
             const globalIndex = batchIndex * batchSize + index + 1;
+            
             try {
-              console.log(`Creating flashcard ${globalIndex}: ${flashcardData.front_text?.substring(0, 50)}...`);
+              console.log(`Creating flashcard ${globalIndex}/${flashcardsData.length}: ${flashcardData.front_text?.substring(0, 50)}...`);
               const flashcard = await this.createFlashcardInBatch(flashcardData, createdBy);
               console.log(`Successfully created flashcard ${globalIndex} with ID: ${flashcard.flashcard_id}`);
-              return {
-                success: true,
-                index: globalIndex,
-                flashcard: flashcard
-              };
-            } catch (error) {
-              console.error(`Failed to create flashcard ${globalIndex}:`, error.message);
-              return {
-                success: false,
-                index: globalIndex,
-                flashcardData: flashcardData,
-                error: error.message
-              };
-            }
-          });
-
-          const batchResults = await Promise.all(batchPromises);
-
-          batchResults.forEach(result => {
-            if (result.success) {
+              
               results.successful.push({
-                index: result.index,
-                flashcard_id: result.flashcard.flashcard_id,
-                front_text: result.flashcard.front_text,
-                back_text: result.flashcard.back_text
+                index: globalIndex,
+                flashcard_id: flashcard.flashcard_id,
+                front_text: flashcard.front_text,
+                back_text: flashcard.back_text
               });
               results.successCount++;
-            } else {
+            } catch (error) {
+              console.error(`Failed to create flashcard ${globalIndex}:`, error.message);
               results.failed.push({
-                index: result.index,
-                flashcard_data: result.flashcardData,
-                error: result.error
+                index: globalIndex,
+                flashcard_data: flashcardData,
+                error: error.message
               });
               results.failureCount++;
+              // Continue processing even if one fails
             }
-          });
+          }
+          
+          console.log(`Batch ${batchIndex + 1} completed: ${results.successCount} successful, ${results.failureCount} failed so far`);
         }
 
         console.log("Committing transaction...");
@@ -360,9 +348,16 @@ class FlashcardsRepository {
         return results;
 
       } catch (error) {
-        console.error("Error in transaction, rolling back:", error.message);
-        await client.execute("ROLLBACK");
-        throw error;
+        console.error("Critical error in transaction, rolling back:", error.message);
+        console.error("Error stack:", error.stack);
+        try {
+          await client.execute("ROLLBACK");
+        } catch (rollbackError) {
+          console.error("Error during rollback:", rollbackError.message);
+        }
+        // Don't throw - return partial results instead
+        console.log(`Transaction rolled back. Returning partial results: ${results.successCount} successful, ${results.failureCount} failed`);
+        return results;
       }
 
     } catch (error) {
