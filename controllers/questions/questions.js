@@ -692,11 +692,7 @@ class QuestionsController {
           database_time_ms: createTime,
           questions_per_second: totalTime > 0 ? Math.round((createResult.successCount / totalTime) * 1000) : 0
         },
-        file_info: {
-          original_name: req.file.originalname,
-          file_size: req.file.size,
-          uploaded_at: new Date().toISOString()
-        },
+       
         topic_info: {
           topic_id: topicId,
           applied_to_all_questions: topicId ? true : false
