@@ -38,7 +38,7 @@ router.post(
   "/upload",
   // jwtMiddleware.verifyToken,
   // jwtMiddleware.requireAdminOrTeacher,
-  uploadFlashcards.single("file"),
+  uploadFlashcards.single("flashcardsFile"),
   flashcardsController.uploadFlashcardsFromFile
 );
 
