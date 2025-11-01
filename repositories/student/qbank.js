@@ -69,12 +69,6 @@ const solveQuestion = async ({ question_id, studentId, answer, qbank_id, correct
 
 }
 
-/**CREATE TABLE `campcod3_medgap`.`qbank` (`qbank_id` INT NOT NULL AUTO_INCREMENT , `qbank_name` TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP , `tutor_mode` ENUM('1','0','','') NOT NULL DEFAULT '0' , `timed` ENUM('0','1','','') NOT NULL DEFAULT '0' , `time_type` ENUM('extended','fast','challenging','none') NOT NULL DEFAULT 'none' , `active` ENUM('0','1','','') NOT NULL DEFAULT '1' , `deleted` ENUM('0','1','','') NOT NULL DEFAULT '0' , PRIMARY KEY (`qbank_id`)) ENGINE = InnoDB;
- * 
- * CREATE TABLE `campcod3_medgap`.`qbank_questions` (`qbank_question_id` INT NOT NULL AUTO_INCREMENT , `question_id` INT NOT NULL , `qbank_id` INT NOT NULL , `correct_option` INT NOT NULL , PRIMARY KEY (`qbank_question_id`)) ENGINE = InnoDB;
-
- */
-
 const fetchModules = async (moduleIds = []) => {
     if (Array.isArray(moduleIds) && moduleIds.length > 0) {
         const placeholders = moduleIds.map(() => '?').join(',');

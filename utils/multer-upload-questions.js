@@ -5,7 +5,7 @@ const multer = require("multer");
 // Use disk storage
 const uploadDir = path.resolve(process.cwd(), "uploads/questions");
 
-// Create upload directory if it doesn't exist
+// Create upload directory if it doesn't exist 
 try {
   fs.mkdirSync(uploadDir, { recursive: true });
   console.log(`Upload directory created/verified: ${uploadDir}`);

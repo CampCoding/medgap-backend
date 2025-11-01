@@ -65,7 +65,7 @@ router.post(
   "/upload",
   // jwtMiddleware.verifyToken,
   // jwtMiddleware.requireAdminOrTeacher,
-  uploadQuestions.single("questionsFile"),
+  uploadQuestions.single("file"),
   handleMulterError,
   (req, res, next) => {
     // Handle file validation errors
@@ -75,6 +75,7 @@ router.post(
         message: req.fileValidationError
       });
     }
+    console.log(req.file);
     if (!req.file) {
       return res.status(400).json({
         status: "error",
