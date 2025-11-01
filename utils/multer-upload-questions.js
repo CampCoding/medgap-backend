@@ -33,12 +33,42 @@ const allowed = new Set([
 ]);
 
 const fileFilter = (req, file, cb) => {
+  console.log("FileFilter called:", {
+    fieldname: file.fieldname,
+    originalname: file.originalname,
+    mimetype: file.mimetype,
+    encoding: file.encoding
+  });
+  
   // Check file extension as well as mimetype
   const ext = path.extname(file.originalname || "").toLowerCase();
-  if (ext === ".txt" || allowed.has(file.mimetype)) {
+  const isValidExtension = ext === ".txt";
+  const isValidMimeType = allowed.has(file.mimetype);
+  const isValidField = file.fieldname === "questionsFile";
+  
+  console.log("FileFilter validation:", {
+    ext,
+    isValidExtension,
+    isValidMimeType,
+    isValidField,
+    fieldname: file.fieldname,
+    mimetype: file.mimetype
+  });
+  
+  // Accept if extension is .txt OR mimetype is allowed
+  // Also check field name matches
+  if (!isValidField) {
+    req.fileValidationError = `Invalid field name. Use 'questionsFile' as the field name. Received: '${file.fieldname}'`;
+    console.error("FileFilter rejected: Invalid field name");
+    return cb(null, false);
+  }
+  
+  if (isValidExtension || isValidMimeType || !file.mimetype) {
+    console.log("FileFilter: File accepted");
     cb(null, true);
   } else {
-    req.fileValidationError = `Only .txt files are allowed. Received file: ${file.originalname || 'unknown'} with type: ${file.mimetype}`;
+    req.fileValidationError = `Only .txt files are allowed. Received file: ${file.originalname || 'unknown'} with type: ${file.mimetype || 'unknown'}`;
+    console.error("FileFilter rejected: Invalid file type");
     cb(null, false);
   }
 };

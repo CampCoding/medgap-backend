@@ -519,32 +519,50 @@ class QuestionsController {
         fileSize: req.file?.size,
         hasBuffer: !!req.file?.buffer,
         hasPath: !!req.file?.path,
+        hasBodyField: !!req.body?.questionsFile,
+        bodyFieldLength: req.body?.questionsFile?.length,
         topicId: req.body?.topic_id
       });
-
-      if (!req.file) {
-        console.error("No file in request");
-        return responseBuilder.badRequest(res, "No file uploaded. Please upload a .txt file.");
-      }
 
       const createdBy = req.user?.admin_id || 1;
       const topicId = req.body.topic_id ? parseInt(req.body.topic_id) : null;
       
-      // Parse questions from file - handle both buffer and path
+      // Parse questions from file - handle both file upload and text field
       const parseStartTime = Date.now();
       let parseResult;
       
       try {
-        // Use file path (disk storage)
-        if (req.file.path && fs.existsSync(req.file.path)) {
-          console.log("Parsing from file path:", req.file.path);
-          parseResult = parseQuestionsFromText(req.file.path);
-        } else if (req.file.buffer && Buffer.isBuffer(req.file.buffer)) {
-          // Fallback to buffer if path is not available
-          console.log("Parsing from buffer (fallback)");
-          parseResult = parseQuestionsFromText(req.file.buffer);
-        } else {
-          throw new Error("File not found. Neither path nor buffer is available.");
+        // Check if file was uploaded via multer (file upload)
+        if (req.file) {
+          // Use file path (disk storage)
+          if (req.file.path && fs.existsSync(req.file.path)) {
+            console.log("Parsing from uploaded file path:", req.file.path);
+            parseResult = parseQuestionsFromText(req.file.path);
+          } else if (req.file.buffer && Buffer.isBuffer(req.file.buffer)) {
+            // Fallback to buffer if path is not available
+            console.log("Parsing from uploaded file buffer (fallback)");
+            parseResult = parseQuestionsFromText(req.file.buffer);
+          } else {
+            throw new Error("File not found. Neither path nor buffer is available.");
+          }
+        } 
+        // Check if file content was sent as a text field (alternative method)
+        else if (req.body && req.body.questionsFile && typeof req.body.questionsFile === 'string') {
+          console.log("Parsing from text field (req.body.questionsFile)");
+          // Convert string to buffer for parsing
+          const fileBuffer = Buffer.from(req.body.questionsFile, 'utf8');
+          parseResult = parseQuestionsFromText(fileBuffer);
+        } 
+        else {
+          console.error("No file found in request");
+          return responseBuilder.badRequest(res, {
+            message: "No file uploaded. Please upload a .txt file with field name 'questionsFile' as a file upload, or send the file content as a text field.",
+            received: {
+              hasFile: !!req.file,
+              hasBodyField: !!req.body?.questionsFile,
+              bodyKeys: req.body ? Object.keys(req.body) : []
+            }
+          });
         }
       } catch (parseError) {
         console.error("Error parsing questions file:", parseError);

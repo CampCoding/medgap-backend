@@ -30,58 +30,98 @@ router.get("/:id/options", questionsController.getQuestionOptions);
 // Get question usage statistics
 router.get("/:id/usage-stats", questionsController.getQuestionUsageStats);
 
-// Multer error handling middleware
-const handleMulterError = (err, req, res, next) => {
-  if (err) {
-    console.error("Multer error:", err);
-    if (err instanceof multer.MulterError) {
-      if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).json({
-          status: "error",
-          message: `File too large. Maximum size is 10MB.`
-        });
-      }
-      if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-        return res.status(400).json({
-          status: "error",
-          message: `Unexpected file field. Use 'questionsFile' as the field name.`
-        });
-      }
-      return res.status(400).json({
-        status: "error",
-        message: `Upload error: ${err.message}`
-      });
-    }
-    return res.status(400).json({
-      status: "error",
-      message: `Upload error: ${err.message}`
-    });
-  }
-  next();
-};
-
 // Upload questions from .txt file (Admin/Teacher only)
 router.post(
   "/upload",
   // jwtMiddleware.verifyToken,
   // jwtMiddleware.requireAdminOrTeacher,
-  uploadQuestions.single("questionsFile"),
-  handleMulterError,
   (req, res, next) => {
-    // Handle file validation errors
+    console.log("=== Upload Request Received ===");
+    console.log("Headers:", {
+      'content-type': req.headers['content-type'],
+      'content-length': req.headers['content-length']
+    });
+    console.log("Body keys:", req.body ? Object.keys(req.body) : "Body not parsed yet");
+    next();
+  },
+  uploadQuestions.single("questionsFile"),
+  (err, req, res, next) => {
+    // Multer error handler (must have 4 parameters: err, req, res, next)
+    if (err) {
+      console.error("Multer error occurred:", err);
+      if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({
+            status: "error",
+            message: `File too large. Maximum size is 10MB.`
+          });
+        }
+        if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+          return res.status(400).json({
+            status: "error",
+            message: `Unexpected file field. Use 'questionsFile' as the field name. Received: ${err.field}`
+          });
+        }
+        if (err.code === 'LIMIT_FILE_COUNT') {
+          return res.status(400).json({
+            status: "error",
+            message: `Too many files. Only one file is allowed.`
+          });
+        }
+        return res.status(400).json({
+          status: "error",
+          message: `Upload error: ${err.message} (code: ${err.code})`
+        });
+      }
+      // Non-multer errors
+      return res.status(400).json({
+        status: "error",
+        message: `Upload error: ${err.message}`
+      });
+    }
+    next();
+  },
+  (req, res, next) => {
+    // Handle file validation errors from fileFilter
+    console.log("After multer middleware:");
+    console.log("req.file:", req.file ? {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      path: req.file.path
+    } : null);
+    console.log("req.fileValidationError:", req.fileValidationError || "none");
+    console.log("req.body:", req.body || {});
+    
     if (req.fileValidationError) {
       return res.status(400).json({
         status: "error",
         message: req.fileValidationError
       });
     }
-    console.log(req.file);
+    
     if (!req.file) {
+      // Check if it's a multer rejection (file was sent but rejected)
+      const contentType = req.headers['content-type'] || '';
+      if (contentType.includes('multipart/form-data')) {
+        // File was likely sent but rejected by fileFilter
+        return res.status(400).json({
+          status: "error",
+          message: "File was rejected. Please ensure you're uploading a .txt file with the field name 'questionsFile'. " + (req.fileValidationError || "")
+        });
+      }
       return res.status(400).json({
         status: "error",
-        message: "No file uploaded. Please upload a .txt file with field name 'questionsFile'."
+        message: "No file uploaded. Please use multipart/form-data and upload a .txt file with field name 'questionsFile'."
       });
     }
+    
+    console.log("File accepted:", {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      path: req.file.path
+    });
     next();
   },
   questionsController.uploadQuestionsFromFile
