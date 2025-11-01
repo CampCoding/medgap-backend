@@ -729,7 +729,7 @@ class QuestionsController {
       console.error("Error stack:", error.stack);
       
       // Clean up uploaded file if it exists on disk
-      if (req.file && req.file.path && fs.existsSync(req.file.path)) {
+      if (req.file && req.file?.path && fs.existsSync(req.file?.path)) {
         try {
           fs.unlinkSync(req.file.path);
         } catch (cleanupError) {
@@ -737,10 +737,7 @@ class QuestionsController {
         }
       }
 
-      return responseBuilder.serverError(res, {
-        message: `Failed to process questions file: ${error.message}`,
-        error: error.message
-      });
+    
     }
   }
 

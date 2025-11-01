@@ -123,12 +123,7 @@ router.post(
       });
     }
     
-    console.log("File accepted:", {
-      originalname: req.file.originalname,
-      mimetype: req.file.mimetype,
-      size: req.file.size,
-      path: req.file.path
-    });
+   
     next();
   },
   questionsController.uploadQuestionsFromFile
