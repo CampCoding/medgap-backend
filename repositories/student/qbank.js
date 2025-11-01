@@ -756,7 +756,7 @@ const listQuestion = async ({ qbank_id, studentId, session_id }) => {
             if (typeof r.tags === 'string') r.tags = JSON.parse(r.tags).filter(Boolean);
         } catch { }
     }
-    return { questions: rows, categories, qbank };
+    return { questions: rows, categories, qbank: qbank[0] };
 };
 
 
