@@ -333,8 +333,8 @@ class ModulesRepository {
   }
 
   //  وحدات المادة
-  async getModuleUnits(moduleId) {
-    const query = `
+  async getModuleUnits(moduleId, teacherId = null) {
+    let query = `
       SELECT 
         u.*,
         COUNT(DISTINCT t.topic_id) as topics_count,
@@ -345,12 +345,27 @@ class ModulesRepository {
       LEFT JOIN questions q ON t.topic_id = q.topic_id
       LEFT JOIN ebooks b ON u.unit_id = b.subject_id AND b.is_deleted = 0
       WHERE u.module_id = ?
-      GROUP BY u.unit_id
+    `;
+
+    const values = [moduleId];
+
+    // If teacher_id is provided, filter to show only units from modules assigned to this teacher
+    if (teacherId) {
+      query += ` AND EXISTS (
+        SELECT 1 FROM teacher_modules tm 
+        WHERE tm.module_id = u.module_id 
+        AND tm.teacher_id = ? 
+        AND tm.status = 'active'
+      )`;
+      values.push(teacherId);
+    }
+
+    query += ` GROUP BY u.unit_id
       ORDER BY u.unit_order ASC, u.created_at ASC
     `;
 
     try {
-      const [result] = await client.execute(query, [moduleId]);
+      const [result] = await client.execute(query, values);
       return result.map((row) => ({
         ...row,
         topics_count: parseInt(row.topics_count) || 0,

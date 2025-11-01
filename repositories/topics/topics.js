@@ -176,6 +176,10 @@ class TopicsRepository {
 
     const values = [];
 
+    if (filters.teacher_id) {
+      query += ` AND t.teacher_id = ?`;
+      values.push(filters.teacher_id);
+    }
     if (filters.status) {
       query += ` AND t.status = ?`;
       values.push(filters.status);
@@ -183,6 +187,10 @@ class TopicsRepository {
     if (filters.unit_id) {
       query += ` AND t.unit_id = ?`;
       values.push(filters.unit_id);
+    }
+    if (filters.module_id) {
+      query += ` AND u.module_id = ?`;
+      values.push(filters.module_id);
     }
     if (filters.search) {
       query += ` AND (t.topic_name LIKE ? OR t.short_description LIKE ? OR t.learning_objectives LIKE ?)`;
