@@ -1562,7 +1562,13 @@ const submitExam = async ({ attemptId, studentId }) => {
 };
 
 // Get exam questions for a specific exam
-const getExamQuestions = async ({ examId, studentId }) => {
+const getExamQuestions = async ({ examId, studentId, session_id }) => {
+    let where = `WHERE eq.exam_id = ?`;
+    if (session_id) {
+        where += ` AND ea.session_id = ?`;
+    }else{
+        where += ` AND ea.session_id IS NULL`;
+    }
     // Verify student has access to exam
     const examCheck = await client.execute(`
         SELECT e.exam_id, e.title, e.duration, e.instructions
@@ -1620,13 +1626,14 @@ const getExamQuestions = async ({ examId, studentId }) => {
         FROM exam_questions eq
         INNER JOIN questions q ON eq.question_id = q.question_id
         LEFT JOIN question_options qo ON q.question_id = qo.question_id
+
         LEFT JOIN exam_answers ea 
           ON ea.exam_question_id = eq.id
          AND ea.attempt_id = ${'?'}
-        WHERE eq.exam_id = ?
+        ${where} 
         GROUP BY eq.id, q.question_id
         ORDER BY eq.order_index
-    `, [activeAttemptId, examId]);
+    `, session_id ? [activeAttemptId, examId, session_id] : [activeAttemptId, examId]);
 
     // Parse options for each question
     const questionsWithOptions = questions.map(q => ({
