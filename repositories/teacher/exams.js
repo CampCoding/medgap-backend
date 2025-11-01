@@ -209,15 +209,19 @@ async function createExam(examData) {
     duration,
     instructions,
     settings,
+    start_date, 
+    end_date,
+    scheduled_date,
     created_by,
     question_ids = [], // Array of question IDs to add to exam
   } = examData;
 
   const sql = `
     INSERT INTO exams (
-      title, subject_id, teacher_id, difficulty, duration, instructions, settings, created_by, status
+      title, subject_id, teacher_id, difficulty, duration, instructions, settings, created_by,
+      start_date, end_date, scheduled_date
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'draft')
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const [result] = isMysql
@@ -230,6 +234,9 @@ async function createExam(examData) {
         instructions,
         settings,
         created_by,
+        start_date,
+        end_date,
+        scheduled_date,
       ])
     : await client.query(sql, [
         title,
@@ -239,6 +246,9 @@ async function createExam(examData) {
         duration,
         instructions,
         settings,
+        start_date,
+        end_date,
+        scheduled_date,
         created_by,
       ]);
 
