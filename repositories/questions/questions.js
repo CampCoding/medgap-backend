@@ -40,12 +40,17 @@ class QuestionsRepository {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
+      // Handle explanation: use provided value, or empty string if not provided (database doesn't allow null)
+      const explanationValue = (explanation !== undefined && explanation !== null && String(explanation).trim() !== "") 
+        ? String(explanation).trim() 
+        : "";
+
       const questionValues = [
         question_text,
         question_type,
         topic_id || null,
         model_answer || null,
-        explanation || "", // Use empty string instead of null for explanation
+        explanationValue,
         difficulty_level,
         hint || null,
         JSON.stringify(keywords || []),
@@ -999,12 +1004,17 @@ class QuestionsRepository {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
+    // Handle explanation: use provided value, or empty string if not provided (database doesn't allow null)
+    const explanationValue = (explanation !== undefined && explanation !== null && String(explanation).trim() !== "") 
+      ? String(explanation).trim() 
+      : "";
+
     const questionValues = [
       question_text,
       question_type,
       topic_id || null,
       model_answer || null,
-      explanation || "", // Use empty string instead of null for explanation
+      explanationValue,
       difficulty_level,
       hint || null,
       JSON.stringify(keywords || []),
