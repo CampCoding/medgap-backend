@@ -1,5 +1,215 @@
 [
   {
+    "timestamp": "2025-11-02T14:27:36.527Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 138
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 138
+    }
+  },
+  {
+    "timestamp": "2025-11-02T14:26:39.341Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 137
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 137
+    }
+  },
+  {
+    "timestamp": "2025-11-02T14:23:23.954Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 136
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 136
+    }
+  },
+  {
+    "timestamp": "2025-11-02T14:07:32.919Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 135
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 135
+    }
+  },
+  {
+    "timestamp": "2025-11-02T14:06:10.726Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 134
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 134
+    }
+  },
+  {
+    "timestamp": "2025-11-02T14:04:33.094Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 133
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 133
+    }
+  },
+  {
+    "timestamp": "2025-11-02T14:04:18.032Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 132
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 132
+    }
+  },
+  {
+    "timestamp": "2025-11-02T14:03:34.119Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 131
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 131
+    }
+  },
+  {
+    "timestamp": "2025-11-02T14:02:22.224Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 130
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 130
+    }
+  },
+  {
+    "timestamp": "2025-11-02T14:00:08.247Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 129
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 129
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:59:54.527Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 128
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 128
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:57:35.952Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 127
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 127
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:53:59.672Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 126
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 126
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:49:49.560Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 125
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 125
+    }
+  },
+  {
     "timestamp": "2025-11-02T13:47:43.089Z",
     "level": "info",
     "message": "Exam questions retrieved successfully",

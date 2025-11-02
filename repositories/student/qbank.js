@@ -136,7 +136,17 @@ const fetchTopicsByUnitIds = async (unitIds = []) => {
 const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId = null) => {
     if (!Array.isArray(topicIds) || topicIds.length === 0) return [];
     const placeholders = topicIds.map(() => '?').join(',');
-    const numQuestions = filters?.numQuestions || 10;
+    // Ensure numQuestions is a valid number
+    let numQuestions = filters?.numQuestions;
+    if (numQuestions === null || numQuestions === undefined || numQuestions === '') {
+        numQuestions = 10;
+    } else {
+        numQuestions = parseInt(numQuestions, 10);
+        if (isNaN(numQuestions) || numQuestions <= 0) {
+            numQuestions = 10;
+        }
+    }
+    console.log(`fetchQuestionsByTopicIds: numQuestions = ${numQuestions} (from filters.numQuestions = ${filters?.numQuestions})`);
 
     // First, get counts for each mode to determine distribution
     let countSql = `SELECT 
@@ -199,29 +209,70 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
 
     // If we have multiple topics, try to distribute questions across topics as well
     let modeLimits = [];
+    let totalDistributed = 0;
+    
     if (topicIds.length > 1) {
-        // Distribute questions across topics first, then across modes within each topic
-        const questionsPerTopic = Math.ceil(actualNumQuestions / topicIds.length);
-
-        for (const topicId of topicIds) {
-            const topicQuestionsPerMode = Math.ceil(questionsPerTopic / availableModes.length);
-
-            availableModes.forEach(({ mode, count }) => {
-                const limit = Math.min(topicQuestionsPerMode, count);
+        // Distribute questions across topics and modes proportionally
+        const questionsPerTopicBase = Math.floor(actualNumQuestions / topicIds.length);
+        const remainder = actualNumQuestions % topicIds.length;
+        
+        for (let topicIndex = 0; topicIndex < topicIds.length; topicIndex++) {
+            const topicId = topicIds[topicIndex];
+            // Give extra question to first few topics if there's a remainder
+            const questionsForThisTopic = questionsPerTopicBase + (topicIndex < remainder ? 1 : 0);
+            
+            if (questionsForThisTopic === 0) continue;
+            
+            // Distribute across modes for this topic
+            const questionsPerModeBase = Math.floor(questionsForThisTopic / availableModes.length);
+            const modeRemainder = questionsForThisTopic % availableModes.length;
+            
+            for (let modeIndex = 0; modeIndex < availableModes.length; modeIndex++) {
+                const { mode, count } = availableModes[modeIndex];
+                // Give extra question to first few modes if there's a remainder
+                const questionsForThisMode = questionsPerModeBase + (modeIndex < modeRemainder ? 1 : 0);
+                
+                if (questionsForThisMode === 0 || totalDistributed >= actualNumQuestions) continue;
+                
+                // Ensure we don't exceed total and respect mode count limit
+                const limit = Math.min(
+                    questionsForThisMode,
+                    count,
+                    actualNumQuestions - totalDistributed
+                );
+                
                 if (limit > 0) {
                     modeLimits.push({ mode, limit, topicId });
+                    totalDistributed += limit;
                 }
-            });
+            }
         }
     } else {
         // Single topic - distribute across modes only
-        const questionsPerMode = Math.ceil(actualNumQuestions / availableModes.length);
-        modeLimits = availableModes.map(({ mode, count }) => ({
-            mode,
-            limit: Math.min(questionsPerMode, count),
-            topicId: topicIds[0]
-        }));
+        const questionsPerModeBase = Math.floor(actualNumQuestions / availableModes.length);
+        const remainder = actualNumQuestions % availableModes.length;
+        
+        for (let modeIndex = 0; modeIndex < availableModes.length; modeIndex++) {
+            const { mode, count } = availableModes[modeIndex];
+            // Give extra question to first few modes if there's a remainder
+            const questionsForThisMode = questionsPerModeBase + (modeIndex < remainder ? 1 : 0);
+            
+            if (questionsForThisMode === 0 || totalDistributed >= actualNumQuestions) continue;
+            
+            const limit = Math.min(
+                questionsForThisMode,
+                count,
+                actualNumQuestions - totalDistributed
+            );
+            
+            if (limit > 0) {
+                modeLimits.push({ mode, limit, topicId: topicIds[0] });
+                totalDistributed += limit;
+            }
+        }
     }
+    
+    console.log(`Requested: ${numQuestions}, Total available: ${totalAvailable}, Actual: ${actualNumQuestions}, Distributed: ${totalDistributed}, Limits: ${JSON.stringify(modeLimits)}`);
 
     
     
@@ -338,6 +389,8 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
             case 'marked':
                 modeSql += ` AND (mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)`;
                 break;
+            case 'all':
+                break;
         }
 
         // Build aggregate counts over the FULL filtered scope (no LIMIT)
@@ -397,12 +450,15 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
             case 'marked':
                 countWhere += ` AND (mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)`;
                 break;
+            case 'all':
+                break;
         }
         const [countRows] = await client.execute(countSql + countWhere, countValues);
 
         modeSql += ` GROUP BY q.question_id ORDER BY RAND() LIMIT ?`;
         modeValues.push(limit);
-
+// console.log("modeSql", modeSql)
+console.log("modeValues", modeValues)
         
         const [modeRows] = await client.execute(modeSql, modeValues);
 
@@ -413,7 +469,14 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
             question_mode: mode
         }));
 
-        allQuestions = allQuestions.concat(processedQuestions);
+        console.log(`Fetched ${processedQuestions.length} questions for mode=${mode}, topic=${topicId}, requested limit=${limit}`);
+
+        // Add questions, avoiding duplicates by question_id
+        const existingQuestionIds = new Set(allQuestions.map(q => q.question_id));
+        const newQuestions = processedQuestions.filter(q => !existingQuestionIds.has(q.question_id));
+        allQuestions = allQuestions.concat(newQuestions);
+        
+        console.log(`Added ${newQuestions.length} new questions (${processedQuestions.length - newQuestions.length} duplicates skipped), total so far: ${allQuestions.length}`);
 
         // Use aggregate counts from full scope
         const agg = countRows && countRows[0] ? countRows[0] : {};
@@ -433,8 +496,146 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
 
     aggregatedCounts.total_questions = allQuestions.length;
 
+    // If we have fewer questions than requested, try to fill from remaining available modes
+    if (allQuestions.length < actualNumQuestions && totalAvailable > allQuestions.length) {
+        console.log(`Shortage detected: Have ${allQuestions.length} questions, need ${actualNumQuestions}, trying to fill from remaining modes...`);
+        
+        const existingQuestionIds = new Set(allQuestions.map(q => q.question_id));
+        const neededQuestions = actualNumQuestions - allQuestions.length;
+        
+        // Try to get more questions from any available mode/topic combination
+        for (const { mode, count } of availableModes) {
+            if (allQuestions.length >= actualNumQuestions) break;
+            
+            // Try each topic
+            for (const topicId of topicIds) {
+                if (allQuestions.length >= actualNumQuestions) break;
+                
+                const remainingNeeded = actualNumQuestions - allQuestions.length;
+                if (remainingNeeded <= 0) break;
+                
+                // Build a query to get more questions from this mode/topic, excluding already fetched ones
+                const extraLimit = Math.min(remainingNeeded, count);
+                if (extraLimit <= 0) continue;
+                
+                try {
+                    // Handle NOT IN clause - if no existing questions, don't use NOT IN
+                    const excludeClause = existingQuestionIds.size > 0 
+                        ? `AND q.question_id NOT IN (${Array.from(existingQuestionIds).map(() => '?').join(',')})`
+                        : '';
+                    
+                    let extraSql = `SELECT 
+                        q.*,
+                        COALESCE(
+                            JSON_ARRAYAGG(
+                                CASE WHEN qo.option_id IS NOT NULL THEN JSON_OBJECT(
+                                    'option_id', qo.option_id,
+                                    'option_text', qo.option_text,
+                                    'is_correct', qo.is_correct,
+                                    'explanation', qo.explanation
+                                ) END
+                            ), JSON_ARRAY()
+                        ) AS options,
+                        CASE WHEN sq.question_id IS NOT NULL THEN 1 ELSE 0 END AS is_solved,
+                        CASE WHEN sq.is_correct = '1' THEN 1 ELSE 0 END AS is_correct_answer,
+                        CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL THEN 1 ELSE 0 END AS is_marked,
+                        q.difficulty_level
+                        FROM questions q`;
+                    
+                    const extraParams = [];
+                    
+                    // Add JOINs
+                    if (studentId) {
+                        extraSql += ` LEFT JOIN (
+                            SELECT sq1.question_id, sq1.is_correct
+                            FROM solved_questions sq1
+                            INNER JOIN (
+                                SELECT question_id, MAX(created_at) AS max_created
+                                FROM solved_questions 
+                                WHERE student_id = ?
+                                GROUP BY question_id
+                            ) latest ON latest.question_id = sq1.question_id AND latest.max_created = sq1.created_at
+                            WHERE sq1.student_id = ?
+                        ) sq ON q.question_id = sq.question_id`;
+                        extraParams.push(studentId, studentId);
+                    } else {
+                        extraSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
+                    }
+                    
+                    extraSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+                    if (studentId) {
+                        extraSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
+                        extraParams.push(studentId);
+                    } else {
+                        extraSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
+                    }
+                    
+                    extraSql += ` LEFT JOIN question_options qo ON q.question_id = qo.question_id
+                        WHERE q.topic_id = ? ${excludeClause}`;
+                    
+                    extraParams.push(topicId);
+                    if (existingQuestionIds.size > 0) {
+                        extraParams.push(...Array.from(existingQuestionIds));
+                    }
+                    
+                    if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
+                        const difficultyPlaceholders = filters.status.map(() => '?').join(',');
+                        extraSql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
+                        extraParams.push(...filters.status);
+                    }
+                    
+                    // Add mode-specific condition
+                    switch (mode) {
+                        case 'unused':
+                            extraSql += ` AND sq.question_id IS NULL`;
+                            break;
+                        case 'incorrect':
+                            extraSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '0')`;
+                            break;
+                        case 'correct':
+                            extraSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '1')`;
+                            break;
+                        case 'marked':
+                            extraSql += ` AND (mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)`;
+                            break;
+                        case 'all':
+                            break;
+                    }
+                    
+                    extraSql += ` GROUP BY q.question_id ORDER BY RAND() LIMIT ?`;
+                    extraParams.push(extraLimit);
+                    
+                    const [extraRows] = await client.execute(extraSql, extraParams);
+                    
+                    if (extraRows.length > 0) {
+                        const extraQuestions = extraRows.map((q) => ({
+                            ...q,
+                            options: JSON.parse(q.options)?.filter(Boolean) || [],
+                            question_mode: mode
+                        }));
+                        
+                        allQuestions = allQuestions.concat(extraQuestions);
+                        existingQuestionIds.clear();
+                        allQuestions.forEach(q => existingQuestionIds.add(q.question_id));
+                        
+                        console.log(`Filled ${extraQuestions.length} more questions from mode=${mode}, topic=${topicId}, total now: ${allQuestions.length}`);
+                    }
+                } catch (error) {
+                    console.error(`Error fetching extra questions for mode=${mode}, topic=${topicId}:`, error.message);
+                }
+            }
+        }
+    }
+
+    // Final limit to ensure we don't exceed requested number
+    const finalQuestions = allQuestions.slice(0, actualNumQuestions);
+    
+    aggregatedCounts.total_questions = finalQuestions.length;
+
+    console.log(`fetchQuestionsByTopicIds: Final result - Requested: ${numQuestions}, Actual needed: ${actualNumQuestions}, Returned: ${finalQuestions.length}, Limits applied: ${modeLimits.length} groups`);
+
     return {
-        questions: allQuestions,
+        questions: finalQuestions,
         counts: aggregatedCounts
     };
 }
@@ -469,7 +670,7 @@ const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filt
 
 const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, selected_modules,
     selected_subjects, day,
-    selected_topics, question_level, numQuestions, question_mode = ["unused"], plan_id = 0, date_schedule = null }) => {
+    selected_topics, question_level, numQuestions, question_mode = ["all"], plan_id = 0, date_schedule = null }) => {
     /**
   numQuestions:null,
   question_mode:"",
@@ -488,19 +689,31 @@ const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, s
 
 
 
+    // Ensure numQuestions is a valid number
+    let cleanNumQuestions = numQuestions;
+    if (cleanNumQuestions === null || cleanNumQuestions === undefined || cleanNumQuestions === '') {
+        cleanNumQuestions = null;
+    } else {
+        cleanNumQuestions = parseInt(cleanNumQuestions, 10);
+        if (isNaN(cleanNumQuestions) || cleanNumQuestions <= 0) {
+            cleanNumQuestions = null;
+        }
+    }
+
     const filters = {
         selected_modules,
         selected_subjects,
         selected_topics,
         status: question_level,
         question_mode: question_mode,
-        numQuestions
+        numQuestions: cleanNumQuestions
     }
-
-
-
+    console.log("createQbank: filters", JSON.stringify(filters, null, 2));
+    console.log("createQbank: numQuestions input =", numQuestions, ", cleaned =", cleanNumQuestions);
 
     const questions = await fetchModulesSubjectsTopicsQuestions({ studentId, filters })
+    
+    console.log("createQbank: Received", questions?.questions?.length || 0, "questions from fetchModulesSubjectsTopicsQuestions");
 
     const [insertQbank] = await client.execute(
         `INSERT INTO qbank (qbank_name, tutor_mode, timed, time_type, active, deleted, student_id, plan_id, day, date_schedule)
@@ -513,10 +726,17 @@ const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, s
         (q.options || []).find(o => ['1', 1, true].includes(o?.is_correct))?.option_text || '-'
     ]);
 
-    if (rows.length) await client.execute(
-        `INSERT INTO qbank_questions (question_id, qbank_id, correct_option) VALUES ${rows.map(() => '(?,?,?)').join(',')}`,
-        rows.flat()
-    );
+    console.log("createQbank: Inserting", rows.length, "questions into qbank_questions");
+    
+    if (rows.length) {
+        await client.execute(
+            `INSERT INTO qbank_questions (question_id, qbank_id, correct_option) VALUES ${rows.map(() => '(?,?,?)').join(',')}`,
+            rows.flat()
+        );
+        console.log("createQbank: Successfully inserted", rows.length, "questions. Qbank ID:", insertQbank.insertId);
+    } else {
+        console.warn("createQbank: No questions to insert! Qbank ID:", insertQbank.insertId);
+    }
 
     return insertQbank.insertId;
 }

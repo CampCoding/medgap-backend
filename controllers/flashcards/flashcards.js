@@ -479,6 +479,7 @@ class FlashcardsController {
         search,
         limit = 100000000000000000000000,
         page = 1,
+        session_id,
       } = req.query;
 
       const limitNum = parseInt(limit);
@@ -493,6 +494,7 @@ class FlashcardsController {
         search,
         limit: limitNum,
         offset: offset,
+        session_id: session_id ? parseInt(session_id) : undefined,
       };
       // إزالة القيم الفارغة
       Object.keys(filters).forEach((key) => {
