@@ -210,37 +210,37 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
     // If we have multiple topics, try to distribute questions across topics as well
     let modeLimits = [];
     let totalDistributed = 0;
-    
+
     if (topicIds.length > 1) {
         // Distribute questions across topics and modes proportionally
         const questionsPerTopicBase = Math.floor(actualNumQuestions / topicIds.length);
         const remainder = actualNumQuestions % topicIds.length;
-        
+
         for (let topicIndex = 0; topicIndex < topicIds.length; topicIndex++) {
             const topicId = topicIds[topicIndex];
             // Give extra question to first few topics if there's a remainder
             const questionsForThisTopic = questionsPerTopicBase + (topicIndex < remainder ? 1 : 0);
-            
+
             if (questionsForThisTopic === 0) continue;
-            
+
             // Distribute across modes for this topic
             const questionsPerModeBase = Math.floor(questionsForThisTopic / availableModes.length);
             const modeRemainder = questionsForThisTopic % availableModes.length;
-            
+
             for (let modeIndex = 0; modeIndex < availableModes.length; modeIndex++) {
                 const { mode, count } = availableModes[modeIndex];
                 // Give extra question to first few modes if there's a remainder
                 const questionsForThisMode = questionsPerModeBase + (modeIndex < modeRemainder ? 1 : 0);
-                
+
                 if (questionsForThisMode === 0 || totalDistributed >= actualNumQuestions) continue;
-                
+
                 // Ensure we don't exceed total and respect mode count limit
                 const limit = Math.min(
                     questionsForThisMode,
                     count,
                     actualNumQuestions - totalDistributed
                 );
-                
+
                 if (limit > 0) {
                     modeLimits.push({ mode, limit, topicId });
                     totalDistributed += limit;
@@ -251,39 +251,39 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
         // Single topic - distribute across modes only
         const questionsPerModeBase = Math.floor(actualNumQuestions / availableModes.length);
         const remainder = actualNumQuestions % availableModes.length;
-        
+
         for (let modeIndex = 0; modeIndex < availableModes.length; modeIndex++) {
             const { mode, count } = availableModes[modeIndex];
             // Give extra question to first few modes if there's a remainder
             const questionsForThisMode = questionsPerModeBase + (modeIndex < remainder ? 1 : 0);
-            
+
             if (questionsForThisMode === 0 || totalDistributed >= actualNumQuestions) continue;
-            
+
             const limit = Math.min(
                 questionsForThisMode,
                 count,
                 actualNumQuestions - totalDistributed
             );
-            
+
             if (limit > 0) {
                 modeLimits.push({ mode, limit, topicId: topicIds[0] });
                 totalDistributed += limit;
             }
         }
     }
-    
+
     console.log(`Requested: ${numQuestions}, Total available: ${totalAvailable}, Actual: ${actualNumQuestions}, Distributed: ${totalDistributed}, Limits: ${JSON.stringify(modeLimits)}`);
 
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
 
     // If no questions available, return empty result
     if (totalAvailable === 0) {
-        
+
         return {
             questions: [],
             counts: {
@@ -457,9 +457,9 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
 
         modeSql += ` GROUP BY q.question_id ORDER BY RAND() LIMIT ?`;
         modeValues.push(limit);
-// console.log("modeSql", modeSql)
-console.log("modeValues", modeValues)
-        
+        // console.log("modeSql", modeSql)
+        console.log("modeValues", modeValues)
+
         const [modeRows] = await client.execute(modeSql, modeValues);
 
         // Process questions
@@ -475,7 +475,7 @@ console.log("modeValues", modeValues)
         const existingQuestionIds = new Set(allQuestions.map(q => q.question_id));
         const newQuestions = processedQuestions.filter(q => !existingQuestionIds.has(q.question_id));
         allQuestions = allQuestions.concat(newQuestions);
-        
+
         console.log(`Added ${newQuestions.length} new questions (${processedQuestions.length - newQuestions.length} duplicates skipped), total so far: ${allQuestions.length}`);
 
         // Use aggregate counts from full scope
@@ -499,31 +499,31 @@ console.log("modeValues", modeValues)
     // If we have fewer questions than requested, try to fill from remaining available modes
     if (allQuestions.length < actualNumQuestions && totalAvailable > allQuestions.length) {
         console.log(`Shortage detected: Have ${allQuestions.length} questions, need ${actualNumQuestions}, trying to fill from remaining modes...`);
-        
+
         const existingQuestionIds = new Set(allQuestions.map(q => q.question_id));
         const neededQuestions = actualNumQuestions - allQuestions.length;
-        
+
         // Try to get more questions from any available mode/topic combination
         for (const { mode, count } of availableModes) {
             if (allQuestions.length >= actualNumQuestions) break;
-            
+
             // Try each topic
             for (const topicId of topicIds) {
                 if (allQuestions.length >= actualNumQuestions) break;
-                
+
                 const remainingNeeded = actualNumQuestions - allQuestions.length;
                 if (remainingNeeded <= 0) break;
-                
+
                 // Build a query to get more questions from this mode/topic, excluding already fetched ones
                 const extraLimit = Math.min(remainingNeeded, count);
                 if (extraLimit <= 0) continue;
-                
+
                 try {
                     // Handle NOT IN clause - if no existing questions, don't use NOT IN
-                    const excludeClause = existingQuestionIds.size > 0 
+                    const excludeClause = existingQuestionIds.size > 0
                         ? `AND q.question_id NOT IN (${Array.from(existingQuestionIds).map(() => '?').join(',')})`
                         : '';
-                    
+
                     let extraSql = `SELECT 
                         q.*,
                         COALESCE(
@@ -541,9 +541,9 @@ console.log("modeValues", modeValues)
                         CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL THEN 1 ELSE 0 END AS is_marked,
                         q.difficulty_level
                         FROM questions q`;
-                    
+
                     const extraParams = [];
-                    
+
                     // Add JOINs
                     if (studentId) {
                         extraSql += ` LEFT JOIN (
@@ -561,7 +561,7 @@ console.log("modeValues", modeValues)
                     } else {
                         extraSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
                     }
-                    
+
                     extraSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
                     if (studentId) {
                         extraSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
@@ -569,21 +569,21 @@ console.log("modeValues", modeValues)
                     } else {
                         extraSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
                     }
-                    
+
                     extraSql += ` LEFT JOIN question_options qo ON q.question_id = qo.question_id
                         WHERE q.topic_id = ? ${excludeClause}`;
-                    
+
                     extraParams.push(topicId);
                     if (existingQuestionIds.size > 0) {
                         extraParams.push(...Array.from(existingQuestionIds));
                     }
-                    
+
                     if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
                         const difficultyPlaceholders = filters.status.map(() => '?').join(',');
                         extraSql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
                         extraParams.push(...filters.status);
                     }
-                    
+
                     // Add mode-specific condition
                     switch (mode) {
                         case 'unused':
@@ -601,23 +601,23 @@ console.log("modeValues", modeValues)
                         case 'all':
                             break;
                     }
-                    
+
                     extraSql += ` GROUP BY q.question_id ORDER BY RAND() LIMIT ?`;
                     extraParams.push(extraLimit);
-                    
+
                     const [extraRows] = await client.execute(extraSql, extraParams);
-                    
+
                     if (extraRows.length > 0) {
                         const extraQuestions = extraRows.map((q) => ({
                             ...q,
                             options: JSON.parse(q.options)?.filter(Boolean) || [],
                             question_mode: mode
                         }));
-                        
+
                         allQuestions = allQuestions.concat(extraQuestions);
                         existingQuestionIds.clear();
                         allQuestions.forEach(q => existingQuestionIds.add(q.question_id));
-                        
+
                         console.log(`Filled ${extraQuestions.length} more questions from mode=${mode}, topic=${topicId}, total now: ${allQuestions.length}`);
                     }
                 } catch (error) {
@@ -629,7 +629,7 @@ console.log("modeValues", modeValues)
 
     // Final limit to ensure we don't exceed requested number
     const finalQuestions = allQuestions.slice(0, actualNumQuestions);
-    
+
     aggregatedCounts.total_questions = finalQuestions.length;
 
     console.log(`fetchQuestionsByTopicIds: Final result - Requested: ${numQuestions}, Actual needed: ${actualNumQuestions}, Returned: ${finalQuestions.length}, Limits applied: ${modeLimits.length} groups`);
@@ -664,7 +664,7 @@ const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filt
     const topicIds = explicitTopicIds.length ? explicitTopicIds : topics.map(t => t.topic_id);
 
     const questions = await fetchQuestionsByTopicIds(topicIds, filters, studentId);
-    
+
     return { modules, subjects, topics, questions: questions.questions, counts: questions.counts };
 }
 
@@ -712,7 +712,7 @@ const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, s
     console.log("createQbank: numQuestions input =", numQuestions, ", cleaned =", cleanNumQuestions);
 
     const questions = await fetchModulesSubjectsTopicsQuestions({ studentId, filters })
-    
+
     console.log("createQbank: Received", questions?.questions?.length || 0, "questions from fetchModulesSubjectsTopicsQuestions");
 
     const [insertQbank] = await client.execute(
@@ -727,7 +727,7 @@ const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, s
     ]);
 
     console.log("createQbank: Inserting", rows.length, "questions into qbank_questions");
-    
+
     if (rows.length) {
         await client.execute(
             `INSERT INTO qbank_questions (question_id, qbank_id, correct_option) VALUES ${rows.map(() => '(?,?,?)').join(',')}`,
@@ -860,7 +860,7 @@ const listQuestion = async ({ qbank_id, studentId, session_id }) => {
     } else {
         where += ` AND sq.session_id IS NULL`;
     }
-    
+
     const qbank = await client.execute(`SELECT * FROM qbank WHERE qbank_id = ?`, [qbank_id]);
     const [categories] = await client.query("SELECT * FROM student_mark_categories WHERE student_id = ?", [studentId])
     const [rows] = await client.query(
@@ -1488,7 +1488,7 @@ const getUpcomingExams = async ({ studentId, page = 1, limit = 20, search = "", 
 
     sql += ` GROUP BY e.exam_id ORDER BY COALESCE(e.scheduled_date, e.start_date, e.end_date, e.created_at) ASC LIMIT ? OFFSET ?`;
     params.push(limit, offset);
-    
+
     const [rows] = await client.execute(sql, params);
 
     // Transform the data
@@ -1530,6 +1530,7 @@ const getOnDemandExams = async ({ studentId, page = 1, limit = 20, search = "", 
         LEFT JOIN modules m ON e.subject_id = m.module_id
         LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
         WHERE (e.scheduled_date IS NULL OR e.scheduled_date <= NOW())
+AND (e.start_date IS NOT NULL AND e.start_date <= NOW())
         AND (e.end_date IS NULL OR e.end_date > NOW())
         AND m.module_id IN (
             SELECT se.module_id
@@ -1695,19 +1696,19 @@ const startExam = async ({ studentId, examId, session_id }) => {
     // Build where clause and params properly
     let attemptWhere = `WHERE e.exam_id = ? AND ea.student_id = ?`;
     let attemptParams = [examId, studentId];
-    
+
     // Clean and validate session_id
     const cleanSessionId = session_id && session_id !== 0 && session_id !== '' && !isNaN(parseInt(session_id))
-        ? parseInt(session_id) 
+        ? parseInt(session_id)
         : null;
-    
+
     if (cleanSessionId !== null) {
         attemptWhere += ` AND ea.session_id = ?`;
         attemptParams.push(cleanSessionId);
     } else {
         attemptWhere += ` AND ea.session_id IS NULL`;
     }
-    
+
     const activeAttempt = await client.execute(`
         SELECT ea.* FROM exam_attempts ea
         LEFT JOIN exams e ON ea.exam_id = e.exam_id
@@ -1719,7 +1720,7 @@ const startExam = async ({ studentId, examId, session_id }) => {
     }
     // Create new exam attempt
     // Use the same cleaned session_id from above
-    
+
     const [result] = await client.execute(`
         INSERT INTO exam_attempts (exam_id, student_id, status, session_id, started_at)
         VALUES (?, ?, 'in_progress', ?, NOW())
@@ -1805,7 +1806,7 @@ const submitExam = async ({ attemptId, studentId }) => {
 const getExamQuestions = async ({ examId, studentId, session_id }) => {
     // Clean and validate session_id
     const cleanSessionId = session_id && session_id !== 0 && session_id !== '' && !isNaN(parseInt(session_id))
-        ? parseInt(session_id) 
+        ? parseInt(session_id)
         : null;
 
     // Verify student has access to exam
@@ -1834,7 +1835,7 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
     // Find student's active attempt for this exam (matching session_id if provided)
     let attemptWhere = `WHERE ea.exam_id = ? AND ea.student_id = ?`;
     let attemptParams = [examId, studentId];
-    
+
     if (cleanSessionId !== null) {
         attemptWhere += ` AND ea.session_id = ?`;
         attemptParams.push(cleanSessionId);
