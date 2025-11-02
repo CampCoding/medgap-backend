@@ -683,14 +683,14 @@ async function getPlanSessions({
     'exam_name', e.title,
     'difficulty', e.difficulty,
     'exam_created_at', e.created_at,
-    'started', COALESCE((SELECT new_student_plan_content.id  FROM new_student_plan_content WHERE content_type = 'exam' AND content_id = e.exam_id AND session_id = nsps.session_id), 0) 
+    'started', COALESCE((SELECT new_student_plan_content.id FROM new_student_plan_content WHERE content_type = 'exam' AND content_id = e.exam_id AND session_id = nsps.session_id LIMIT 1), 0) 
   ) AS exams,
   JSON_OBJECT(
     'flashcarddeck_id', fl.library_id,
     'flashcarddeck_name', fl.library_name,
     'flashcarddeck_description', fl.description,
     'flashcarddeck_created_at', fl.created_at,
-    'started', COALESCE((SELECT new_student_plan_content.id  FROM new_student_plan_content WHERE content_type = 'flashcard' AND content_id = fl.library_id AND session_id = nsps.session_id), 0)
+    'started', COALESCE((SELECT new_student_plan_content.id FROM new_student_plan_content WHERE content_type = 'flashcard' AND content_id = fl.library_id AND session_id = nsps.session_id LIMIT 1), 0)
   ) AS flashcards_decks,
    JSON_OBJECT(
     'ebook_id', eb.ebook_id,
@@ -701,7 +701,7 @@ async function getPlanSessions({
     'index_title', ei.index_title,
     'index_page', ei.page_number,
     'index_order', ei.order_index,
-    'started', COALESCE((SELECT new_student_plan_content.id  FROM new_student_plan_content WHERE content_type = 'ebook' AND content_id = eb.ebook_id AND session_id = nsps.session_id), 0)
+    'started', COALESCE((SELECT new_student_plan_content.id FROM new_student_plan_content WHERE content_type = 'ebook' AND content_id = eb.ebook_id AND session_id = nsps.session_id LIMIT 1), 0)
   ) AS ebooks
              FROM new_student_plan_sessions AS nsps
              LEFT JOIN qbank AS q ON nsps.qbank_id = q.qbank_id
