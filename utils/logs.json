@@ -1,5 +1,274 @@
 [
   {
+    "timestamp": "2025-11-02T16:43:50.428Z",
+    "level": "info",
+    "message": "Module units retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/23/units",
+    "additional_data": {
+      "message": "Module units retrieved successfully",
+      "module": {
+        "module_id": 23,
+        "subject_name": "Anatomy and Histology Med 66",
+        "subject_code": "ASU101"
+      },
+      "units": [],
+      "count": 0
+    },
+    "error_details": null,
+    "request_response": {
+      "message": "Module units retrieved successfully",
+      "module": {
+        "module_id": 23,
+        "subject_name": "Anatomy and Histology Med 66",
+        "subject_code": "ASU101"
+      },
+      "units": [],
+      "count": 0
+    }
+  },
+  {
+    "timestamp": "2025-11-02T16:43:19.462Z",
+    "level": "info",
+    "message": "Module units retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/23/units",
+    "additional_data": {
+      "message": "Module units retrieved successfully",
+      "module": {
+        "module_id": 23,
+        "subject_name": "Anatomy and Histology Med 66",
+        "subject_code": "ASU101"
+      },
+      "units": [],
+      "count": 0
+    },
+    "error_details": null,
+    "request_response": {
+      "message": "Module units retrieved successfully",
+      "module": {
+        "module_id": 23,
+        "subject_name": "Anatomy and Histology Med 66",
+        "subject_code": "ASU101"
+      },
+      "units": [],
+      "count": 0
+    }
+  },
+  {
+    "timestamp": "2025-11-02T16:42:24.857Z",
+    "level": "error",
+    "message": "Failed to fetch module units",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/23/units",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T16:42:12.831Z",
+    "level": "error",
+    "message": "Failed to fetch module units",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/23/units",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T16:41:48.095Z",
+    "level": "error",
+    "message": "Failed to fetch module units",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/23/units",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T16:40:45.975Z",
+    "level": "info",
+    "message": "Module units retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/23/units",
+    "additional_data": {
+      "message": "Module units retrieved successfully",
+      "module": {
+        "module_id": 23,
+        "subject_name": "Anatomy and Histology Med 66",
+        "subject_code": "ASU101"
+      },
+      "units": [
+        {
+          "unit_id": 18,
+          "module_id": 23,
+          "unit_name": "Anatomy",
+          "unit_description": "Anatomy module Assuit university med66 & med4",
+          "unit_order": 1,
+          "status": "active",
+          "created_at": "2025-10-11T17:48:01.000Z",
+          "updated_at": "2025-10-31T21:36:24.000Z",
+          "created_by": 1,
+          "updated_by": null,
+          "topics_count": 21,
+          "questions_count": 54,
+          "ebooks_count": 7
+        },
+        {
+          "unit_id": 19,
+          "module_id": 23,
+          "unit_name": "Histology",
+          "unit_description": "Histology module Assiut university Med66",
+          "unit_order": 1,
+          "status": "active",
+          "created_at": "2025-10-11T17:48:36.000Z",
+          "updated_at": "2025-10-11T17:48:36.000Z",
+          "created_by": 1,
+          "updated_by": null,
+          "topics_count": 4,
+          "questions_count": 2,
+          "ebooks_count": 0
+        }
+      ],
+      "count": 2
+    },
+    "error_details": null,
+    "request_response": {
+      "message": "Module units retrieved successfully",
+      "module": {
+        "module_id": 23,
+        "subject_name": "Anatomy and Histology Med 66",
+        "subject_code": "ASU101"
+      },
+      "units": [
+        {
+          "unit_id": 18,
+          "module_id": 23,
+          "unit_name": "Anatomy",
+          "unit_description": "Anatomy module Assuit university med66 & med4",
+          "unit_order": 1,
+          "status": "active",
+          "created_at": "2025-10-11T17:48:01.000Z",
+          "updated_at": "2025-10-31T21:36:24.000Z",
+          "created_by": 1,
+          "updated_by": null,
+          "topics_count": 21,
+          "questions_count": 54,
+          "ebooks_count": 7
+        },
+        {
+          "unit_id": 19,
+          "module_id": 23,
+          "unit_name": "Histology",
+          "unit_description": "Histology module Assiut university Med66",
+          "unit_order": 1,
+          "status": "active",
+          "created_at": "2025-10-11T17:48:36.000Z",
+          "updated_at": "2025-10-11T17:48:36.000Z",
+          "created_by": 1,
+          "updated_by": null,
+          "topics_count": 4,
+          "questions_count": 2,
+          "ebooks_count": 0
+        }
+      ],
+      "count": 2
+    }
+  },
+  {
+    "timestamp": "2025-11-02T16:40:11.631Z",
+    "level": "info",
+    "message": "Module units retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/23/units",
+    "additional_data": {
+      "message": "Module units retrieved successfully",
+      "module": {
+        "module_id": 23,
+        "subject_name": "Anatomy and Histology Med 66",
+        "subject_code": "ASU101"
+      },
+      "units": [],
+      "count": 0
+    },
+    "error_details": null,
+    "request_response": {
+      "message": "Module units retrieved successfully",
+      "module": {
+        "module_id": 23,
+        "subject_name": "Anatomy and Histology Med 66",
+        "subject_code": "ASU101"
+      },
+      "units": [],
+      "count": 0
+    }
+  },
+  {
+    "timestamp": "2025-11-02T16:39:24.597Z",
+    "level": "info",
+    "message": "Module units retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/23/units",
+    "additional_data": {
+      "message": "Module units retrieved successfully",
+      "module": {
+        "module_id": 23,
+        "subject_name": "Anatomy and Histology Med 66",
+        "subject_code": "ASU101"
+      },
+      "units": [],
+      "count": 0
+    },
+    "error_details": null,
+    "request_response": {
+      "message": "Module units retrieved successfully",
+      "module": {
+        "module_id": 23,
+        "subject_name": "Anatomy and Histology Med 66",
+        "subject_code": "ASU101"
+      },
+      "units": [],
+      "count": 0
+    }
+  },
+  {
+    "timestamp": "2025-11-02T16:37:45.224Z",
+    "level": "info",
+    "message": "Module units retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/23/units",
+    "additional_data": {
+      "message": "Module units retrieved successfully",
+      "module": {
+        "module_id": 23,
+        "subject_name": "Anatomy and Histology Med 66",
+        "subject_code": "ASU101"
+      },
+      "units": [],
+      "count": 0
+    },
+    "error_details": null,
+    "request_response": {
+      "message": "Module units retrieved successfully",
+      "module": {
+        "module_id": 23,
+        "subject_name": "Anatomy and Histology Med 66",
+        "subject_code": "ASU101"
+      },
+      "units": [],
+      "count": 0
+    }
+  },
+  {
     "timestamp": "2025-11-02T16:36:42.219Z",
     "level": "info",
     "message": "Module units retrieved successfully",
