@@ -384,6 +384,7 @@ class ModulesController {
       }
       // Extract teacher_id from JWT token if available (for teacher access)
       const teacherId = req?.user?.teacher_id || null;
+      console.log("req.user", req.user)
       console.log("teacherId from token:", teacherId);
       
       const units = await modulesRepository.getModuleUnits(parseInt(id), teacherId);

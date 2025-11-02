@@ -35,7 +35,6 @@ router.get(
     console.log("token", token)
     if (!token || res.headersSent) return;
     const decoded = verifyAccessToken(token, "teacher");
-    console.log("decoded", decoded)
     req.user = decoded;
     next()
   } catch (err) {
