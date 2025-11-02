@@ -90,21 +90,15 @@ async function listLibrariesByBulkModules({
     }
   }
 
-  // if (moduleIds.length === 0) {
-  //   // No modules → nothing to fetch
-  //   return {
-  //     data: [],
-  //     page,
-  //     limit,
-  //     total: 0,
-  //     totalPages: 0,
-  //   };
-  // }
-  console.log(moduleIds)
+  const whereClauses = [];
+  const paramsForWhere = [];
 
-  const placeholders = moduleIds.map(() => "?").join(",");
-  const whereClauses = ["fl.status = 'active'", `fl.module_id IN (${placeholders})`];
-  const paramsForWhere = [...moduleIds];
+  // Add module filter only if moduleIds is not empty
+  if (moduleIds.length > 0) {
+    const placeholders = moduleIds.map(() => "?").join(",");
+    whereClauses.push(`fl.module_id IN (${placeholders})`);
+    paramsForWhere.push(...moduleIds);
+  }
 
   if (search && search.trim()) {
     whereClauses.push("(fl.library_name LIKE ? OR fl.description LIKE ?)");
