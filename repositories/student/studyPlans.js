@@ -55,43 +55,116 @@ async function createStudyPlan({
     exams ? JSON.stringify(exams) : null,
 
   ];
-  console.log(getDatesBetween(startDate, endDate, studyDays, { locale: 'en-US', timeZone: 'Africa/Cairo' }))
   const [result] = await client.execute(sql, params);
+  
+  // First, get total number of questions in selected topics
+  let totalQuestions = 0;
+  if (questionBankTopics && questionBankTopics.length > 0) {
+    const topicPlaceholders = questionBankTopics.map(() => '?').join(',');
+    let countSql = `SELECT COUNT(DISTINCT q.question_id) as total 
+                    FROM questions q 
+                    WHERE q.topic_id IN (${topicPlaceholders})`;
+    
+    const countParams = [...questionBankTopics];  // Pass as an array
+    
+
+    
+    const [countResult] = await client.execute(countSql, countParams);
+    totalQuestions = countResult[0]?.total || 0;
+  }
+  
+  // Get available study dates
+  const availableDates = getDatesBetween(startDate, endDate, studyDays, { locale: 'en-US', timeZone: 'Africa/Cairo' });
+  
+  // Distribute questions: each day takes questionsPerSession until totalQuestions runs out
+  // Example: 50 questions, 20 per session, 4 days -> [20, 20, 10, 0]
+  let questionsPerDate = [];
+  let datesToUse = [];
+  let remainingQuestions = totalQuestions;
+  
+  if (totalQuestions > 0 && availableDates.length > 0 && questionsPerSession > 0) {
+    // Calculate how many questions each day should get
+    questionsPerDate = availableDates.map(() => {
+      if (remainingQuestions <= 0) {
+        return 0; // No more questions left
+      }
+      const questionsForThisDay = Math.min(questionsPerSession, remainingQuestions);
+      remainingQuestions -= questionsForThisDay;
+      return questionsForThisDay;
+    });
+    
+    datesToUse = availableDates;
+    
+  } else if (availableDates.length > 0) {
+    // If no questions but we have dates, create sessions with 0 questions (for other content types)
+    datesToUse = availableDates;
+    questionsPerDate = availableDates.map(() => 0);
+  }
+  
+  // Create qbanks with questionsPerSession (or remaining questions) for each day
   const qbankId = await Promise.all(
-    getDatesBetween(startDate, endDate, studyDays, { locale: 'en-US', timeZone: 'Africa/Cairo' }).map(async (date) => {
-      return await createQbank({
-        studentId,
-        qbankName: planName,
-        tutorMode: 0,
-        timed: 0,
-        timeType: "none",
-        plan_id: result.insertId,
-        day: date.day?.substring(0, 3),
-        date_schedule: date.date,
-        selected_modules: questionBankModules,
-        selected_subjects: questionBankSubject,
-        selected_topics: questionBankTopics,
-        question_level: question_level,
-        numQuestions: questionsPerSession,
-        question_mode: questionMode,
-      });
-    }));
-  console.log("qbankId", booksIndeces);
+    datesToUse.map(async (date, index) => {
+      const numQuestions = questionsPerDate[index] || 0;
+    console.log(`Questions distribution per day:`, numQuestions);
+      
+      // Only create qbank if there are questions for this day
+      if (numQuestions > 0) {
+        return await createQbank({
+          studentId,
+          qbankName: planName,
+          tutorMode: 0,
+          timed: 0,
+          timeType: "none",
+          plan_id: result.insertId,
+          day: date.day?.substring(0, 3),
+          date_schedule: date.date,
+          selected_modules: questionBankModules,
+          selected_subjects: questionBankSubject,
+          selected_topics: questionBankTopics,
+          question_level: question_level,
+          numQuestions: numQuestions,
+          question_mode: questionMode,
+        });
+      }
+      return null; // No qbank for this day if no questions
+    })
+  );
+
  
-  getDatesBetween(startDate, endDate, studyDays, { locale: 'en-US', timeZone: 'Africa/Cairo' }).map(async (date, index) => {
+  // Create sessions for all available dates (even if some don't have qbanks - they might have flashcards/exams)
+  await Promise.all(availableDates.map(async (date, index) => {
+    // Helper to safely get value - convert arrays to null, keep valid values
+    const safeValue = (value) => {
+      if (value === undefined || value === null) return null;
+      if (Array.isArray(value)) return null; // Arrays are not valid for MySQL fields
+      if (typeof value === 'number' && !isNaN(value)) return value;
+      if (typeof value === 'string' && value !== '') return value;
+      return null;
+    };
+    
+    // Safely extract array values
+    const getArrayValue = (arr, idx) => {
+      if (!arr || !Array.isArray(arr)) return null;
+      const val = arr[idx];
+      return safeValue(val);
+    };
+    
+    // Find the corresponding qbankId for this date (since qbankId is based on datesToUse which equals availableDates)
+    const qbankIdForThisDate = index < qbankId.length ? qbankId[index] : null;
+    
     return await createSession({
       planId: result.insertId,
       studentId: studentId,
       studyDay: index + 1,
-      studyDayDate: date?.date,
-      studyDayName: date?.day?.substring(0, 3),
-      qbankId: qbankId[index] ? qbankId[index] : 0,
-      examId: exams[index] ? exams[index] : 0,
-      flashcarddeckId: flashcardsDecks ? flashcardsDecks[index] : 0,
-      ebookId: books ? books : 0,
-      indexId: booksIndeces ? booksIndeces[index] : 0,
+      studyDayDate: date?.date || null,
+      studyDayName: date?.day?.substring(0, 3) || null,
+      qbankId: safeValue(qbankIdForThisDate),
+      examId: getArrayValue(exams, index),
+      flashcarddeckId: getArrayValue(flashcardsDecks, index),
+      ebookId: safeValue(books),
+      indexId: getArrayValue(booksIndeces, index),
     });
-  });
+  }));
   // await Promise.all(studyDays.map(async (day, index) => {
 
   // }));
@@ -102,13 +175,30 @@ async function createStudyPlan({
 
 
 const createSession = async ({ planId, studentId, studyDay, studyDayName, qbankId, examId, flashcarddeckId, ebookId, indexId, studyDayDate }) => {
+  // Clean parameters: convert undefined, empty arrays, and other invalid values to null
+  // But keep valid numeric values (including 0) and strings
+  const cleanValue = (v, isNumericField = false) => {
+    if (v === undefined || v === null) return null;
+    if (Array.isArray(v)) return null; // Arrays are not valid for MySQL
+    if (v === '' && !isNumericField) return null; // Empty strings become null (except for numeric fields)
+    if (typeof v === 'number' && isNaN(v)) return null; // NaN becomes null
+    return v;
+  };
+  
   const paramsSafe = [
-    planId, studentId, studyDay, studyDayName,
-    qbankId, examId, flashcarddeckId, ebookId, indexId, studyDayDate
-  ].map(v => v === undefined ? null : v);
-console.log(paramsSafe);
+    cleanValue(planId, true),           // plan_id - numeric
+    cleanValue(studentId, true),        // student_id - numeric
+    cleanValue(studyDay, true),         // study_day - numeric (can be 0)
+    cleanValue(studyDayName, false),    // study_day_name - string
+    cleanValue(qbankId, true),          // qbank_id - numeric (nullable)
+    cleanValue(examId, true),          // exam_id - numeric (nullable)
+    cleanValue(flashcarddeckId, true),  // flashcarddeck_id - numeric (nullable)
+    cleanValue(ebookId, true),         // ebook_id - numeric (nullable)
+    cleanValue(indexId, true),         // index_id - numeric (nullable)
+    cleanValue(studyDayDate, false),    // study_day_date - date string (nullable)
+  ];
+  
   const sql = `INSERT INTO new_student_plan_sessions (plan_id, student_id, study_day, study_day_name, qbank_id, exam_id, flashcarddeck_id, ebook_id, index_id, study_day_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-  const params = [planId, studentId, studyDay, studyDayName, qbankId, examId, flashcarddeckId, ebookId, indexId, studyDayDate];
   const [result] = await client.execute(sql, paramsSafe);
   return result.insertId;
 }
@@ -906,7 +996,7 @@ LIMIT ${questionsGoalPerSession}`;  // ✅ apply question limit here
     LEFT JOIN student_flashcard_card_progress cp
       ON cp.flashcard_id = f.flashcard_id AND cp.student_id = ?
     ${whereF.length ? `WHERE ${whereF.join(' AND ')}` : ''}
-    ORDER BY f.card_order, f.flashcard_id
+    ORDER BY f.card_order, f.flashcard_id 
     LIMIT ${flashcardsGoalPerSession}`;  // ✅ apply flashcard limit here
 
   const [flashcardRows] = await client.execute(flashcardsSql, [studentId, ...valuesF]);
@@ -1655,7 +1745,6 @@ async function getModulesWithStats({ studentId = null } = {}) {
 }
 
 async function getTopicsByModule({ moduleId }) {
-  console.log("moduleId", moduleId)
   const [rows] = await client.execute(
     `
     SELECT t.topic_id, t.topic_name, t.short_description,
@@ -1678,7 +1767,6 @@ async function getTopicsByModule({ moduleId }) {
 
 
 async function getTopicsBySubject({ moduleId, studentId }) {
-  console.log("moduleId", moduleId);
 
   // Normalize unit IDs
   let unitIds = moduleId;
@@ -1693,7 +1781,6 @@ async function getTopicsBySubject({ moduleId, studentId }) {
 
   const placeholders = unitIds.map(() => "?").join(",");
   const params = [...unitIds];
-  console.log("placeholders, params", placeholders, params);
 
   // --- 1. Get topics with aggregated counts ---
   const [topicRows] = await client.execute(
@@ -1784,80 +1871,7 @@ async function getTopicsBySubject({ moduleId, studentId }) {
     studentId ? [studentId, studentId, studentId, ...params] : params
   );
 
-  console.log("topicRows length:", `
-    SELECT 
-      t.topic_id, 
-      t.topic_name, 
-      t.short_description,
-      u.unit_id, 
-      u.unit_name,
-      COUNT(DISTINCT q.question_id) AS questions_count,
-      COUNT(DISTINCT f.flashcard_id) AS flashcards_count,
-      COUNT(DISTINCT CASE WHEN q.difficulty_level = 'easy' THEN q.question_id END) AS easy_count,
-      COUNT(DISTINCT CASE WHEN q.difficulty_level = 'medium' THEN q.question_id END) AS medium_count,
-      COUNT(DISTINCT CASE WHEN q.difficulty_level = 'hard' THEN q.question_id END) AS difficult_count,
-      ${studentId ? `
-        COUNT(DISTINCT sq.question_id) AS attempted_count,
-        COUNT(DISTINCT CASE WHEN sq.is_correct = '1' THEN sq.question_id END) AS correct_count,
-        COUNT(DISTINCT CASE WHEN sq.is_correct = '0' THEN sq.question_id END) AS wrong_count,
-        COUNT(DISTINCT CASE WHEN q.question_id IS NOT NULL AND sq.question_id IS NULL THEN q.question_id END) AS unsolved_count,
-        COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL THEN q.question_id END) AS marked_count,
-        -- Correct counts by difficulty
-        COUNT(DISTINCT CASE WHEN sq.is_correct = '1' AND q.difficulty_level = 'easy' THEN q.question_id END) AS correct_count_easy,
-        COUNT(DISTINCT CASE WHEN sq.is_correct = '1' AND q.difficulty_level = 'medium' THEN q.question_id END) AS correct_count_medium,
-        COUNT(DISTINCT CASE WHEN sq.is_correct = '1' AND q.difficulty_level = 'hard' THEN q.question_id END) AS correct_count_hard,
-        -- Wrong counts by difficulty
-        COUNT(DISTINCT CASE WHEN sq.is_correct = '0' AND q.difficulty_level = 'easy' THEN q.question_id END) AS wrong_count_easy,
-        COUNT(DISTINCT CASE WHEN sq.is_correct = '0' AND q.difficulty_level = 'medium' THEN q.question_id END) AS wrong_count_medium,
-        COUNT(DISTINCT CASE WHEN sq.is_correct = '0' AND q.difficulty_level = 'hard' THEN q.question_id END) AS wrong_count_hard,
-        -- Unused counts by difficulty
-        COUNT(DISTINCT CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'easy' THEN q.question_id END) AS unused_count_easy,
-        COUNT(DISTINCT CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'medium' THEN q.question_id END) AS unused_count_medium,
-        COUNT(DISTINCT CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'hard' THEN q.question_id END) AS unused_count_hard,
-        -- Marked counts by difficulty
-        COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND q.difficulty_level = 'easy' THEN q.question_id END) AS marked_count_easy,
-        COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND q.difficulty_level = 'medium' THEN q.question_id END) AS marked_count_medium,
-        COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND q.difficulty_level = 'hard' THEN q.question_id END) AS marked_count_hard
-      ` : `
-        0 AS attempted_count,
-        0 AS correct_count,
-        0 AS wrong_count,
-        COUNT(DISTINCT q.question_id) AS unsolved_count,
-        0 AS marked_count,
-        -- Correct counts by difficulty (all 0 when no student)
-        0 AS correct_count_easy,
-        0 AS correct_count_medium,
-        0 AS correct_count_hard,
-        -- Wrong counts by difficulty (all 0 when no student)
-        0 AS wrong_count_easy,
-        0 AS wrong_count_medium,
-        0 AS wrong_count_hard,
-        -- Unused counts by difficulty (same as total counts when no student)
-        COUNT(DISTINCT CASE WHEN q.difficulty_level = 'easy' THEN q.question_id END) AS unused_count_easy,
-        COUNT(DISTINCT CASE WHEN q.difficulty_level = 'medium' THEN q.question_id END) AS unused_count_medium,
-        COUNT(DISTINCT CASE WHEN q.difficulty_level = 'hard' THEN q.question_id END) AS unused_count_hard,
-        -- Marked counts by difficulty (all 0 when no student)
-        0 AS marked_count_easy,
-        0 AS marked_count_medium,
-        0 AS marked_count_hard
-      `}
-    FROM topics t
-    LEFT JOIN units u ON u.unit_id = t.unit_id
-    LEFT JOIN questions q ON q.topic_id = t.topic_id
-    LEFT JOIN flashcards f ON f.topic_id = t.topic_id
-    ${studentId ? `
-      LEFT JOIN solved_questions sq ON sq.question_id = q.question_id AND sq.student_id = ?
-      LEFT JOIN mark_category_question mcq ON mcq.question_id = q.question_id
-      LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?
-    ` : ''}
-    WHERE u.unit_id IN (?)
-      AND t.status = 'active'
-      AND u.status = 'active'
-    GROUP BY 
-      t.topic_id, t.topic_name, t.short_description,
-      u.unit_id, u.unit_name
-    ORDER BY u.unit_order, t.topic_order, t.topic_name
-    `, studentId ? [studentId, studentId, params?.join(", ")] : params?.join(", "));
+ 
 
   if (!studentId || !topicRows.length) return topicRows;
 
@@ -1893,7 +1907,6 @@ async function getTopicsBySubject({ moduleId, studentId }) {
     [studentId, studentId, studentId, ...topicIds]
   );
 
-  console.log("questionRows length:", questionRows.length);
 
   // --- 3. Group questions by topic ---
   const questionsByTopic = {};
@@ -1929,7 +1942,6 @@ async function getTopicsBySubject({ moduleId, studentId }) {
 }
 
 async function getSubjectsByModule({ moduleId }) {
-  console.log("moduleId", moduleId);
 
   let unitIds = moduleId;
   if (typeof unitIds === "string") {

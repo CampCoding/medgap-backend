@@ -1,5 +1,875 @@
 [
   {
+    "timestamp": "2025-11-02T13:28:37.182Z",
+    "level": "info",
+    "message": "Exam questions retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/questions",
+    "additional_data": {
+      "exam": {
+        "exam_id": 17,
+        "title": "test",
+        "duration": 60,
+        "instructions": "",
+        "total_questions": 0
+      },
+      "questions": []
+    },
+    "error_details": null,
+    "request_response": {
+      "exam": {
+        "exam_id": 17,
+        "title": "test",
+        "duration": 60,
+        "instructions": "",
+        "total_questions": 0
+      },
+      "questions": []
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:28:32.865Z",
+    "level": "info",
+    "message": "Exam questions retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/questions",
+    "additional_data": {
+      "exam": {
+        "exam_id": 17,
+        "title": "test",
+        "duration": 60,
+        "instructions": "",
+        "total_questions": 1
+      },
+      "questions": [
+        {
+          "id": 28,
+          "order_index": 1,
+          "points": 1,
+          "question_id": 41,
+          "question_text": "<p><br></p><p>test questest questest questest questest ques</p>",
+          "question_type": "multiple_choice",
+          "difficulty_level": "medium",
+          "explanation": "",
+          "options": [
+            {
+              "option_id": 96,
+              "option_text": "<p>test ques</p>",
+              "is_correct": 0,
+              "explanation": "<p><br></p>"
+            },
+            {
+              "option_id": 97,
+              "option_text": "<p>test ques</p>",
+              "is_correct": 0,
+              "explanation": null
+            },
+            {
+              "option_id": 98,
+              "option_text": "<p>test ques</p>",
+              "is_correct": 1,
+              "explanation": null
+            },
+            {
+              "option_id": 99,
+              "option_text": "<p>test questest questest questest questest questest ques</p>",
+              "is_correct": 0,
+              "explanation": null
+            }
+          ],
+          "selected_option_id": null,
+          "selected_answer_text": null
+        }
+      ]
+    },
+    "error_details": null,
+    "request_response": {
+      "exam": {
+        "exam_id": 17,
+        "title": "test",
+        "duration": 60,
+        "instructions": "",
+        "total_questions": 1
+      },
+      "questions": [
+        {
+          "id": 28,
+          "order_index": 1,
+          "points": 1,
+          "question_id": 41,
+          "question_text": "<p><br></p><p>test questest questest questest questest ques</p>",
+          "question_type": "multiple_choice",
+          "difficulty_level": "medium",
+          "explanation": "",
+          "options": [
+            {
+              "option_id": 96,
+              "option_text": "<p>test ques</p>",
+              "is_correct": 0,
+              "explanation": "<p><br></p>"
+            },
+            {
+              "option_id": 97,
+              "option_text": "<p>test ques</p>",
+              "is_correct": 0,
+              "explanation": null
+            },
+            {
+              "option_id": 98,
+              "option_text": "<p>test ques</p>",
+              "is_correct": 1,
+              "explanation": null
+            },
+            {
+              "option_id": 99,
+              "option_text": "<p>test questest questest questest questest questest ques</p>",
+              "is_correct": 0,
+              "explanation": null
+            }
+          ],
+          "selected_option_id": null,
+          "selected_answer_text": null
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:27:58.754Z",
+    "level": "info",
+    "message": "Exam questions retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/questions",
+    "additional_data": {
+      "exam": {
+        "exam_id": 17,
+        "title": "test",
+        "duration": 60,
+        "instructions": "",
+        "total_questions": 0
+      },
+      "questions": []
+    },
+    "error_details": null,
+    "request_response": {
+      "exam": {
+        "exam_id": 17,
+        "title": "test",
+        "duration": 60,
+        "instructions": "",
+        "total_questions": 0
+      },
+      "questions": []
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:20:33.568Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 124
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 124
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:17:30.286Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 123
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 123
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:01:43.767Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 122
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 122
+    }
+  },
+  {
+    "timestamp": "2025-11-02T12:58:55.980Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 121
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 121
+    }
+  },
+  {
+    "timestamp": "2025-11-02T12:47:48.163Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 120
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 120
+    }
+  },
+  {
+    "timestamp": "2025-11-02T12:45:28.182Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T12:45:04.121Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T12:44:47.508Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T12:43:48.061Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 115
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 115
+    }
+  },
+  {
+    "timestamp": "2025-11-02T12:43:32.673Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T12:42:59.547Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T12:41:51.287Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 112
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 112
+    }
+  },
+  {
+    "timestamp": "2025-11-02T12:41:34.465Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T12:41:08.393Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 110
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 110
+    }
+  },
+  {
+    "timestamp": "2025-11-02T12:39:28.236Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T12:38:21.035Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T12:36:17.650Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T12:30:18.384Z",
+    "level": "info",
+    "message": "Study sessions retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/105/sessions",
+    "additional_data": [
+      {
+        "session_id": 62,
+        "plan_id": 105,
+        "student_id": 1,
+        "study_day": 1,
+        "study_day_name": "Sun",
+        "qbank_id": 484,
+        "exam_id": 17,
+        "flashcarddeck_id": 21,
+        "ebook_id": 42,
+        "index_id": 0,
+        "created_at": "2025-11-02T11:29:32.000Z",
+        "updated_at": "2025-11-02T11:29:32.000Z",
+        "study_day_date": "2025-11-01T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 484,
+          "qbank_name": "Reda",
+          "qbank_created_at": "2025-11-02 13:29:32",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {
+          "exam_id": 17,
+          "exam_name": "test",
+          "difficulty": "hard",
+          "exam_created_at": "2025-10-12 16:58:43",
+          "started": 0
+        },
+        "flashcards_decks": {
+          "flashcarddeck_id": 21,
+          "flashcarddeck_name": "vvvvvvvvvvvvv",
+          "flashcarddeck_description": "vvvvvvvvvvvvvvvvvvvvvvvvvvv",
+          "flashcarddeck_created_at": "2025-10-11 20:09:07",
+          "started": 0
+        },
+        "ebooks": {}
+      }
+    ],
+    "error_details": null,
+    "request_response": [
+      {
+        "session_id": 62,
+        "plan_id": 105,
+        "student_id": 1,
+        "study_day": 1,
+        "study_day_name": "Sun",
+        "qbank_id": 484,
+        "exam_id": 17,
+        "flashcarddeck_id": 21,
+        "ebook_id": 42,
+        "index_id": 0,
+        "created_at": "2025-11-02T11:29:32.000Z",
+        "updated_at": "2025-11-02T11:29:32.000Z",
+        "study_day_date": "2025-11-01T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 484,
+          "qbank_name": "Reda",
+          "qbank_created_at": "2025-11-02 13:29:32",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {
+          "exam_id": 17,
+          "exam_name": "test",
+          "difficulty": "hard",
+          "exam_created_at": "2025-10-12 16:58:43",
+          "started": 0
+        },
+        "flashcards_decks": {
+          "flashcarddeck_id": 21,
+          "flashcarddeck_name": "vvvvvvvvvvvvv",
+          "flashcarddeck_description": "vvvvvvvvvvvvvvvvvvvvvvvvvvv",
+          "flashcarddeck_created_at": "2025-10-11 20:09:07",
+          "started": 0
+        },
+        "ebooks": {}
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-11-02T12:30:13.115Z",
+    "level": "info",
+    "message": "Study sessions retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/99/sessions",
+    "additional_data": [
+      {
+        "session_id": 22,
+        "plan_id": 99,
+        "student_id": 1,
+        "study_day": 1,
+        "study_day_name": "Mon",
+        "qbank_id": 412,
+        "exam_id": 17,
+        "flashcarddeck_id": 24,
+        "ebook_id": 42,
+        "index_id": 40,
+        "created_at": "2025-11-02T08:41:42.000Z",
+        "updated_at": "2025-11-02T08:41:42.000Z",
+        "study_day_date": "2025-11-02T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 412,
+          "qbank_name": "rahma",
+          "qbank_created_at": "2025-11-02 10:41:42",
+          "started": 11,
+          "progress": 0
+        },
+        "exams": {
+          "exam_id": 17,
+          "exam_name": "test",
+          "difficulty": "hard",
+          "exam_created_at": "2025-10-12 16:58:43",
+          "started": 0
+        },
+        "flashcards_decks": {
+          "flashcarddeck_id": 24,
+          "flashcarddeck_name": "sssssssss",
+          "flashcarddeck_description": "fffffffffffffffffffff",
+          "flashcarddeck_created_at": "2025-10-12 11:30:05",
+          "started": 12
+        },
+        "ebooks": {
+          "ebook_id": 42,
+          "ebook_name": "lll",
+          "ebook_description": "llllllllll",
+          "ebook_created_at": "2025-10-30 13:07:16",
+          "index_id": 40,
+          "index_title": "mmm",
+          "index_page": 1,
+          "index_order": 1,
+          "started": 6
+        }
+      },
+      {
+        "session_id": 23,
+        "plan_id": 99,
+        "student_id": 1,
+        "study_day": 2,
+        "study_day_name": "Tue",
+        "qbank_id": 410,
+        "exam_id": 0,
+        "flashcarddeck_id": 21,
+        "ebook_id": 42,
+        "index_id": null,
+        "created_at": "2025-11-02T08:41:42.000Z",
+        "updated_at": "2025-11-02T08:41:42.000Z",
+        "study_day_date": "2025-11-03T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 410,
+          "qbank_name": "rahma",
+          "qbank_created_at": "2025-11-02 10:41:42",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {},
+        "flashcards_decks": {
+          "flashcarddeck_id": 21,
+          "flashcarddeck_name": "vvvvvvvvvvvvv",
+          "flashcarddeck_description": "vvvvvvvvvvvvvvvvvvvvvvvvvvv",
+          "flashcarddeck_created_at": "2025-10-11 20:09:07",
+          "started": 0
+        },
+        "ebooks": {}
+      },
+      {
+        "session_id": 24,
+        "plan_id": 99,
+        "student_id": 1,
+        "study_day": 4,
+        "study_day_name": "Mon",
+        "qbank_id": 409,
+        "exam_id": 0,
+        "flashcarddeck_id": null,
+        "ebook_id": 42,
+        "index_id": null,
+        "created_at": "2025-11-02T08:41:42.000Z",
+        "updated_at": "2025-11-02T08:41:42.000Z",
+        "study_day_date": "2025-11-09T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 409,
+          "qbank_name": "rahma",
+          "qbank_created_at": "2025-11-02 10:41:42",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      },
+      {
+        "session_id": 25,
+        "plan_id": 99,
+        "student_id": 1,
+        "study_day": 3,
+        "study_day_name": "Wed",
+        "qbank_id": 408,
+        "exam_id": 0,
+        "flashcarddeck_id": null,
+        "ebook_id": 42,
+        "index_id": null,
+        "created_at": "2025-11-02T08:41:42.000Z",
+        "updated_at": "2025-11-02T08:41:42.000Z",
+        "study_day_date": "2025-11-04T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 408,
+          "qbank_name": "rahma",
+          "qbank_created_at": "2025-11-02 10:41:42",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      },
+      {
+        "session_id": 26,
+        "plan_id": 99,
+        "student_id": 1,
+        "study_day": 5,
+        "study_day_name": "Tue",
+        "qbank_id": 411,
+        "exam_id": 0,
+        "flashcarddeck_id": null,
+        "ebook_id": 42,
+        "index_id": null,
+        "created_at": "2025-11-02T08:41:42.000Z",
+        "updated_at": "2025-11-02T08:41:42.000Z",
+        "study_day_date": "2025-11-10T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 411,
+          "qbank_name": "rahma",
+          "qbank_created_at": "2025-11-02 10:41:42",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      },
+      {
+        "session_id": 27,
+        "plan_id": 99,
+        "student_id": 1,
+        "study_day": 6,
+        "study_day_name": "Wed",
+        "qbank_id": 413,
+        "exam_id": 0,
+        "flashcarddeck_id": null,
+        "ebook_id": 42,
+        "index_id": null,
+        "created_at": "2025-11-02T08:41:42.000Z",
+        "updated_at": "2025-11-02T08:41:42.000Z",
+        "study_day_date": "2025-11-11T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 413,
+          "qbank_name": "rahma",
+          "qbank_created_at": "2025-11-02 10:41:42",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      }
+    ],
+    "error_details": null,
+    "request_response": [
+      {
+        "session_id": 22,
+        "plan_id": 99,
+        "student_id": 1,
+        "study_day": 1,
+        "study_day_name": "Mon",
+        "qbank_id": 412,
+        "exam_id": 17,
+        "flashcarddeck_id": 24,
+        "ebook_id": 42,
+        "index_id": 40,
+        "created_at": "2025-11-02T08:41:42.000Z",
+        "updated_at": "2025-11-02T08:41:42.000Z",
+        "study_day_date": "2025-11-02T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 412,
+          "qbank_name": "rahma",
+          "qbank_created_at": "2025-11-02 10:41:42",
+          "started": 11,
+          "progress": 0
+        },
+        "exams": {
+          "exam_id": 17,
+          "exam_name": "test",
+          "difficulty": "hard",
+          "exam_created_at": "2025-10-12 16:58:43",
+          "started": 0
+        },
+        "flashcards_decks": {
+          "flashcarddeck_id": 24,
+          "flashcarddeck_name": "sssssssss",
+          "flashcarddeck_description": "fffffffffffffffffffff",
+          "flashcarddeck_created_at": "2025-10-12 11:30:05",
+          "started": 12
+        },
+        "ebooks": {
+          "ebook_id": 42,
+          "ebook_name": "lll",
+          "ebook_description": "llllllllll",
+          "ebook_created_at": "2025-10-30 13:07:16",
+          "index_id": 40,
+          "index_title": "mmm",
+          "index_page": 1,
+          "index_order": 1,
+          "started": 6
+        }
+      },
+      {
+        "session_id": 23,
+        "plan_id": 99,
+        "student_id": 1,
+        "study_day": 2,
+        "study_day_name": "Tue",
+        "qbank_id": 410,
+        "exam_id": 0,
+        "flashcarddeck_id": 21,
+        "ebook_id": 42,
+        "index_id": null,
+        "created_at": "2025-11-02T08:41:42.000Z",
+        "updated_at": "2025-11-02T08:41:42.000Z",
+        "study_day_date": "2025-11-03T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 410,
+          "qbank_name": "rahma",
+          "qbank_created_at": "2025-11-02 10:41:42",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {},
+        "flashcards_decks": {
+          "flashcarddeck_id": 21,
+          "flashcarddeck_name": "vvvvvvvvvvvvv",
+          "flashcarddeck_description": "vvvvvvvvvvvvvvvvvvvvvvvvvvv",
+          "flashcarddeck_created_at": "2025-10-11 20:09:07",
+          "started": 0
+        },
+        "ebooks": {}
+      },
+      {
+        "session_id": 24,
+        "plan_id": 99,
+        "student_id": 1,
+        "study_day": 4,
+        "study_day_name": "Mon",
+        "qbank_id": 409,
+        "exam_id": 0,
+        "flashcarddeck_id": null,
+        "ebook_id": 42,
+        "index_id": null,
+        "created_at": "2025-11-02T08:41:42.000Z",
+        "updated_at": "2025-11-02T08:41:42.000Z",
+        "study_day_date": "2025-11-09T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 409,
+          "qbank_name": "rahma",
+          "qbank_created_at": "2025-11-02 10:41:42",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      },
+      {
+        "session_id": 25,
+        "plan_id": 99,
+        "student_id": 1,
+        "study_day": 3,
+        "study_day_name": "Wed",
+        "qbank_id": 408,
+        "exam_id": 0,
+        "flashcarddeck_id": null,
+        "ebook_id": 42,
+        "index_id": null,
+        "created_at": "2025-11-02T08:41:42.000Z",
+        "updated_at": "2025-11-02T08:41:42.000Z",
+        "study_day_date": "2025-11-04T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 408,
+          "qbank_name": "rahma",
+          "qbank_created_at": "2025-11-02 10:41:42",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      },
+      {
+        "session_id": 26,
+        "plan_id": 99,
+        "student_id": 1,
+        "study_day": 5,
+        "study_day_name": "Tue",
+        "qbank_id": 411,
+        "exam_id": 0,
+        "flashcarddeck_id": null,
+        "ebook_id": 42,
+        "index_id": null,
+        "created_at": "2025-11-02T08:41:42.000Z",
+        "updated_at": "2025-11-02T08:41:42.000Z",
+        "study_day_date": "2025-11-10T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 411,
+          "qbank_name": "rahma",
+          "qbank_created_at": "2025-11-02 10:41:42",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      },
+      {
+        "session_id": 27,
+        "plan_id": 99,
+        "student_id": 1,
+        "study_day": 6,
+        "study_day_name": "Wed",
+        "qbank_id": 413,
+        "exam_id": 0,
+        "flashcarddeck_id": null,
+        "ebook_id": 42,
+        "index_id": null,
+        "created_at": "2025-11-02T08:41:42.000Z",
+        "updated_at": "2025-11-02T08:41:42.000Z",
+        "study_day_date": "2025-11-11T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 413,
+          "qbank_name": "rahma",
+          "qbank_created_at": "2025-11-02 10:41:42",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-11-02T12:29:29.955Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 105
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 105
+    }
+  },
+  {
+    "timestamp": "2025-11-02T12:13:05.194Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 104
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 104
+    }
+  },
+  {
     "timestamp": "2025-11-02T12:07:35.455Z",
     "level": "info",
     "message": "Study sessions retrieved successfully",

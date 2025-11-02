@@ -98,17 +98,17 @@ async function createPlan(req, res) {
     });
 
     // Add content to the plan
-    await repo.addPlanContent({
-      planId: created.plan_id,
-      examsModules: toArray(exams),
-      examsTopics: req.body?.exams_topics || [],
-      flashcardsModules: flashcards_modules || [],
-      flashcardsTopics: req.body?.flashcards_topics || [],
-      questionBankModules: toArray(question_bank_modules),
-      questionBankTopics: question_bank_topics || [],
-      questionBankQuizzes: req.body?.question_bank_quizzes || [],
-      subjects: req.body?.subjects || question_bank_subject || [],
-    });
+    // await repo.addPlanContent({
+    //   planId: created.plan_id,
+    //   examsModules: toArray(exams),
+    //   examsTopics: req.body?.exams_topics || [],
+    //   flashcardsModules: flashcards_modules || [],
+    //   flashcardsTopics: req.body?.flashcards_topics || [],
+    //   questionBankModules: toArray(question_bank_modules),
+    //   questionBankTopics: question_bank_topics || [],
+    //   questionBankQuizzes: req.body?.question_bank_quizzes || [],
+    //   subjects: req.body?.subjects || question_bank_subject || [],
+    // });
 
     return responseBuilder.success(res, {
       data: created,

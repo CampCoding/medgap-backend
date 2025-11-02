@@ -223,16 +223,16 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
         }));
     }
 
-    console.log('Available counts:', counts);
-    console.log('Available modes:', availableModes);
-    console.log('Requested questions:', numQuestions);
-    console.log('Total available:', totalAvailable);
-    console.log('Actual questions to fetch:', actualNumQuestions);
-    console.log('Mode distribution:', modeLimits);
+    
+    
+    
+    
+    
+    
 
     // If no questions available, return empty result
     if (totalAvailable === 0) {
-        console.log('No questions available for the specified criteria');
+        
         return {
             questions: [],
             counts: {
@@ -403,7 +403,7 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
         modeSql += ` GROUP BY q.question_id ORDER BY RAND() LIMIT ?`;
         modeValues.push(limit);
 
-        console.log(`Fetching ${limit} ${mode} questions from topic ${topicId}`);
+        
         const [modeRows] = await client.execute(modeSql, modeValues);
 
         // Process questions
@@ -463,7 +463,7 @@ const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filt
     const topicIds = explicitTopicIds.length ? explicitTopicIds : topics.map(t => t.topic_id);
 
     const questions = await fetchQuestionsByTopicIds(topicIds, filters, studentId);
-    console.log({ modules, subjects, topics, questions })
+    
     return { modules, subjects, topics, questions: questions.questions, counts: questions.counts };
 }
 
@@ -640,7 +640,7 @@ const listQuestion = async ({ qbank_id, studentId, session_id }) => {
     } else {
         where += ` AND sq.session_id IS NULL`;
     }
-    console.log(studentId)
+    
     const qbank = await client.execute(`SELECT * FROM qbank WHERE qbank_id = ?`, [qbank_id]);
     const [categories] = await client.query("SELECT * FROM student_mark_categories WHERE student_id = ?", [studentId])
     const [rows] = await client.query(
@@ -1269,7 +1269,7 @@ const getUpcomingExams = async ({ studentId, page = 1, limit = 20, search = "", 
 
     sql += ` GROUP BY e.exam_id ORDER BY COALESCE(e.scheduled_date, e.start_date, e.end_date, e.created_at) ASC LIMIT ? OFFSET ?`;
     params.push(limit, offset);
-    console.log(sql, params)
+    
     const [rows] = await client.execute(sql, params);
 
     // Transform the data
@@ -1487,8 +1487,8 @@ const startExam = async ({ studentId, examId, session_id }) => {
     // Create new exam attempt
     const [result] = await client.execute(`
         INSERT INTO exam_attempts (exam_id, student_id, status, started_at)
-        VALUES (?, ?, 'in_progress', NOW())
-    `, session_id ? [examId, studentId, session_id] : [examId, studentId]);
+        VALUES (?, ?, ?, 'in_progress', NOW())
+    `, session_id ? [examId, studentId, session_id] : [examId, studentId, NULL]);
 
     return result.insertId;
 };
@@ -1576,7 +1576,7 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
     }
     // Verify student has access to exam
     const examCheck = await client.execute(`
-        SELECT e.exam_id, e.title, e.duration, e.instructions
+        SELECT e.*
         FROM exams e
         LEFT JOIN modules m ON e.subject_id = m.module_id
         WHERE e.exam_id = ? 
@@ -1629,7 +1629,7 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
             ea.selected_option_id AS selected_option_id,
             ea.answer_text AS selected_answer_text
         FROM exam_questions eq
-        INNER JOIN questions q ON eq.question_id = q.question_id
+        LEFT JOIN questions q ON eq.question_id = q.question_id
         LEFT JOIN question_options qo ON q.question_id = qo.question_id
 
         LEFT JOIN exam_answers ea 
