@@ -1719,6 +1719,7 @@ const transformExamData = (exam) => {
     };
 
     return {
+        ...exam,
         id: exam.id,
         name: exam.name,
         date: formattedDate,
