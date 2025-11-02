@@ -1,5 +1,73 @@
 [
   {
+    "timestamp": "2025-11-02T13:42:07.013Z",
+    "level": "info",
+    "message": "Exam started successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": {
+      "attemptId": 34,
+      "message": "Exam started successfully"
+    },
+    "error_details": null,
+    "request_response": {
+      "attemptId": 34,
+      "message": "Exam started successfully"
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:42:04.548Z",
+    "level": "info",
+    "message": "Exam started successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": {
+      "attemptId": 34,
+      "message": "Exam started successfully"
+    },
+    "error_details": null,
+    "request_response": {
+      "attemptId": 34,
+      "message": "Exam started successfully"
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:41:19.707Z",
+    "level": "info",
+    "message": "Exam started successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": {
+      "attemptId": 33,
+      "message": "Exam started successfully"
+    },
+    "error_details": null,
+    "request_response": {
+      "attemptId": 33,
+      "message": "Exam started successfully"
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:41:15.901Z",
+    "level": "info",
+    "message": "Exam started successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": {
+      "attemptId": 33,
+      "message": "Exam started successfully"
+    },
+    "error_details": null,
+    "request_response": {
+      "attemptId": 33,
+      "message": "Exam started successfully"
+    }
+  },
+  {
     "timestamp": "2025-11-02T13:40:55.523Z",
     "level": "info",
     "message": "Exam started successfully",
