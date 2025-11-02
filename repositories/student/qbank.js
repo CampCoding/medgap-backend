@@ -1722,7 +1722,7 @@ const transformExamData = (exam) => {
         ...exam,
         id: exam.id,
         name: exam.name,
-        date: formattedDate,
+        date: exam.scheduled_date,
         time: formattedTime,
         duration: formattedDuration,
         questions: exam.questions || 0,
