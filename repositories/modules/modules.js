@@ -342,24 +342,21 @@ class ModulesRepository {
       query = `
         SELECT 
           u.*,
-          COUNT(DISTINCT CASE 
-            WHEN t.topic_id IS NOT NULL AND t.teacher_id = ?
-            THEN t.topic_id
-            ELSE NULL 
-          END) as topics_count,
-          COUNT(DISTINCT CASE 
-            WHEN q.question_id IS NOT NULL AND t.teacher_id = ?
-            THEN q.question_id
-            ELSE NULL 
-          END) as questions_count,
-          COUNT(DISTINCT CASE 
-            WHEN b.ebook_id IS NOT NULL AND b.is_deleted = 0 THEN b.ebook_id
-            ELSE NULL 
-          END) as ebooks_count
+          (SELECT COUNT(DISTINCT t.topic_id)
+           FROM topics t
+           WHERE t.unit_id = u.unit_id
+             AND t.teacher_id = ?) as topics_count,
+          (SELECT COUNT(DISTINCT q.question_id)
+           FROM questions q
+           INNER JOIN topics t ON q.topic_id = t.topic_id
+           WHERE t.unit_id = u.unit_id
+             AND t.teacher_id = ?
+             AND q.status = 'active') as questions_count,
+          (SELECT COUNT(DISTINCT b.ebook_id)
+           FROM ebooks b
+           WHERE b.subject_id = u.unit_id
+             AND b.is_deleted = 0) as ebooks_count
         FROM units u
-        LEFT JOIN topics t ON u.unit_id = t.unit_id
-        LEFT JOIN questions q ON t.topic_id = q.topic_id AND q.status = 'active'
-        LEFT JOIN ebooks b ON u.unit_id = b.subject_id AND b.is_deleted = 0
         WHERE u.module_id = ?
           AND EXISTS (
             SELECT 1 FROM teacher_modules tm 
@@ -367,7 +364,6 @@ class ModulesRepository {
             AND tm.teacher_id = ? 
             AND tm.status = 'active'
           )
-        GROUP BY u.unit_id
         ORDER BY u.unit_order ASC, u.created_at ASC
       `;
       values.push(teacherId, teacherId, moduleId, teacherId);
@@ -376,15 +372,20 @@ class ModulesRepository {
       query = `
         SELECT 
           u.*,
-          COUNT(DISTINCT t.topic_id) as topics_count,
-          COUNT(DISTINCT q.question_id) as questions_count,
-          COUNT(DISTINCT b.ebook_id) as ebooks_count
+          (SELECT COUNT(DISTINCT t.topic_id)
+           FROM topics t
+           WHERE t.unit_id = u.unit_id) as topics_count,
+          (SELECT COUNT(DISTINCT q.question_id)
+           FROM questions q
+           INNER JOIN topics t ON q.topic_id = t.topic_id
+           WHERE t.unit_id = u.unit_id
+             AND q.status = 'active') as questions_count,
+          (SELECT COUNT(DISTINCT b.ebook_id)
+           FROM ebooks b
+           WHERE b.subject_id = u.unit_id
+             AND b.is_deleted = 0) as ebooks_count
         FROM units u
-        LEFT JOIN topics t ON u.unit_id = t.unit_id
-        LEFT JOIN questions q ON t.topic_id = q.topic_id AND q.status = 'active'
-        LEFT JOIN ebooks b ON u.unit_id = b.subject_id AND b.is_deleted = 0
         WHERE u.module_id = ?
-        GROUP BY u.unit_id
         ORDER BY u.unit_order ASC, u.created_at ASC
       `;
       values.push(moduleId);
