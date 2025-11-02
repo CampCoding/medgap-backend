@@ -32,16 +32,14 @@ router.get(
 router.get(
   "/:id/units",
   (req, res, next)=>{
-      try {
+      // try {
     const token = getTokenFromHeader(req, res);
     console.log("token", token)
     const decoded = verifyAccessToken(token, "teacher");
     console.log("decoded", decoded)
     req.user = decoded;
     next()
-  } catch (err) {
-      next()
-  }
+ 
   },
  (req, res)=> modulesController.getModuleUnits(req, res)
 );
