@@ -383,7 +383,7 @@ class ModulesController {
         return responseBuilder.notFound(res, "Module not found");
       }
       // Extract teacher_id from JWT token if available (for teacher access)
-      const teacherId = req?.user?.teacher_id || null;
+      const teacherId = req?.user?.user?.teacher_id || null;
       console.log("req.user", req.user)
       console.log("teacherId from token:", teacherId);
       
