@@ -1457,7 +1457,7 @@ const startExam = async ({ studentId, examId, session_id }) => {
     }
     // Check if exam exists and student has access
     const examCheck = await client.execute(`
-        SELECT e.exam_id, e.title, e.duration, e.status
+        SELECT *
         FROM exams e
         LEFT JOIN modules m ON e.subject_id = m.module_id
         WHERE e.exam_id = ? 
@@ -1475,7 +1475,7 @@ const startExam = async ({ studentId, examId, session_id }) => {
 
     // Check if student already has an active attempt
     const activeAttempt = await client.execute(`
-        SELECT exam_attempt_id FROM exam_attempts 
+        SELECT ea.* FROM exam_attempts ea
         ${where} 
     `, session_id ? [examId, studentId, session_id] : [examId, studentId]);
 
