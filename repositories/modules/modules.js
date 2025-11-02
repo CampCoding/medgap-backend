@@ -350,8 +350,7 @@ class ModulesRepository {
            FROM questions q
            INNER JOIN topics t ON q.topic_id = t.topic_id
            WHERE t.unit_id = u.unit_id
-             AND t.teacher_id = ?
-             AND q.status = 'active') as questions_count,
+             AND t.teacher_id = ?) as questions_count,
           (SELECT COUNT(DISTINCT b.ebook_id)
            FROM ebooks b
            WHERE b.subject_id = u.unit_id
