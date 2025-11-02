@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const modulesController = require("../../controllers/modules/modules");
+const getTokenFromHeader = require("../../utils/getToken");
 const {
   createModuleValidation,
   updateModuleValidation
 } = require("../../middlewares/validation/modules");
 const jwtMiddleware = require("../../middlewares/jwt");
+const { verifyAccessToken } = require("../../utils/jwt");
 
 router.get("/available", modulesController.getAvailableModules);
 
