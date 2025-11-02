@@ -1463,8 +1463,7 @@ const getUpcomingExams = async ({ studentId, page = 1, limit = 20, search = "", 
         LEFT JOIN modules m ON e.subject_id = m.module_id
         LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
         LEFT JOIN exam_registrations er ON er.exam_id = e.exam_id AND er.student_id = ?
-        WHERE e.status IN ('published', 'scheduled') 
-        AND (e.end_date IS NULL OR e.end_date > NOW())
+        WHERE  (e.scheduled_date IS NOT NULL AND e.scheduled_date > NOW())
         AND (
             m.module_id IS NULL 
             OR m.module_id IN (
@@ -1530,8 +1529,7 @@ const getOnDemandExams = async ({ studentId, page = 1, limit = 20, search = "", 
         FROM exams e
         LEFT JOIN modules m ON e.subject_id = m.module_id
         LEFT JOIN exam_questions eq ON e.exam_id = eq.exam_id
-        WHERE e.status = 'published' 
-        AND (e.scheduled_date IS NULL OR e.scheduled_date <= NOW())
+        WHERE (e.scheduled_date IS NULL OR e.scheduled_date <= NOW())
         AND (e.end_date IS NULL OR e.end_date > NOW())
         AND m.module_id IN (
             SELECT se.module_id
@@ -2004,7 +2002,7 @@ const getExamCount = async (studentId, statuses, search, difficulty, upcomingOnl
     let params = [...statuses, studentId];
 
     if (upcomingOnly) {
-        sql += ` AND (e.end_date IS NULL OR e.end_date > NOW())`;
+        sql += ` AND (e.scheduled_date IS NOT NULL AND e.scheduled_date > NOW())`;
     }
 
     if (search) {
