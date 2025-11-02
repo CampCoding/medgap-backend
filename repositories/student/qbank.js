@@ -1486,8 +1486,8 @@ const startExam = async ({ studentId, examId, session_id }) => {
 
     // Create new exam attempt
     const [result] = await client.execute(`
-        INSERT INTO exam_attempts (exam_id, student_id, status, started_at)
-        VALUES (?, ?, ?, 'in_progress', NOW())
+        INSERT INTO exam_attempts (exam_id, student_id, status, session_id, started_at)
+        VALUES (?, ?, 'in_progress', ?, NOW())
     `, session_id ? [examId, studentId, session_id] : [examId, studentId, NULL]);
 
     return result.insertId;
