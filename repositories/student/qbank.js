@@ -806,7 +806,10 @@ const listDecks = async ({ studentId }) => {
             CASE 
               WHEN COUNT(fc.student_flash_card_id) = 0 THEN 0
               ELSE ROUND( (SUM(CASE WHEN fc.card_solved = '1' THEN 1 ELSE 0 END) / COUNT(fc.student_flash_card_id)) * 100, 0)
-            END AS progress_percent
+            END AS progress_percent,
+            SUM(CASE WHEN fc.card_solved = '0' OR fc.card_solved IS NULL THEN 1 ELSE 0 END) AS new_numbers,
+            SUM(CASE WHEN fc.card_solved = '1' THEN 1 ELSE 0 END) AS used_numbers,
+            SUM(CASE WHEN fc.next_review IS NOT NULL AND fc.next_review <= NOW() THEN 1 ELSE 0 END) AS spaced_repitition_numbers
          FROM student_deck sd
          LEFT JOIN student_flash_cards fc ON fc.deck_id = sd.student_deck_id
          WHERE sd.student_id = ?
