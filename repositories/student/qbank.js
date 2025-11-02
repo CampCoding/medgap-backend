@@ -1585,12 +1585,11 @@ const submitExam = async ({ attemptId, studentId }) => {
 
 // Get exam questions for a specific exam
 const getExamQuestions = async ({ examId, studentId, session_id }) => {
-    let where = `WHERE eq.exam_id = ?`;
-    if (session_id) {
-        where += ` AND ea.session_id = ?`;
-    } else {
-        where += ` AND ea.session_id IS NULL`;
-    }
+    // Clean and validate session_id
+    const cleanSessionId = session_id && session_id !== 0 && session_id !== '' && !isNaN(parseInt(session_id))
+        ? parseInt(session_id) 
+        : null;
+
     // Verify student has access to exam
     const examCheck = await client.execute(`
         SELECT e.*
@@ -1598,10 +1597,13 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
         LEFT JOIN modules m ON e.subject_id = m.module_id
         WHERE e.exam_id = ? 
         AND e.status = 'published'
-        AND m.module_id IN (
-            SELECT se.module_id
-            FROM student_enrollments se
-            WHERE se.student_id = ? AND se.status = 'active'
+        AND (
+            m.module_id IS NULL 
+            OR m.module_id IN (
+                SELECT se.module_id
+                FROM student_enrollments se
+                WHERE se.student_id = ? AND se.status = 'active'
+            )
         )
     `, [examId, studentId]);
 
@@ -1611,14 +1613,24 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
 
     const exam = examCheck[0][0];
 
-    // Find student's active attempt for this exam (if any)
+    // Find student's active attempt for this exam (matching session_id if provided)
+    let attemptWhere = `WHERE ea.exam_id = ? AND ea.student_id = ?`;
+    let attemptParams = [examId, studentId];
+    
+    if (cleanSessionId !== null) {
+        attemptWhere += ` AND ea.session_id = ?`;
+        attemptParams.push(cleanSessionId);
+    } else {
+        attemptWhere += ` AND ea.session_id IS NULL`;
+    }
+
     const [attemptRows] = await client.execute(`
         SELECT ea.exam_attempt_id
         FROM exam_attempts ea
-        WHERE ea.exam_id = ? AND ea.student_id = ? 
+        ${attemptWhere}
         ORDER BY ea.started_at DESC
         LIMIT 1
-    `, [examId, studentId]);
+    `, attemptParams);
 
     const activeAttemptId = attemptRows?.[0]?.exam_attempt_id || null;
 
@@ -1643,19 +1655,18 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
                     ) END
                 ), JSON_ARRAY()
             ) AS options,
-            ea.selected_option_id AS selected_option_id,
-            ea.answer_text AS selected_answer_text
+            ea_answer.selected_option_id AS selected_option_id,
+            ea_answer.answer_text AS selected_answer_text
         FROM exam_questions eq
         LEFT JOIN questions q ON eq.question_id = q.question_id
         LEFT JOIN question_options qo ON q.question_id = qo.question_id
-
-        LEFT JOIN exam_answers ea 
-          ON ea.exam_question_id = eq.id
-         AND ea.attempt_id = ${'?'}
-        ${where} 
+        LEFT JOIN exam_answers ea_answer 
+            ON ea_answer.exam_question_id = eq.id
+            AND ea_answer.attempt_id = ?
+        WHERE eq.exam_id = ?
         GROUP BY eq.id, q.question_id
         ORDER BY eq.order_index
-    `, session_id ? [activeAttemptId, examId, session_id] : [activeAttemptId, examId]);
+    `, [activeAttemptId, examId]);
 
     // Parse options for each question
     const questionsWithOptions = questions.map(q => ({
