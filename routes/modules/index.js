@@ -31,18 +31,8 @@ router.get(
 
 router.get(
   "/:id/units",
-  (req, res, next)=>{
-      try {
-    const token = getTokenFromHeader(req, res);
-    console.log("token", token)
-    const decoded = verifyAccessToken(token, "teacher");
-    req.user = decoded;
-    next()
-  } catch (err) {
-      next()
-  }
-  },
- (req, res)=> modulesController.getModuleUnits(req, res)
+  
+  (req, res) => modulesController.getModuleUnits(req, res)
 );
 
 router.get(

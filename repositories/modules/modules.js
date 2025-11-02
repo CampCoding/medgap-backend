@@ -336,67 +336,56 @@ class ModulesRepository {
   async getModuleUnits(moduleId, teacherId = null) {
     let query;
     const values = [];
-
-
-    query = `
+  
+    if (teacherId) {
+      // If teacher_id is provided, count only topics and questions belonging to this teacher
+      query = `
         SELECT 
           u.*,
-          (SELECT COUNT(DISTINCT t.topic_id)
-           FROM topics t
-           WHERE t.unit_id = u.unit_id) as topics_count,
-          (SELECT COUNT(DISTINCT q.question_id)
-           FROM questions q
-           INNER JOIN topics t ON q.topic_id = t.topic_id
-           WHERE t.unit_id = u.unit_id
-             AND q.status = 'active') as questions_count,
-          (SELECT COUNT(DISTINCT b.ebook_id)
-           FROM ebooks b
-           WHERE b.subject_id = u.unit_id
-             AND b.is_deleted = 0) as ebooks_count
+          COUNT(DISTINCT CASE WHEN t.topic_id IS NOT NULL AND t.teacher_id = ? THEN t.topic_id END) AS topics_count,
+          COUNT(DISTINCT CASE WHEN q.question_id IS NOT NULL AND t.teacher_id = ? THEN q.question_id END) AS questions_count,
+          COUNT(DISTINCT CASE WHEN b.ebook_id IS NOT NULL AND b.is_deleted = 0 THEN b.ebook_id END) AS ebooks_count
         FROM units u
+        LEFT JOIN topics t ON t.unit_id = u.unit_id
+        LEFT JOIN questions q ON q.topic_id = t.topic_id AND q.status = 'active'
+        LEFT JOIN ebooks b ON b.subject_id = u.unit_id AND b.is_deleted = 0
         WHERE u.module_id = ?
+        GROUP BY u.unit_id
         ORDER BY u.unit_order ASC, u.created_at ASC
       `;
-    values.push(moduleId);
-
-
-    if (teacherId) {
+      values.push(teacherId, teacherId, moduleId);
+    } else {
+      // If no teacher_id, count all topics and questions
       query = `
-  SELECT 
-    u.*,
-    (SELECT COUNT(DISTINCT t.topic_id)
-     FROM topics t
-     WHERE t.unit_id = u.unit_id AND t.teacher_id = ?) as topics_count,
-    (SELECT COUNT(DISTINCT q.question_id)
-     FROM questions q
-     INNER JOIN topics t ON q.topic_id = t.topic_id
-     WHERE t.unit_id = u.unit_id
-       AND q.status = 'active') as questions_count,
-    (SELECT COUNT(DISTINCT b.ebook_id)
-     FROM ebooks b
-     WHERE b.subject_id = u.unit_id
-       AND b.is_deleted = 0) as ebooks_count
-  FROM units u
-  WHERE u.module_id = ? 
-  
-  ORDER BY u.unit_order ASC, u.created_at ASC
-`;
-      values.push(teacherId, moduleId);
+        SELECT 
+          u.*,
+          COUNT(DISTINCT t.topic_id) AS topics_count,
+          COUNT(DISTINCT q.question_id) AS questions_count,
+          COUNT(DISTINCT b.ebook_id) AS ebooks_count
+        FROM units u
+        LEFT JOIN topics t ON t.unit_id = u.unit_id
+        LEFT JOIN questions q ON q.topic_id = t.topic_id AND q.status = 'active'
+        LEFT JOIN ebooks b ON b.subject_id = u.unit_id AND b.is_deleted = 0
+        WHERE u.module_id = ?
+        GROUP BY u.unit_id
+        ORDER BY u.unit_order ASC, u.created_at ASC
+      `;
+      values.push(moduleId);
     }
-
-
+  
     try {
       const [result] = await client.execute(query, values);
       return result.map((row) => ({
         ...row,
         topics_count: parseInt(row.topics_count) || 0,
         questions_count: parseInt(row.questions_count) || 0,
-        ebooks_count: parseInt(row.ebooks_count) || 0
+        ebooks_count: parseInt(row.ebooks_count) || 0,
       }));
     } catch (error) {
       throw new Error(`Error fetching module units: ${error.message}`);
     }
   }
+  
 
   //  المدرسين المرتبطين بالمادة
   async getModuleTeachers(moduleId) {

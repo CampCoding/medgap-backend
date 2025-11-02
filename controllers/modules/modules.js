@@ -368,9 +368,9 @@ class ModulesController {
 
   //  وحدات المادة
   async getModuleUnits(req, res) {
-    try {
+      const { teacher_id } = req?.query
+      try {
       const { id } = req.params;
-
       if (!id || isNaN(id)) {
         return responseBuilder.badRequest(res, "Invalid module ID");
       }
@@ -383,10 +383,10 @@ class ModulesController {
         return responseBuilder.notFound(res, "Module not found");
       }
       // Extract teacher_id from JWT token if available (for teacher access)
-      const teacherId = req?.user?.user?.teacher_id || null;
+      const teacherId = teacher_id;
       console.log("req.user", req.user)
       console.log("teacherId from token:", teacherId);
-      
+
       const units = await modulesRepository.getModuleUnits(parseInt(id), teacherId);
 
       return responseBuilder.success(res, {
@@ -444,7 +444,7 @@ class ModulesController {
   async getModuleStudents(req, res) {
     const students = await modulesRepository.getModuleStudents();
 
-   
+
     return responseBuilder.success(res, {
       message: "Module students retrieved successfully",
       students,
