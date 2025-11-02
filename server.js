@@ -180,6 +180,9 @@ app.use("/api/admin", adminOverview);
 const teacherExams = require("./routes/teacher/exams");
 app.use("/api/teacher/exams", teacherExams);
 
+const teacherDashboard = require("./routes/teacher/dashboard");
+app.use("/api/teacher/dashboard", teacherDashboard);
+
 app.use((err, req, res, next) => {
   console.error("❌ Unhandled Error:", err.message);
   console.error("🔗 Request URL:", req.url);

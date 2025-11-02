@@ -1,5 +1,222 @@
 [
   {
+    "timestamp": "2025-11-02T15:47:57.330Z",
+    "level": "error",
+    "message": "Failed to retrieve dashboard overview",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/overview",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T15:42:43.202Z",
+    "level": "info",
+    "message": "Teacher dashboard overview retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/overview",
+    "additional_data": {
+      "stats": [
+        {
+          "title": "Teachers",
+          "value": "16",
+          "change": "+300%",
+          "trend": "up",
+          "color": "bg-blue-50 text-blue-600 border-blue-200"
+        },
+        {
+          "title": "Students",
+          "value": "35",
+          "change": "+100%",
+          "trend": "up",
+          "color": "bg-green-50 text-green-600 border-green-200"
+        },
+        {
+          "title": "Questions",
+          "value": "59",
+          "change": "+100%",
+          "trend": "up",
+          "color": "bg-purple-50 text-purple-600 border-purple-200"
+        },
+        {
+          "title": "Active Exams",
+          "value": "2",
+          "change": "+100%",
+          "trend": "up",
+          "color": "bg-yellow-50 text-yellow-600 border-yellow-200"
+        }
+      ],
+      "recentActivities": [
+        {
+          "action": "Student performance report generated",
+          "time": "2 hours ago",
+          "type": "report"
+        },
+        {
+          "action": {
+            "type": "Buffer",
+            "data": [
+              49,
+              55,
+              53,
+              32,
+              110,
+              101,
+              119,
+              32,
+              113,
+              117,
+              101,
+              115,
+              116,
+              105,
+              111,
+              110,
+              115,
+              32,
+              97,
+              100,
+              100,
+              101,
+              100
+            ]
+          },
+          "time": "2 hours ago",
+          "type": "question"
+        },
+        {
+          "action": "Exam \"EzY2kTERqSUJBD\" created",
+          "time": "23 hours ago",
+          "type": "exam"
+        },
+        {
+          "action": "Exam \"formData.startDateTime\" created",
+          "time": "1 day ago",
+          "type": "exam"
+        }
+      ],
+      "upcomingEvents": []
+    },
+    "error_details": null,
+    "request_response": {
+      "stats": [
+        {
+          "title": "Teachers",
+          "value": "16",
+          "change": "+300%",
+          "trend": "up",
+          "color": "bg-blue-50 text-blue-600 border-blue-200"
+        },
+        {
+          "title": "Students",
+          "value": "35",
+          "change": "+100%",
+          "trend": "up",
+          "color": "bg-green-50 text-green-600 border-green-200"
+        },
+        {
+          "title": "Questions",
+          "value": "59",
+          "change": "+100%",
+          "trend": "up",
+          "color": "bg-purple-50 text-purple-600 border-purple-200"
+        },
+        {
+          "title": "Active Exams",
+          "value": "2",
+          "change": "+100%",
+          "trend": "up",
+          "color": "bg-yellow-50 text-yellow-600 border-yellow-200"
+        }
+      ],
+      "recentActivities": [
+        {
+          "action": "Student performance report generated",
+          "time": "2 hours ago",
+          "type": "report"
+        },
+        {
+          "action": {
+            "type": "Buffer",
+            "data": [
+              49,
+              55,
+              53,
+              32,
+              110,
+              101,
+              119,
+              32,
+              113,
+              117,
+              101,
+              115,
+              116,
+              105,
+              111,
+              110,
+              115,
+              32,
+              97,
+              100,
+              100,
+              101,
+              100
+            ]
+          },
+          "time": "2 hours ago",
+          "type": "question"
+        },
+        {
+          "action": "Exam \"EzY2kTERqSUJBD\" created",
+          "time": "23 hours ago",
+          "type": "exam"
+        },
+        {
+          "action": "Exam \"formData.startDateTime\" created",
+          "time": "1 day ago",
+          "type": "exam"
+        }
+      ],
+      "upcomingEvents": []
+    }
+  },
+  {
+    "timestamp": "2025-11-02T15:40:41.940Z",
+    "level": "error",
+    "message": "Failed to retrieve dashboard overview",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/overview",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T15:39:13.993Z",
+    "level": "warn",
+    "message": "Invalid or expired token",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/overview",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T15:37:54.208Z",
+    "level": "warn",
+    "message": "Invalid or expired token",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/overview",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
     "timestamp": "2025-11-02T14:45:21.905Z",
     "level": "info",
     "message": "Upcoming exams retrieved successfully",
