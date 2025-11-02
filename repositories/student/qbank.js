@@ -1476,6 +1476,7 @@ const startExam = async ({ studentId, examId, session_id }) => {
     // Check if student already has an active attempt
     const activeAttempt = await client.execute(`
         SELECT ea.* FROM exam_attempts ea
+        LEFT JOIN exams e ON ea.exam_id = e.exam_id
         ${where} 
     `, session_id ? [examId, studentId, session_id] : [examId, studentId]);
 
