@@ -1,5 +1,220 @@
 [
   {
+    "timestamp": "2025-11-02T16:00:35.586Z",
+    "level": "info",
+    "message": "Teacher dashboard overview retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/overview",
+    "additional_data": {
+      "stats": [
+        {
+          "id": 1,
+          "title": "Modules",
+          "value": "1",
+          "trend": "No change this week",
+          "icon": "BookOpen",
+          "color": "text-[#0F7490]",
+          "bgGradient": "from-[#0F7490]/10 to-[#0F7490]/5",
+          "borderColor": "border-[#0F7490]/20"
+        },
+        {
+          "id": 2,
+          "title": "Exams Created",
+          "value": "15",
+          "trend": "+15 this month",
+          "icon": "FileText",
+          "color": "text-[#C9AE6C]",
+          "bgGradient": "from-[#C9AE6C]/10 to-[#C9AE6C]/5",
+          "borderColor": "border-[#C9AE6C]/20"
+        },
+        {
+          "id": 3,
+          "title": "Students Participated",
+          "value": "4",
+          "trend": "+1 active today",
+          "icon": "Users",
+          "color": "text-[#8B5CF6]",
+          "bgGradient": "from-[#8B5CF6]/10 to-[#8B5CF6]/5",
+          "borderColor": "border-[#8B5CF6]/20"
+        },
+        {
+          "id": 4,
+          "title": "Flashcards",
+          "value": "70",
+          "trend": "No change today",
+          "icon": "Layers",
+          "color": "text-[#059669]",
+          "bgGradient": "from-[#059669]/10 to-[#059669]/5",
+          "borderColor": "border-[#059669]/20"
+        },
+        {
+          "id": 5,
+          "title": "Digital Library",
+          "value": "8",
+          "trend": "No change today",
+          "icon": "Library",
+          "color": "text-[#DC2626]",
+          "bgGradient": "from-[#DC2626]/10 to-[#DC2626]/5",
+          "borderColor": "border-[#DC2626]/20"
+        }
+      ],
+      "recentActivities": [
+        {
+          "action": "test completed by 4 students",
+          "time": "3 hours ago",
+          "type": "exam"
+        },
+        {
+          "action": "New question added to Anatomy and Histology Med 66 bank",
+          "time": "3 hours ago",
+          "type": "question"
+        },
+        {
+          "action": "EzY2kTERqSUJBD created",
+          "time": "1 day ago",
+          "type": "report"
+        },
+        {
+          "action": "11 students joined Anatomy and Histology Med 66 class",
+          "time": "3 days ago",
+          "type": "exam"
+        }
+      ],
+      "performanceOverview": {
+        "averageScore": "28.0",
+        "completionRate": "67.6",
+        "topPerformingClass": "Anatomy and Histology Med 66"
+      }
+    },
+    "error_details": null,
+    "request_response": {
+      "stats": [
+        {
+          "id": 1,
+          "title": "Modules",
+          "value": "1",
+          "trend": "No change this week",
+          "icon": "BookOpen",
+          "color": "text-[#0F7490]",
+          "bgGradient": "from-[#0F7490]/10 to-[#0F7490]/5",
+          "borderColor": "border-[#0F7490]/20"
+        },
+        {
+          "id": 2,
+          "title": "Exams Created",
+          "value": "15",
+          "trend": "+15 this month",
+          "icon": "FileText",
+          "color": "text-[#C9AE6C]",
+          "bgGradient": "from-[#C9AE6C]/10 to-[#C9AE6C]/5",
+          "borderColor": "border-[#C9AE6C]/20"
+        },
+        {
+          "id": 3,
+          "title": "Students Participated",
+          "value": "4",
+          "trend": "+1 active today",
+          "icon": "Users",
+          "color": "text-[#8B5CF6]",
+          "bgGradient": "from-[#8B5CF6]/10 to-[#8B5CF6]/5",
+          "borderColor": "border-[#8B5CF6]/20"
+        },
+        {
+          "id": 4,
+          "title": "Flashcards",
+          "value": "70",
+          "trend": "No change today",
+          "icon": "Layers",
+          "color": "text-[#059669]",
+          "bgGradient": "from-[#059669]/10 to-[#059669]/5",
+          "borderColor": "border-[#059669]/20"
+        },
+        {
+          "id": 5,
+          "title": "Digital Library",
+          "value": "8",
+          "trend": "No change today",
+          "icon": "Library",
+          "color": "text-[#DC2626]",
+          "bgGradient": "from-[#DC2626]/10 to-[#DC2626]/5",
+          "borderColor": "border-[#DC2626]/20"
+        }
+      ],
+      "recentActivities": [
+        {
+          "action": "test completed by 4 students",
+          "time": "3 hours ago",
+          "type": "exam"
+        },
+        {
+          "action": "New question added to Anatomy and Histology Med 66 bank",
+          "time": "3 hours ago",
+          "type": "question"
+        },
+        {
+          "action": "EzY2kTERqSUJBD created",
+          "time": "1 day ago",
+          "type": "report"
+        },
+        {
+          "action": "11 students joined Anatomy and Histology Med 66 class",
+          "time": "3 days ago",
+          "type": "exam"
+        }
+      ],
+      "performanceOverview": {
+        "averageScore": "28.0",
+        "completionRate": "67.6",
+        "topPerformingClass": "Anatomy and Histology Med 66"
+      }
+    }
+  },
+  {
+    "timestamp": "2025-11-02T16:00:04.452Z",
+    "level": "error",
+    "message": "Failed to retrieve dashboard overview",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/overview",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T15:58:17.758Z",
+    "level": "error",
+    "message": "Failed to retrieve dashboard overview",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/overview",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T15:57:49.150Z",
+    "level": "error",
+    "message": "Failed to retrieve dashboard overview",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/overview",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T15:57:18.848Z",
+    "level": "error",
+    "message": "Failed to retrieve dashboard overview",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/overview",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
     "timestamp": "2025-11-02T15:47:57.330Z",
     "level": "error",
     "message": "Failed to retrieve dashboard overview",
