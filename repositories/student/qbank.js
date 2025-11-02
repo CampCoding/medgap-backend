@@ -802,7 +802,7 @@ const listDecks = async ({ studentId }) => {
         `SELECT 
             sd.*,
             COUNT(fc.student_flash_card_id) AS total_cards,
-            SUM(CASE WHEN fc.card_solved = '1' AND DATE(fc.next_review) = CURRENT_DATE() THEN 1 ELSE 0 END) AS solved_cards,
+            SUM(CASE WHEN fc.card_solved = '1' AND DATE(fc.next_review) <= CURRENT_DATE() THEN 1 ELSE 0 END) AS solved_cards,
             CASE 
               WHEN COUNT(fc.student_flash_card_id) = 0 THEN 0
               ELSE ROUND( (SUM(CASE WHEN fc.card_solved = '1' THEN 1 ELSE 0 END) / COUNT(fc.student_flash_card_id)) * 100, 0)
@@ -1019,7 +1019,7 @@ const listFlashcardsByDeck = async ({ studentId, deck_id, mode = 'all' }) => {
         where += ` AND sfc.card_solved = '1'`;
         order = `ORDER BY (sfc.last_reviewed IS NULL), sfc.last_reviewed DESC`;
     } else if (mode === "spaced-repetition" || mode == "due-now") {
-        where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review = NOW())`;
+        where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review <= NOW())`;
         order = `ORDER BY COALESCE(sfc.next_review, sfc.created_at) ASC`;
     }
 
@@ -1059,7 +1059,7 @@ const getFlashcardsByMode = async ({ studentId, mode = 'repetition', limit = 20,
         where += ` AND sfc.card_solved = '1'`;
         order = `ORDER BY (sfc.last_reviewed IS NULL), sfc.last_reviewed DESC`;
     } else if (mode == "spaced-repetition" || mode == "due-now") {
-        where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review = NOW())`;
+        where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review <= NOW())`;
     } else {
 
         order = `ORDER BY sfc.created_at DESC`;
