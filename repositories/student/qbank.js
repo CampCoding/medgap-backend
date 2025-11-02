@@ -1474,21 +1474,33 @@ const startExam = async ({ studentId, examId, session_id }) => {
     }
 
     // Check if student already has an active attempt
+    // Build params based on where clause
+    let attemptParams = [examId];
+    if (session_id) {
+        attemptParams.push(parseInt(session_id));
+    }
+    
     const activeAttempt = await client.execute(`
         SELECT ea.* FROM exam_attempts ea
         LEFT JOIN exams e ON ea.exam_id = e.exam_id
-        ${where} 
-    `, session_id ? [examId, studentId, session_id] : [examId, studentId]);
+        ${where} AND ea.student_id = ?
+    `, [...attemptParams, studentId]);
 
     if (activeAttempt[0].length > 0) {
         return activeAttempt[0][0].exam_attempt_id; // Return existing attempt
     }
-
     // Create new exam attempt
+    // Clean session_id: convert undefined, null, empty strings, or 0 to null
+    const cleanSessionId = session_id && session_id !== 0 && session_id !== '' 
+        ? parseInt(session_id) 
+        : null;
+    
+    console.log("session_id cleaned:", cleanSessionId);
+    
     const [result] = await client.execute(`
         INSERT INTO exam_attempts (exam_id, student_id, status, session_id, started_at)
         VALUES (?, ?, 'in_progress', ?, NOW())
-    `, session_id ? [examId, studentId, session_id] : [examId, studentId, NULL]);
+    `, [examId, studentId, cleanSessionId]);
 
     return result.insertId;
 };

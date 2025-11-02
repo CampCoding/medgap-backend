@@ -398,6 +398,7 @@ async function startExamAttempt(req, res) {
 
     const { examId } = req.params;
     const { session_id } = req.query;
+    console.log("session_id", session_id)
     try {
         const attemptId = await repo.startExam({ studentId, examId, session_id });
         return responseBuilder.success(res, {

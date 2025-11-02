@@ -1,5 +1,156 @@
 [
   {
+    "timestamp": "2025-11-02T13:40:55.523Z",
+    "level": "info",
+    "message": "Exam started successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": {
+      "attemptId": 6,
+      "message": "Exam started successfully"
+    },
+    "error_details": null,
+    "request_response": {
+      "attemptId": 6,
+      "message": "Exam started successfully"
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:40:09.308Z",
+    "level": "info",
+    "message": "Exam started successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": {
+      "attemptId": 6,
+      "message": "Exam started successfully"
+    },
+    "error_details": null,
+    "request_response": {
+      "attemptId": 6,
+      "message": "Exam started successfully"
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:40:06.651Z",
+    "level": "info",
+    "message": "Exam started successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": {
+      "attemptId": 6,
+      "message": "Exam started successfully"
+    },
+    "error_details": null,
+    "request_response": {
+      "attemptId": 6,
+      "message": "Exam started successfully"
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:39:38.235Z",
+    "level": "info",
+    "message": "Exam started successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": {
+      "attemptId": 33,
+      "message": "Exam started successfully"
+    },
+    "error_details": null,
+    "request_response": {
+      "attemptId": 33,
+      "message": "Exam started successfully"
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:37:28.151Z",
+    "level": "warn",
+    "message": "Incorrect arguments to mysqld_stmt_execute",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T13:36:58.430Z",
+    "level": "warn",
+    "message": "Incorrect arguments to mysqld_stmt_execute",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T13:36:42.874Z",
+    "level": "warn",
+    "message": "Incorrect arguments to mysqld_stmt_execute",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T13:36:18.666Z",
+    "level": "warn",
+    "message": "Incorrect arguments to mysqld_stmt_execute",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T13:36:07.572Z",
+    "level": "warn",
+    "message": "Incorrect arguments to mysqld_stmt_execute",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-02T13:35:57.868Z",
+    "level": "info",
+    "message": "Exam started successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": {
+      "attemptId": 32,
+      "message": "Exam started successfully"
+    },
+    "error_details": null,
+    "request_response": {
+      "attemptId": 32,
+      "message": "Exam started successfully"
+    }
+  },
+  {
+    "timestamp": "2025-11-02T13:35:36.234Z",
+    "level": "warn",
+    "message": "NULL is not defined",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/17/start",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
     "timestamp": "2025-11-02T13:28:37.182Z",
     "level": "info",
     "message": "Exam questions retrieved successfully",
