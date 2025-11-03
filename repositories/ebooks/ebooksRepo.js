@@ -101,35 +101,43 @@ async function updateRepo(id, data = {}) {
     const optionsToDelete = [];
     const optionsToInsert = [];
 
-    for (const index of data.index) {
-      if (index.ebook_index_id) {
-        if (index._delete == "true") {
-          optionsToDelete.push(index.ebook_index_id);
+    for (const raw of data.index) {
+      const ebookIndexId = raw.ebook_index_id ?? raw.id ?? null;
+      const toDelete = raw._delete === true || raw._delete === "true";
+      const indexTitle = raw.index_title ?? raw.title ?? null;
+      const pageNumber = Number(raw.page_number ?? raw.page ?? 0) || 0;
+      const orderIndex = Number(raw.order_index ?? raw.order ?? 0) || 0;
+
+      if (ebookIndexId) {
+        if (toDelete) {
+          optionsToDelete.push(ebookIndexId);
         } else {
-          optionsToUpdate.push(index);
+          optionsToUpdate.push({ ebook_index_id: ebookIndexId, index_title: indexTitle, page_number: pageNumber, order_index: orderIndex });
         }
-      } else {
-        optionsToInsert.push(index);
+      } else if (!toDelete) {
+        // only insert when NO id is provided
+        optionsToInsert.push({ index_title: indexTitle, page_number: pageNumber, order_index: orderIndex });
       }
     }
-    console.log(optionsToDelete?.join(","))
+
     if (optionsToDelete.length > 0) {
-      const deleteIndicesSql = `DELETE FROM ebook_indeces WHERE ebook_index_id IN (?)`;
-      await client.execute(deleteIndicesSql, [optionsToDelete?.join(",")]);
+      const placeholders = optionsToDelete.map(() => "?").join(",");
+      const deleteIndicesSql = `DELETE FROM ebook_indeces WHERE ebook_index_id IN (${placeholders})`;
+      await client.execute(deleteIndicesSql, optionsToDelete);
     }
 
     if (optionsToUpdate.length > 0) {
       const updateIndexSql = `
         UPDATE ebook_indeces
-        SET index_title = ?, page_number = ?, order_index = ?, created_at = NOW()
+        SET index_title = ?, page_number = ?, order_index = ?, updated_at = NOW()
         WHERE ebook_index_id = ?
       `;
-      for (const index of optionsToUpdate) {
+      for (const idx of optionsToUpdate) {
         await client.execute(updateIndexSql, [
-          index.index_title,
-          index.page_number || 0,
-          index.order_index || 0,
-          index.ebook_index_id
+          idx.index_title,
+          idx.page_number,
+          idx.order_index,
+          idx.ebook_index_id
         ]);
       }
     }
@@ -139,12 +147,12 @@ async function updateRepo(id, data = {}) {
         INSERT INTO ebook_indeces (ebook_index_id, ebook_id, parent_id, level, order_index, index_title, page_number, created_at)
         VALUES (NULL, ?, NULL, '1', ?, ?, ?, NOW())
       `;
-      for (const index of optionsToInsert) {
+      for (const idx of optionsToInsert) {
         await client.execute(insertIndexSql, [
           id,
-          index.order || 0,
-          index.title,
-          index.page || 0
+          idx.order_index,
+          idx.index_title,
+          idx.page_number
         ]);
       }
     }

@@ -1,5 +1,177 @@
 [
   {
+    "timestamp": "2025-11-03T12:19:46.993Z",
+    "level": "info",
+    "message": "Teacher dashboard overview retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/overview",
+    "additional_data": {
+      "stats": [
+        {
+          "id": 1,
+          "title": "Modules",
+          "value": "1",
+          "trend": "No change this week",
+          "icon": "BookOpen",
+          "color": "text-[#0F7490]",
+          "bgGradient": "from-[#0F7490]/10 to-[#0F7490]/5",
+          "borderColor": "border-[#0F7490]/20"
+        },
+        {
+          "id": 2,
+          "title": "Exams Created",
+          "value": "7",
+          "trend": "+7 this month",
+          "icon": "FileText",
+          "color": "text-[#C9AE6C]",
+          "bgGradient": "from-[#C9AE6C]/10 to-[#C9AE6C]/5",
+          "borderColor": "border-[#C9AE6C]/20"
+        },
+        {
+          "id": 3,
+          "title": "Students Participated",
+          "value": "0",
+          "trend": "NaN today",
+          "icon": "Users",
+          "color": "text-[#8B5CF6]",
+          "bgGradient": "from-[#8B5CF6]/10 to-[#8B5CF6]/5",
+          "borderColor": "border-[#8B5CF6]/20"
+        },
+        {
+          "id": 4,
+          "title": "Flashcards",
+          "value": "599",
+          "trend": "+529 created today",
+          "icon": "Layers",
+          "color": "text-[#059669]",
+          "bgGradient": "from-[#059669]/10 to-[#059669]/5",
+          "borderColor": "border-[#059669]/20"
+        },
+        {
+          "id": 5,
+          "title": "Digital Library",
+          "value": "7",
+          "trend": "No change today",
+          "icon": "Library",
+          "color": "text-[#DC2626]",
+          "bgGradient": "from-[#DC2626]/10 to-[#DC2626]/5",
+          "borderColor": "border-[#DC2626]/20"
+        }
+      ],
+      "recentActivities": [
+        {
+          "action": "Midterm created",
+          "time": "1 hour ago",
+          "type": "report"
+        },
+        {
+          "action": "New question added to Anatomy and Histology Med 66 bank",
+          "time": "23 hours ago",
+          "type": "question"
+        },
+        {
+          "action": "11 students joined Anatomy and Histology Med 66 class",
+          "time": "4 days ago",
+          "type": "exam"
+        }
+      ],
+      "performanceOverview": {
+        "averageScore": "0.0",
+        "completionRate": "0.0",
+        "topPerformingClass": "N/A"
+      }
+    },
+    "error_details": null,
+    "request_response": {
+      "stats": [
+        {
+          "id": 1,
+          "title": "Modules",
+          "value": "1",
+          "trend": "No change this week",
+          "icon": "BookOpen",
+          "color": "text-[#0F7490]",
+          "bgGradient": "from-[#0F7490]/10 to-[#0F7490]/5",
+          "borderColor": "border-[#0F7490]/20"
+        },
+        {
+          "id": 2,
+          "title": "Exams Created",
+          "value": "7",
+          "trend": "+7 this month",
+          "icon": "FileText",
+          "color": "text-[#C9AE6C]",
+          "bgGradient": "from-[#C9AE6C]/10 to-[#C9AE6C]/5",
+          "borderColor": "border-[#C9AE6C]/20"
+        },
+        {
+          "id": 3,
+          "title": "Students Participated",
+          "value": "0",
+          "trend": "NaN today",
+          "icon": "Users",
+          "color": "text-[#8B5CF6]",
+          "bgGradient": "from-[#8B5CF6]/10 to-[#8B5CF6]/5",
+          "borderColor": "border-[#8B5CF6]/20"
+        },
+        {
+          "id": 4,
+          "title": "Flashcards",
+          "value": "599",
+          "trend": "+529 created today",
+          "icon": "Layers",
+          "color": "text-[#059669]",
+          "bgGradient": "from-[#059669]/10 to-[#059669]/5",
+          "borderColor": "border-[#059669]/20"
+        },
+        {
+          "id": 5,
+          "title": "Digital Library",
+          "value": "7",
+          "trend": "No change today",
+          "icon": "Library",
+          "color": "text-[#DC2626]",
+          "bgGradient": "from-[#DC2626]/10 to-[#DC2626]/5",
+          "borderColor": "border-[#DC2626]/20"
+        }
+      ],
+      "recentActivities": [
+        {
+          "action": "Midterm created",
+          "time": "1 hour ago",
+          "type": "report"
+        },
+        {
+          "action": "New question added to Anatomy and Histology Med 66 bank",
+          "time": "23 hours ago",
+          "type": "question"
+        },
+        {
+          "action": "11 students joined Anatomy and Histology Med 66 class",
+          "time": "4 days ago",
+          "type": "exam"
+        }
+      ],
+      "performanceOverview": {
+        "averageScore": "0.0",
+        "completionRate": "0.0",
+        "topPerformingClass": "N/A"
+      }
+    }
+  },
+  {
+    "timestamp": "2025-11-03T12:19:27.405Z",
+    "level": "warn",
+    "message": "Authorization token is required",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/overview",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
     "timestamp": "2025-11-03T09:01:54.636Z",
     "level": "info",
     "message": "Module units retrieved successfully",
