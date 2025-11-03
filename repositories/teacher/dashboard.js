@@ -7,23 +7,19 @@ async function getTeacherDashboardOverview(teacherId) {
     `SELECT 
       (SELECT COUNT(DISTINCT tm.module_id)
        FROM teacher_modules tm
-       WHERE tm.teacher_id = ? AND tm.status = 'active') AS modules,
+       WHERE tm.teacher_id = ?) AS modules,
        
       (SELECT COUNT(*)
        FROM exams e
        WHERE e.teacher_id = ?) AS exams_created,
-       
-      (SELECT COUNT(DISTINCT ea.student_id)
-       FROM exam_attempts ea
-       INNER JOIN exams e ON e.exam_id = ea.exam_id
-       WHERE e.teacher_id = ?) AS students_participated,
+                                             
        
       (SELECT COUNT(DISTINCT f.flashcard_id)
        FROM flashcards f
-       INNER JOIN topics t ON t.topic_id = f.topic_id
+       INNER JOIN topics t ON t.topic_id = f.topic_id AND t.teacher_id = ?
        INNER JOIN units u ON u.unit_id = t.unit_id
        INNER JOIN teacher_modules tm ON tm.module_id = u.module_id
-       WHERE tm.teacher_id = ? AND f.status = 'active') AS flashcards,
+       WHERE tm.teacher_id = ?) AS flashcards,
        
       (SELECT COUNT(DISTINCT eb.ebook_id)
        FROM ebooks eb
