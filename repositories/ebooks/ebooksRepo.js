@@ -102,8 +102,8 @@ async function updateRepo(id, data = {}) {
     const optionsToInsert = [];
 
     for (const raw of data.index) {
-      const ebookIndexId = raw.ebook_index_id ?? raw.id ?? null;
-      const toDelete = raw._delete === true || raw._delete === "true";
+      const ebookIndexId = raw.ebook_index_id ?? raw.index_id ?? raw.id ?? null;
+      const toDelete = raw._delete == true || raw._delete == "true" || raw._delete == 1 || raw._delete == "1";
       const indexTitle = raw.index_title ?? raw.title ?? null;
       const pageNumber = Number(raw.page_number ?? raw.page ?? 0) || 0;
       const orderIndex = Number(raw.order_index ?? raw.order ?? 0) || 0;
