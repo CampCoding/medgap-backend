@@ -1,5 +1,183 @@
 [
   {
+    "timestamp": "2025-11-03T09:01:54.636Z",
+    "level": "info",
+    "message": "Module units retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/23/units",
+    "additional_data": {
+      "message": "Module units retrieved successfully",
+      "module": {
+        "module_id": 23,
+        "subject_name": "Anatomy and Histology Med 66",
+        "subject_code": "ASU101"
+      },
+      "units": [
+        {
+          "unit_id": 18,
+          "module_id": 23,
+          "unit_name": "Anatomy",
+          "unit_description": "Anatomy module Assuit university med66 & med4",
+          "unit_order": 1,
+          "status": "active",
+          "created_at": "2025-10-11T17:48:01.000Z",
+          "updated_at": "2025-10-31T21:36:24.000Z",
+          "created_by": 1,
+          "updated_by": null,
+          "topics_count": 21,
+          "questions_count": 54,
+          "ebooks_count": 7
+        },
+        {
+          "unit_id": 19,
+          "module_id": 23,
+          "unit_name": "Histology",
+          "unit_description": "Histology module Assiut university Med66",
+          "unit_order": 1,
+          "status": "active",
+          "created_at": "2025-10-11T17:48:36.000Z",
+          "updated_at": "2025-10-11T17:48:36.000Z",
+          "created_by": 1,
+          "updated_by": null,
+          "topics_count": 4,
+          "questions_count": 2,
+          "ebooks_count": 0
+        }
+      ],
+      "count": 2
+    },
+    "error_details": null,
+    "request_response": {
+      "message": "Module units retrieved successfully",
+      "module": {
+        "module_id": 23,
+        "subject_name": "Anatomy and Histology Med 66",
+        "subject_code": "ASU101"
+      },
+      "units": [
+        {
+          "unit_id": 18,
+          "module_id": 23,
+          "unit_name": "Anatomy",
+          "unit_description": "Anatomy module Assuit university med66 & med4",
+          "unit_order": 1,
+          "status": "active",
+          "created_at": "2025-10-11T17:48:01.000Z",
+          "updated_at": "2025-10-31T21:36:24.000Z",
+          "created_by": 1,
+          "updated_by": null,
+          "topics_count": 21,
+          "questions_count": 54,
+          "ebooks_count": 7
+        },
+        {
+          "unit_id": 19,
+          "module_id": 23,
+          "unit_name": "Histology",
+          "unit_description": "Histology module Assiut university Med66",
+          "unit_order": 1,
+          "status": "active",
+          "created_at": "2025-10-11T17:48:36.000Z",
+          "updated_at": "2025-10-11T17:48:36.000Z",
+          "created_by": 1,
+          "updated_by": null,
+          "topics_count": 4,
+          "questions_count": 2,
+          "ebooks_count": 0
+        }
+      ],
+      "count": 2
+    }
+  },
+  {
+    "timestamp": "2025-11-03T09:01:35.374Z",
+    "level": "info",
+    "message": "Study sessions retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/105/sessions",
+    "additional_data": [
+      {
+        "session_id": 62,
+        "plan_id": 105,
+        "student_id": 1,
+        "study_day": 1,
+        "study_day_name": "Sun",
+        "qbank_id": 484,
+        "exam_id": 17,
+        "flashcarddeck_id": 21,
+        "ebook_id": 42,
+        "index_id": 0,
+        "created_at": "2025-11-02T11:29:32.000Z",
+        "updated_at": "2025-11-02T11:29:32.000Z",
+        "study_day_date": "2025-11-01T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 484,
+          "qbank_name": "Reda",
+          "qbank_created_at": "2025-11-02 13:29:32",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {
+          "exam_id": 17,
+          "exam_name": "test",
+          "difficulty": "hard",
+          "exam_created_at": "2025-10-12 16:58:43",
+          "started": 0
+        },
+        "flashcards_decks": {
+          "flashcarddeck_id": 21,
+          "flashcarddeck_name": "vvvvvvvvvvvvv",
+          "flashcarddeck_description": "vvvvvvvvvvvvvvvvvvvvvvvvvvv",
+          "flashcarddeck_created_at": "2025-10-11 20:09:07",
+          "started": 0
+        },
+        "ebooks": {}
+      }
+    ],
+    "error_details": null,
+    "request_response": [
+      {
+        "session_id": 62,
+        "plan_id": 105,
+        "student_id": 1,
+        "study_day": 1,
+        "study_day_name": "Sun",
+        "qbank_id": 484,
+        "exam_id": 17,
+        "flashcarddeck_id": 21,
+        "ebook_id": 42,
+        "index_id": 0,
+        "created_at": "2025-11-02T11:29:32.000Z",
+        "updated_at": "2025-11-02T11:29:32.000Z",
+        "study_day_date": "2025-11-01T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 484,
+          "qbank_name": "Reda",
+          "qbank_created_at": "2025-11-02 13:29:32",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {
+          "exam_id": 17,
+          "exam_name": "test",
+          "difficulty": "hard",
+          "exam_created_at": "2025-10-12 16:58:43",
+          "started": 0
+        },
+        "flashcards_decks": {
+          "flashcarddeck_id": 21,
+          "flashcarddeck_name": "vvvvvvvvvvvvv",
+          "flashcarddeck_description": "vvvvvvvvvvvvvvvvvvvvvvvvvvv",
+          "flashcarddeck_created_at": "2025-10-11 20:09:07",
+          "started": 0
+        },
+        "ebooks": {}
+      }
+    ]
+  },
+  {
     "timestamp": "2025-11-03T08:06:22.922Z",
     "level": "info",
     "message": "Study sessions retrieved successfully",

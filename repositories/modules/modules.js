@@ -347,7 +347,7 @@ class ModulesRepository {
           COUNT(DISTINCT CASE WHEN b.ebook_id IS NOT NULL AND b.is_deleted = 0 THEN b.ebook_id END) AS ebooks_count
         FROM units u
         LEFT JOIN topics t ON t.unit_id = u.unit_id
-        LEFT JOIN questions q ON q.topic_id = t.topic_id AND q.status = 'active'
+        LEFT JOIN questions q ON q.topic_id = t.topic_id
         LEFT JOIN ebooks b ON b.subject_id = u.unit_id AND b.is_deleted = 0
         WHERE u.module_id = ?
         GROUP BY u.unit_id
