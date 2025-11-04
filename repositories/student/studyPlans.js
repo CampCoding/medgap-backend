@@ -1483,11 +1483,17 @@ async function getTodayOverview({ studentId }) {
     status: null,
   });
 
+  // Ensure we only use today's sessions even if the repository function ignores the date filter
+  const sessionsToday = (sessions || []).filter((s) => {
+    const d = (s.session_date || "").toString();
+    return d.slice(0, 10) === today;
+  });
+
   const dailyLimits = plan.daily_limits ? JSON.parse(plan.daily_limits) : {};
   const questionsGoalPerSession = Number(plan.questions_per_session) || 20;
   const flashcardsGoalPerSession = Number(dailyLimits.max_flashcards) || 50;
 
-  const sessionsCount = sessions.length || 1;
+  const sessionsCount = sessionsToday.length || 1;
   const minutesPerSession = Math.max(
     10,
     Math.round((Number(plan.daily_time_budget) || 60) / sessionsCount)
@@ -1500,7 +1506,7 @@ async function getTodayOverview({ studentId }) {
   let completedCount = 0;
   let studyTimeMinutes = 0;
 
-  const tasks = sessions.map((s, idx) => {
+  const tasks = sessionsToday.map((s, idx) => {
     const isQuestions =
       s.session_type === "question_bank" || s.session_type === "questions";
     const isFlashcards = s.session_type === "flashcards";
@@ -1566,12 +1572,12 @@ async function getTodayOverview({ studentId }) {
   });
 
   const questionsGoalToday =
-    sessions.filter(
+    sessionsToday.filter(
       (s) =>
         s.session_type === "question_bank" || s.session_type === "questions"
     ).length * questionsGoalPerSession;
   const flashcardsGoalToday =
-    sessions.filter((s) => s.session_type === "flashcards").length *
+    sessionsToday.filter((s) => s.session_type === "flashcards").length *
     flashcardsGoalPerSession;
   const accuracyPercent =
     totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
