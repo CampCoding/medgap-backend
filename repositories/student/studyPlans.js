@@ -1509,10 +1509,15 @@ async function getTodayOverview({ studentId }) {
       : isFlashcards
       ? "Study Flashcards"
       : "Study Content";
+    const qbank = s.qbank || {};
+    const exams = s.exams || {};
+    const flashcardsDeck = s.flashcards_decks || {};
+    const ebooks = s.ebooks || {};
     const subtitle =
-      s.question_bank_modules_detailed?.[0]?.name ||
-      s.flashcards_modules_detailed?.[0]?.name ||
-      s.exams_modules_detailed?.[0]?.name ||
+      qbank.qbank_name ||
+      flashcardsDeck.flashcarddeck_name ||
+      exams.exam_name ||
+      ebooks.ebook_name ||
       "General";
     const status = s.status || "pending";
     if (status === "completed") completedCount += 1;
