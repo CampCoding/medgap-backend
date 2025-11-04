@@ -167,7 +167,10 @@ async function createStudyPlan({
           "For Plan" +
           planName,
         scheduledDate: date?.date ? date.date.split("T")[0] : null,
-        timeOfDay: date?.date ? date.date.split("T")[1]?.slice(0, 5) : null,
+        timeOfDay:
+          date?.date && date.date.includes("T")
+            ? (date.date.split("T")[1] || "").slice(0, 5) || null
+            : null,
         taskType: "Session",
         priority: "Medium",
         notes: "Not Found",
@@ -187,12 +190,20 @@ const createCalenderSessionScheduling = async ({
   priority,
   notes,
 }) => {
+  const safeTimeOfDay =
+    typeof timeOfDay === "string" && timeOfDay.trim() !== ""
+      ? timeOfDay
+      : "09:00";
+  const safeScheduledDate =
+    typeof scheduledDate === "string" && scheduledDate.trim() !== ""
+      ? scheduledDate
+      : new Date().toISOString().slice(0, 10);
   const sql = `INSERT INTO student_tasks_backlog (student_id, title, time_of_day, task_type, priority, notes)
                VALUES (?, ?, ?, ?, ?, ?)`;
   const params = [
     studentId,
     title,
-    timeOfDay,
+    safeTimeOfDay,
     taskType,
     priority,
     notes || null,
@@ -212,7 +223,7 @@ const createCalenderSessionScheduling = async ({
   const params2 = [
     studentId,
     result?.insertId,
-    scheduledDate,
+    safeScheduledDate,
     backlogTask[0].time_of_day,
   ];
   const [result2] = await client.execute(sql2, params2);
