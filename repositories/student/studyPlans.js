@@ -886,6 +886,14 @@ async function getPlanSessions({
              WHERE nsps.plan_id = ?`;
 
   let params = [studentId, planId];
+  if (date) {
+    sql += ` AND nsps.study_day_date = ?`;
+    params.push(date);
+  }
+  if (status) {
+    sql += ` AND nsps.status = ?`;
+    params.push(status);
+  }
   const [rows] = await client.execute(sql, params);
   rows.map((item) => {
     item.flashcards_decks = JSON.parse(item.flashcards_decks);
@@ -1485,7 +1493,7 @@ async function getTodayOverview({ studentId }) {
 
   // Ensure we only use today's sessions even if the repository function ignores the date filter
   const sessionsToday = (sessions || []).filter((s) => {
-    const d = (s.session_date || "").toString();
+    const d = (s.study_day_date || s.session_date || "").toString();
     return d.slice(0, 10) === today;
   });
 
@@ -1586,13 +1594,13 @@ async function getTodayOverview({ studentId }) {
     : 0;
 
   const [recentRows] = await client.execute(
-    `SELECT s.session_id, s.session_date, s.session_type, s.status,
+    `SELECT s.session_id, s.study_day_date AS session_date, s.session_type, s.status,
             COALESCE(s.questions_attempted,0) AS questions_attempted,
             COALESCE(s.flashcards_studied,0) AS flashcards_studied,
             COALESCE(s.time_spent,0) AS time_spent
-     FROM student_plan_sessions s
+     FROM new_student_plan_sessions s
      WHERE s.plan_id = ?
-     ORDER BY s.session_date DESC, s.created_at DESC
+     ORDER BY s.study_day_date DESC, s.created_at DESC
      LIMIT 5`,
     [plan.plan_id]
   );
