@@ -1,5 +1,27 @@
 [
   {
+    "timestamp": "2025-11-04T10:28:06.156Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-04T10:27:38.180Z",
+    "level": "warn",
+    "message": "Unauthorized: invalid token",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
     "timestamp": "2025-11-03T15:26:44.562Z",
     "level": "info",
     "message": "Operation completed successfully",

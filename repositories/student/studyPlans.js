@@ -146,7 +146,7 @@ async function createStudyPlan({
 
       const qbankIdForThisDate = index < qbankId.length ? qbankId[index] : null;
 
-      const [sessionCreted] = await createSession({
+      const sessionCreated = await createSession({
         planId: result.insertId,
         studentId: studentId,
         studyDay: index + 1,
@@ -166,6 +166,7 @@ async function createStudyPlan({
           `${date?.date} - ${date?.day}` +
           "For Plan" +
           planName,
+        scheduledDate: date?.date ? date.date.split("T")[0] : null,
         timeOfDay: date?.date ? date.date.split("T")[1]?.slice(0, 5) : null,
         taskType: "Session",
         priority: "Medium",
@@ -180,6 +181,7 @@ async function createStudyPlan({
 const createCalenderSessionScheduling = async ({
   studentId,
   title,
+  scheduledDate,
   timeOfDay,
   taskType,
   priority,
@@ -198,7 +200,7 @@ const createCalenderSessionScheduling = async ({
   const [result] = await client.execute(sql, params);
   const [backlogTask] = await client.execute(
     "SELECT time_of_day FROM student_tasks_backlog WHERE backlog_task_id = ? AND student_id = ?",
-    [ result?.insertId, studentId]
+    [result?.insertId, studentId]
   );
 
   if (!backlogTask || backlogTask.length === 0) {
