@@ -164,7 +164,7 @@ async function createStudyPlan({
         title:
           "Session Of Day - " +
           `${date?.date} - ${date?.day}` +
-          "For Plan" +
+          " - For Plan:  " +
           planName,
         scheduledDate: date?.date ? date.date.split("T")[0] : null,
         timeOfDay:
