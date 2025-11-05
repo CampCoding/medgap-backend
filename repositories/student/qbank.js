@@ -2223,7 +2223,7 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
     attemptWhere += ` AND ea.session_id = ?`;
     attemptParams.push(cleanSessionId);
   } else {
-    attemptWhere += ` AND ea.session_id IS NULL`;
+    attemptWhere += ` AND (ea.session_id IS NULL OR ea.session_id = 0)`;
   }
 
   const [attemptRows] = await client.execute(
