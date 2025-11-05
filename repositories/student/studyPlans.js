@@ -1963,10 +1963,17 @@ async function getTopicsByModule({ moduleId }) {
   return rows;
 }
 
-async function getTopicsBySubject({ moduleId, studentId, includeQuestions = true }) {
+async function getTopicsBySubject({
+  moduleId,
+  studentId,
+  includeQuestions = true,
+}) {
   let unitIds = moduleId;
   if (typeof unitIds === "string") {
-    unitIds = unitIds.split(",").map((id) => id.trim()).filter(Boolean);
+    unitIds = unitIds
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
   } else if (!Array.isArray(unitIds)) {
     unitIds = [unitIds];
   }
@@ -1976,15 +1983,18 @@ async function getTopicsBySubject({ moduleId, studentId, includeQuestions = true
 
   const withStudentCTEs = !!studentId;
   const params = withStudentCTEs
-    ? [studentId, studentId, ...unitIds]
-    : [...unitIds];
+    ? [studentId, studentId, ...unitIds, ...unitIds]
+    : [...unitIds, ...unitIds];
 
   const sql = `
     WITH
     sel_units AS (
       SELECT u.unit_id, u.unit_name, u.unit_order
       FROM units u
-      WHERE u.status = 'active' AND u.unit_id IN (${placeholders})
+      WHERE u.status = 'active' AND (
+        u.unit_id IN (${placeholders})
+        OR u.module_id IN (${placeholders})
+      )
     ),
     act_topics AS (
       SELECT t.topic_id, t.topic_name, t.short_description, t.unit_id, t.topic_order
@@ -2013,7 +2023,9 @@ async function getTopicsBySubject({ moduleId, studentId, includeQuestions = true
       WHERE f.topic_id IN (SELECT topic_id FROM act_topics)
       GROUP BY f.topic_id
     )
-    ${withStudentCTEs ? `
+    ${
+      withStudentCTEs
+        ? `
     , last_solve AS (
       SELECT question_id, is_correct
       FROM (
@@ -2069,7 +2081,9 @@ async function getTopicsBySubject({ moduleId, studentId, includeQuestions = true
         SUM(CASE WHEN marked = 1 AND difficulty_level = 'easy'   THEN 1 ELSE 0 END) AS marked_count_easy,
         SUM(CASE WHEN marked = 1 AND difficulty_level = 'medium' THEN 1 ELSE 0 END) AS marked_count_medium,
         SUM(CASE WHEN marked = 1 AND difficulty_level = 'hard'   THEN 1 ELSE 0 END) AS marked_count_hard
-        ${includeQuestions ? `,
+        ${
+          includeQuestions
+            ? `,
         JSON_ARRAYAGG(
           JSON_OBJECT(
             'question_id', question_id,
@@ -2079,11 +2093,15 @@ async function getTopicsBySubject({ moduleId, studentId, includeQuestions = true
             'marked',    marked
           ) ORDER BY question_id
         ) AS questions_json
-        ` : ``}
+        `
+            : ``
+        }
       FROM perq
       GROUP BY topic_id
     )
-    ` : ``}
+    `
+        : ``
+    }
     SELECT
       t.topic_id,
       t.topic_name,
@@ -2095,7 +2113,9 @@ async function getTopicsBySubject({ moduleId, studentId, includeQuestions = true
       COALESCE(qa.easy_count, 0)       AS easy_count,
       COALESCE(qa.medium_count, 0)     AS medium_count,
       COALESCE(qa.difficult_count, 0)  AS difficult_count
-      ${withStudentCTEs ? `,
+      ${
+        withStudentCTEs
+          ? `,
       COALESCE(qs.attempted_count, 0)  AS attempted_count,
       COALESCE(qs.correct_count, 0)    AS correct_count,
       COALESCE(qs.wrong_count, 0)      AS wrong_count,
@@ -2118,7 +2138,8 @@ async function getTopicsBySubject({ moduleId, studentId, includeQuestions = true
       COALESCE(qs.marked_count_medium, 0)  AS marked_count_medium,
       COALESCE(qs.marked_count_hard, 0)    AS marked_count_hard
       ${includeQuestions ? `, qs.questions_json` : ``}
-      ` : `,
+      `
+          : `,
       /* No student: derive simple defaults */
       0 AS attempted_count,
       0 AS correct_count,
@@ -2141,12 +2162,17 @@ async function getTopicsBySubject({ moduleId, studentId, includeQuestions = true
       0 AS marked_count_easy,
       0 AS marked_count_medium,
       0 AS marked_count_hard
-      `}
+      `
+      }
     FROM act_topics t
     JOIN sel_units su ON su.unit_id = t.unit_id
     LEFT JOIN q_agg qa ON qa.topic_id = t.topic_id
     LEFT JOIN f_agg fa ON fa.topic_id = t.topic_id
-    ${withStudentCTEs ? `LEFT JOIN q_student qs ON qs.topic_id = t.topic_id` : ``}
+    ${
+      withStudentCTEs
+        ? `LEFT JOIN q_student qs ON qs.topic_id = t.topic_id`
+        : ``
+    }
     ORDER BY su.unit_order, t.topic_order, t.topic_name
   `;
 
@@ -2169,7 +2195,6 @@ async function getTopicsBySubject({ moduleId, studentId, includeQuestions = true
 
   return data;
 }
-
 
 async function getSubjectsByModule({ moduleId }) {
   let unitIds = moduleId;
