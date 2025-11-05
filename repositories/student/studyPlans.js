@@ -888,10 +888,10 @@ async function getPlanSessions({
              WHERE nsps.plan_id = ?`;
 
   let params = [studentId, planId];
-  if (date) {
-    sql += ` AND nsps.study_day_date = ?`;
-    params.push(date);
-  }
+  // Default to today's sessions when no date is provided
+  const effectiveDate = date || new Date().toISOString().split("T")[0];
+  sql += ` AND nsps.study_day_date =NOW()`;
+  // params.push(effectiveDate);
   if (status) {
     sql += ` AND nsps.status = ?`;
     params.push(status);
