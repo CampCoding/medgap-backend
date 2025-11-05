@@ -24,7 +24,7 @@ async function createStudyPlan({
   flashcardsModules,
   booksIndeces,
   exams_modules,
-  exams_topics,
+  qbank_modes,
   exams,
   question_level = ["easy", "medium", "hard"],
 }) {
@@ -121,7 +121,8 @@ async function createStudyPlan({
           selected_topics: questionBankTopics,
           question_level: question_level,
           numQuestions: numQuestions,
-          question_mode: questionMode,
+          question_mode: qbank_modes,
+          qbank_modes: qbank_modes
         });
       }
       return null;
@@ -2137,7 +2138,7 @@ async function getTopicsBySubject({ moduleId, studentId }) {
 
     WHERE t.status = 'active'
     GROUP BY t.topic_id, t.topic_name, t.short_description, u.unit_id, u.unit_name
-    ORDER BY u.unit_order, t.topic_order, t.topic_name;
+    ORDER BY t.topic_id ASC;
   `;
 
   const params = studentId ? [studentId, studentId, studentId, studentId] : [];

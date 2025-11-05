@@ -811,6 +811,7 @@ const createQbank = async ({
   question_level,
   numQuestions,
   question_mode = ["all"],
+  
   plan_id = 0,
   date_schedule = null,
 }) => {
@@ -2184,7 +2185,7 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
   const cleanSessionId =
     session_id &&
     session_id !== 0 &&
-    session_id !== "" &&
+    session_id !== "" && session_id != undefined && session_id != "undefined" &&
     !isNaN(parseInt(session_id))
       ? parseInt(session_id)
       : null;

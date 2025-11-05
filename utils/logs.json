@@ -1,5 +1,27 @@
 [
   {
+    "timestamp": "2025-11-05T09:00:35.876Z",
+    "level": "warn",
+    "message": "Exam not found or access denied",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/27/questions",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-05T09:00:26.705Z",
+    "level": "warn",
+    "message": "Exam not found or access denied",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/exams/27/questions",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
     "timestamp": "2025-11-04T12:38:16.336Z",
     "level": "info",
     "message": "Today's overview retrieved successfully",
