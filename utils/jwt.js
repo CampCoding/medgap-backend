@@ -7,8 +7,8 @@ const {
   TEACHER_JWT_REFRESH_SECRET,
   STUDENT_JWT_ACCESS_SECRET,
   STUDENT_JWT_REFRESH_SECRET,
-  JWT_ACCESS_EXPIRES_IN = "7d",
-  JWT_REFRESH_EXPIRES_IN = "7d"
+  JWT_ACCESS_EXPIRES_IN = "365d",
+  JWT_REFRESH_EXPIRES_IN = "365d",
 } = process.env;
 
 // Assumes jwt and the secret/env vars are already defined in this module.
@@ -26,7 +26,9 @@ const signAccessToken = (payload, step) => {
 
   const selected = secrets[step] || secrets.admin;
   if (!selected) {
-    throw new Error(`signAccessToken: missing access secret for step "${step || 'admin'}"`);
+    throw new Error(
+      `signAccessToken: missing access secret for step "${step || "admin"}"`
+    );
   }
 
   return jwt.sign(payload, selected, { expiresIn: JWT_ACCESS_EXPIRES_IN });
@@ -45,7 +47,9 @@ const signRefreshToken = (payload, step, jti) => {
 
   const selected = secrets[step] || secrets.admin;
   if (!selected) {
-    throw new Error(`signRefreshToken: missing refresh secret for step "${step || 'admin'}"`);
+    throw new Error(
+      `signRefreshToken: missing refresh secret for step "${step || "admin"}"`
+    );
   }
 
   const body = jti ? { ...payload, jti } : { ...payload };
@@ -91,5 +95,5 @@ module.exports = {
   signAccessToken,
   signRefreshToken,
   verifyAccessToken,
-  verifyRefreshToken
+  verifyRefreshToken,
 };

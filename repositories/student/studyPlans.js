@@ -2077,77 +2077,12 @@ async function getTopicsBySubject({ moduleId, studentId }) {
 
   if (!studentId || !topicRows.length) return topicRows;
 
-  const topicIds = topicRows.map((row) => row.topic_id);
-  const topicPlaceholders = topicIds.map(() => "?").join(",");
-
-  const [questionRows] = await client.execute(
-    `
-    SELECT 
-      q.topic_id,
-      q.question_id,
-      q.difficulty_level,
-      CASE WHEN sq.question_id IS NOT NULL THEN 1 ELSE 0 END AS attempted,
-      CASE WHEN sq.is_correct = '1' THEN 1 ELSE 0 END AS correct,
-      CASE WHEN mcq.question_id IS NOT NULL AND smc.student_mark_category_id IS NOT NULL THEN 1 ELSE 0 END AS marked
-    FROM questions q
-    LEFT JOIN (
-      SELECT s1.question_id, s1.is_correct
-      FROM solved_questions s1
-      INNER JOIN (
-        SELECT question_id, MAX(created_at) AS max_created
-        FROM solved_questions
-        WHERE student_id = ?
-        GROUP BY question_id
-      ) latest ON latest.question_id = s1.question_id AND latest.max_created = s1.created_at
-      WHERE s1.student_id = ?
-    ) sq ON sq.question_id = q.question_id
-    LEFT JOIN mark_category_question mcq ON mcq.question_id = q.question_id
-    LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?
-    WHERE q.topic_id IN (${topicPlaceholders})
-    `,
-    [studentId, studentId, studentId, ...topicIds]
-  );
-
-  const questionsByTopic = {};
-  questionRows.forEach((q) => {
-    if (!questionsByTopic[q.topic_id]) {
-      questionsByTopic[q.topic_id] = [];
-    }
-    questionsByTopic[q.topic_id].push({
-      question_id: q.question_id,
-      difficulty: q.difficulty,
-      attempted: !!q.attempted,
-      correct: !!q.correct,
-      marked: !!q.marked,
-    });
-  });
-
-  return topicRows.map((topic) => {
-    const distinct = questionsByTopic[topic.topic_id]
-      ? [
-          ...new Map(
-            questionsByTopic[topic.topic_id].map((item) => [
-              item.question_id,
-              item,
-            ])
-          ).values(),
-        ]
-      : [];
-
-    topic.wrong_count =
-      distinct?.filter((item) => !item?.correct && item?.attempted)?.length ||
-      0;
-    topic.correct_count =
-      distinct?.filter((item) => item?.correct && item?.attempted)?.length || 0;
-    topic.unsolved_count =
-      distinct?.filter((item) => !item?.attempted)?.length || 0;
-    topic.marked_count = distinct?.filter((item) => item?.marked)?.length || 0;
-
-    return {
-      ...topic,
-      questions: distinct || [],
-    };
-  });
+  // Use counts already computed in the main query; avoid per-topic detailed question fetch
+  return topicRows.map((topic) => ({
+    ...topic,
+    // Keep questions lightweight to speed up response; can be expanded via a dedicated endpoint if needed
+    questions: [],
+  }));
 }
 
 async function getSubjectsByModule({ moduleId }) {
