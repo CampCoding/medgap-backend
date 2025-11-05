@@ -1979,8 +1979,7 @@ async function getTopicsBySubject({ moduleId, studentId }) {
   const placeholders = unitIds.map(() => "?").join(",");
   const params = [...unitIds];
 
-  const [topicRows] = await client.execute(
-    `
+  const topicsSql = `
     SELECT 
       t.topic_id, 
       t.topic_name, 
@@ -2000,19 +1999,15 @@ async function getTopicsBySubject({ moduleId, studentId }) {
         COUNT(DISTINCT CASE WHEN sq.is_correct = '0' THEN sq.question_id END) AS wrong_count,
         COUNT(DISTINCT CASE WHEN q.question_id IS NOT NULL AND sq.question_id IS NULL THEN q.question_id END) AS unsolved_count,
         COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL THEN q.question_id END) AS marked_count,
-        -- Correct counts by difficulty
         COUNT(DISTINCT CASE WHEN sq.is_correct = '1' AND q.difficulty_level = 'easy' THEN q.question_id END) AS correct_count_easy,
         COUNT(DISTINCT CASE WHEN sq.is_correct = '1' AND q.difficulty_level = 'medium' THEN q.question_id END) AS correct_count_medium,
         COUNT(DISTINCT CASE WHEN sq.is_correct = '1' AND q.difficulty_level = 'hard' THEN q.question_id END) AS correct_count_hard,
-        -- Wrong counts by difficulty
         COUNT(DISTINCT CASE WHEN sq.is_correct = '0' AND q.difficulty_level = 'easy' THEN q.question_id END) AS wrong_count_easy,
         COUNT(DISTINCT CASE WHEN sq.is_correct = '0' AND q.difficulty_level = 'medium' THEN q.question_id END) AS wrong_count_medium,
         COUNT(DISTINCT CASE WHEN sq.is_correct = '0' AND q.difficulty_level = 'hard' THEN q.question_id END) AS wrong_count_hard,
-        -- Unused counts by difficulty
         COUNT(DISTINCT CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'easy' THEN q.question_id END) AS unused_count_easy,
         COUNT(DISTINCT CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'medium' THEN q.question_id END) AS unused_count_medium,
         COUNT(DISTINCT CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'hard' THEN q.question_id END) AS unused_count_hard,
-        -- Marked counts by difficulty
         COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND q.difficulty_level = 'easy' THEN q.question_id END) AS marked_count_easy,
         COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND q.difficulty_level = 'medium' THEN q.question_id END) AS marked_count_medium,
         COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND q.difficulty_level = 'hard' THEN q.question_id END) AS marked_count_hard
@@ -2023,19 +2018,15 @@ async function getTopicsBySubject({ moduleId, studentId }) {
         0 AS wrong_count,
         COUNT(DISTINCT q.question_id) AS unsolved_count,
         0 AS marked_count,
-        -- Correct counts by difficulty (all 0 when no student)
         0 AS correct_count_easy,
         0 AS correct_count_medium,
         0 AS correct_count_hard,
-        -- Wrong counts by difficulty (all 0 when no student)
         0 AS wrong_count_easy,
         0 AS wrong_count_medium,
         0 AS wrong_count_hard,
-        -- Unused counts by difficulty (same as total counts when no student)
         COUNT(DISTINCT CASE WHEN q.difficulty_level = 'easy' THEN q.question_id END) AS unused_count_easy,
         COUNT(DISTINCT CASE WHEN q.difficulty_level = 'medium' THEN q.question_id END) AS unused_count_medium,
         COUNT(DISTINCT CASE WHEN q.difficulty_level = 'hard' THEN q.question_id END) AS unused_count_hard,
-        -- Marked counts by difficulty (all 0 when no student)
         0 AS marked_count_easy,
         0 AS marked_count_medium,
         0 AS marked_count_hard
@@ -2071,17 +2062,14 @@ async function getTopicsBySubject({ moduleId, studentId }) {
       t.topic_id, t.topic_name, t.short_description,
       u.unit_id, u.unit_name
     ORDER BY u.unit_order, t.topic_order, t.topic_name
-    `,
-    studentId ? [studentId, studentId, studentId, ...params] : params
-  );
+  `;
 
-  if (!studentId || !topicRows.length) return topicRows;
+  const topicsParams = studentId
+    ? [studentId, studentId, studentId, ...params]
+    : params;
 
-  const topicIds = topicRows.map((row) => row.topic_id);
-  const topicPlaceholders = topicIds.map(() => "?").join(",");
-
-  const [questionRows] = await client.execute(
-    `
+  // Build questions details SQL that does not depend on topicRows, so we can run in parallel
+  const questionsSql = `
     SELECT 
       q.topic_id,
       q.question_id,
@@ -2090,6 +2078,11 @@ async function getTopicsBySubject({ moduleId, studentId }) {
       CASE WHEN sq.is_correct = '1' THEN 1 ELSE 0 END AS correct,
       CASE WHEN mcq.question_id IS NOT NULL AND smc.student_mark_category_id IS NOT NULL THEN 1 ELSE 0 END AS marked
     FROM questions q
+    INNER JOIN topics t ON t.topic_id = q.topic_id
+    INNER JOIN units u ON u.unit_id = t.unit_id
+    ${
+      studentId
+        ? `
     LEFT JOIN (
       SELECT s1.question_id, s1.is_correct
       FROM solved_questions s1
@@ -2103,10 +2096,27 @@ async function getTopicsBySubject({ moduleId, studentId }) {
     ) sq ON sq.question_id = q.question_id
     LEFT JOIN mark_category_question mcq ON mcq.question_id = q.question_id
     LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?
-    WHERE q.topic_id IN (${topicPlaceholders})
-    `,
-    [studentId, studentId, studentId, ...topicIds]
-  );
+    `
+        : ""
+    }
+    WHERE u.unit_id IN (${placeholders})
+  `;
+
+  const questionsParams = studentId
+    ? [studentId, studentId, studentId, ...unitIds]
+    : [...unitIds];
+
+  const [[topicRows], questionsExec] = await Promise.all([
+    client.execute(topicsSql, topicsParams),
+    studentId
+      ? client.execute(questionsSql, questionsParams)
+      : Promise.resolve([[]]),
+  ]);
+
+  if (!studentId || !topicRows.length) return topicRows;
+
+  const questionRows =
+    questionsExec && questionsExec[0] ? questionsExec[0] : [];
 
   const questionsByTopic = {};
   questionRows.forEach((q) => {
