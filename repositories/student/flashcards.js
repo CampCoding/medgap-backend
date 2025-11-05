@@ -56,6 +56,7 @@ async function listLibrariesByModule({
       name: r.library_name,
       desc: r.description,
       difficulty: r.difficulty_level,
+      imported: r.imported,
       estimated_time: r.estimated_time,
       created_at: r.created_at,
       total_cards: Number(r.total_cards) || 0,
@@ -115,6 +116,7 @@ async function listLibrariesByBulkModules({
       fl.library_name, 
       fl.description, 
       fl.difficulty_level,
+           sd.old_deck_id AS imported,
       fl.estimated_time, 
       fl.created_at,
       COUNT(f.flashcard_id) AS total_cards,
@@ -124,6 +126,8 @@ async function listLibrariesByBulkModules({
       COALESCE(slp.status, 'not_started') AS progress_status
     FROM flashcard_libraries fl
     LEFT JOIN flashcards f ON f.library_id = fl.library_id
+        LEFT JOIN student_deck sd ON sd.old_deck_id = fl.library_id
+
     LEFT JOIN student_flashcard_library_progress slp
       ON slp.library_id = fl.library_id AND slp.student_id = ?
     WHERE ${whereClauses.join(" AND ")}
@@ -161,6 +165,7 @@ async function listLibrariesByBulkModules({
       library_id: r.library_id,
       name: r.library_name,
       desc: r.description,
+      imported: r.imported,
       difficulty: r.difficulty_level,
       estimated_time: r.estimated_time,
       created_at: r.created_at,
