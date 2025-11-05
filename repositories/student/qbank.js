@@ -1,9 +1,15 @@
 const { client } = require("../../config/db-connect");
 const activityTracking = require("./activityTracking");
 
-const solveQuestion = async ({ question_id, studentId, answer, qbank_id, correct }) => {
-    let [question] = await client.execute(
-        `SELECT 
+const solveQuestion = async ({
+  question_id,
+  studentId,
+  answer,
+  qbank_id,
+  correct,
+}) => {
+  let [question] = await client.execute(
+    `SELECT 
             questions.*, 
             CONCAT('[', 
                    GROUP_CONCAT(
@@ -21,76 +27,82 @@ const solveQuestion = async ({ question_id, studentId, answer, qbank_id, correct
            ON questions.question_id = question_options.question_id 
          WHERE questions.question_id = ?
          GROUP BY questions.question_id`,
-        [question_id]
-    );
-    question = question[0]
-    const optionsJson = question?.options;
-    question.options = optionsJson ? JSON.parse(optionsJson) : [];
+    [question_id]
+  );
+  question = question[0];
+  const optionsJson = question?.options;
+  question.options = optionsJson ? JSON.parse(optionsJson) : [];
 
+  const correctAnswer = question.model_answer;
+  const isCorrect = question.options.some(
+    (option) => option.is_correct && option.option_text === answer
+  )
+    ? 1
+    : 0;
 
-
-
-
-    const correctAnswer = question.model_answer;
-    const isCorrect = question.options.some(option => option.is_correct && option.option_text === answer) ? 1 : 0;
-
-
-
-    const [insertQuestionAnswer] = await client.execute(
-        `INSERT INTO solved_questions (question_id, student_id, answer, is_correct, qbank_id)
+  const [insertQuestionAnswer] = await client.execute(
+    `INSERT INTO solved_questions (question_id, student_id, answer, is_correct, qbank_id)
          VALUES (?, ?, ?, ?, ?)`,
-        [question_id, studentId, answer, correct ? correct ? '1' : '0' : isCorrect ? '1' : '0', qbank_id ? qbank_id : 0]
-    );
+    [
+      question_id,
+      studentId,
+      answer,
+      correct ? (correct ? "1" : "0") : isCorrect ? "1" : "0",
+      qbank_id ? qbank_id : 0,
+    ]
+  );
 
-    // Log activity automatically
-    try {
-        await activityTracking.logActivity({
-            studentId,
-            activityType: "question_answered",
-            activityDescription: `Answered question: ${question.question_text.substring(0, 50)}...`,
-            moduleName: null, // Could be enhanced to get module info
-            topicName: null, // Could be enhanced to get topic info
-            scorePercentage: isCorrect ? 100 : 0,
-            pointsEarned: isCorrect ? 10 : 0, // 10 points for correct, 0 for incorrect
-            metadata: {
-                question_id,
-                answer,
-                is_correct: isCorrect,
-                question_type: question.question_type,
-                difficulty_level: question.difficulty_level
-            }
-        });
-    } catch (activityError) {
-        console.error("Failed to log activity for question solve:", activityError);
-        // Don't throw error - activity logging is not critical
-    }
+  // Log activity automatically
+  try {
+    await activityTracking.logActivity({
+      studentId,
+      activityType: "question_answered",
+      activityDescription: `Answered question: ${question.question_text.substring(
+        0,
+        50
+      )}...`,
+      moduleName: null, // Could be enhanced to get module info
+      topicName: null, // Could be enhanced to get topic info
+      scorePercentage: isCorrect ? 100 : 0,
+      pointsEarned: isCorrect ? 10 : 0, // 10 points for correct, 0 for incorrect
+      metadata: {
+        question_id,
+        answer,
+        is_correct: isCorrect,
+        question_type: question.question_type,
+        difficulty_level: question.difficulty_level,
+      },
+    });
+  } catch (activityError) {
+    console.error("Failed to log activity for question solve:", activityError);
+    // Don't throw error - activity logging is not critical
+  }
 
-    return insertQuestionAnswer.insertId;
-
-}
+  return insertQuestionAnswer.insertId;
+};
 
 const fetchModules = async (moduleIds = []) => {
-    if (Array.isArray(moduleIds) && moduleIds.length > 0) {
-        const placeholders = moduleIds.map(() => '?').join(',');
-        const [rows] = await client.execute(
-            `SELECT module_id, subject_name, subject_code, subject_color, status
-			 FROM modules WHERE module_id IN (${placeholders})`,
-            moduleIds
-        );
-        return rows;
-    }
+  if (Array.isArray(moduleIds) && moduleIds.length > 0) {
+    const placeholders = moduleIds.map(() => "?").join(",");
     const [rows] = await client.execute(
-        `SELECT module_id, subject_name, subject_code, subject_color, status
-		 FROM modules WHERE status = 'active' ORDER BY subject_name ASC`
+      `SELECT module_id, subject_name, subject_code, subject_color, status
+			 FROM modules WHERE module_id IN (${placeholders})`,
+      moduleIds
     );
     return rows;
-}
+  }
+  const [rows] = await client.execute(
+    `SELECT module_id, subject_name, subject_code, subject_color, status
+		 FROM modules WHERE status = 'active' ORDER BY subject_name ASC`
+  );
+  return rows;
+};
 
 const fetchSubjectsFromUnitsByModuleIds = async (moduleIds = []) => {
-    if (!Array.isArray(moduleIds) || moduleIds.length === 0) return [];
-    const placeholders = moduleIds.map(() => '?').join(',');
-    const [rows] = await client.execute(
-        `SELECT 
+  if (!Array.isArray(moduleIds) || moduleIds.length === 0) return [];
+  const placeholders = moduleIds.map(() => "?").join(",");
+  const [rows] = await client.execute(
+    `SELECT 
 		  u.unit_id    AS subject_id,
 		  u.unit_name  AS subject_name,
 		  u.module_id  AS module_id,
@@ -99,217 +111,273 @@ const fetchSubjectsFromUnitsByModuleIds = async (moduleIds = []) => {
 		 FROM units u
 		 WHERE u.module_id IN (${placeholders}) AND u.status = 'active'
 		 ORDER BY u.unit_order ASC, u.created_at ASC`,
-        moduleIds
-    );
+    moduleIds
+  );
 
-    return rows;
-}
+  return rows;
+};
 
 const fetchTopicsByModuleIds = async (moduleIds = []) => {
-    if (!Array.isArray(moduleIds) || moduleIds.length === 0) return [];
-    const placeholders = moduleIds.map(() => '?').join(',');
-    const [rows] = await client.execute(
-        `SELECT t.*
+  if (!Array.isArray(moduleIds) || moduleIds.length === 0) return [];
+  const placeholders = moduleIds.map(() => "?").join(",");
+  const [rows] = await client.execute(
+    `SELECT t.*
 		 FROM topics t
 		 INNER JOIN units u ON t.unit_id = u.unit_id
 		 WHERE u.module_id IN (${placeholders}) AND t.status = 'active'
 		 ORDER BY t.topic_order ASC, t.created_at DESC`,
-        moduleIds
-    );
-    return rows;
-}
-
+    moduleIds
+  );
+  return rows;
+};
 
 const fetchTopicsByUnitIds = async (unitIds = []) => {
-    if (!Array.isArray(unitIds) || unitIds.length === 0) return [];
-    const placeholders = unitIds.map(() => '?').join(',');
-    const [rows] = await client.execute(
-        `SELECT t.*
+  if (!Array.isArray(unitIds) || unitIds.length === 0) return [];
+  const placeholders = unitIds.map(() => "?").join(",");
+  const [rows] = await client.execute(
+    `SELECT t.*
          FROM topics t
          WHERE t.unit_id IN (${placeholders}) AND t.status = 'active'
          ORDER BY t.topic_order ASC, t.created_at DESC`,
-        unitIds
-    );
-    return rows;
-}
+    unitIds
+  );
+  return rows;
+};
 
-const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId = null) => {
-    if (!Array.isArray(topicIds) || topicIds.length === 0) return [];
-    const placeholders = topicIds.map(() => '?').join(',');
-    // Ensure numQuestions is a valid number
-    let numQuestions = filters?.numQuestions;
-    if (numQuestions === null || numQuestions === undefined || numQuestions === '') {
-        numQuestions = 10;
-    } else {
-        numQuestions = parseInt(numQuestions, 10);
-        if (isNaN(numQuestions) || numQuestions <= 0) {
-            numQuestions = 10;
-        }
+const fetchQuestionsByTopicIds = async (
+  topicIds = [],
+  filters = {},
+  studentId = null
+) => {
+  if (!Array.isArray(topicIds) || topicIds.length === 0) return [];
+  const placeholders = topicIds.map(() => "?").join(",");
+  // Ensure numQuestions is a valid number
+  let numQuestions = filters?.numQuestions;
+  if (
+    numQuestions === null ||
+    numQuestions === undefined ||
+    numQuestions === ""
+  ) {
+    numQuestions = 10;
+  } else {
+    numQuestions = parseInt(numQuestions, 10);
+    if (isNaN(numQuestions) || numQuestions <= 0) {
+      numQuestions = 10;
     }
-    console.log(`fetchQuestionsByTopicIds: numQuestions = ${numQuestions} (from filters.numQuestions = ${filters?.numQuestions})`);
+  }
+  console.log(
+    `fetchQuestionsByTopicIds: numQuestions = ${numQuestions} (from filters.numQuestions = ${filters?.numQuestions})`
+  );
 
-    // First, get counts for each mode to determine distribution
-    let countSql = `SELECT 
+  // First, get counts for each mode to determine distribution
+  let countSql = `SELECT 
         COUNT(DISTINCT CASE WHEN sq.question_id IS NULL THEN q.question_id END) AS unused_count,
         COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '0' THEN q.question_id END) AS incorrect_count,
         COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' THEN q.question_id END) AS correct_count,
         COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL THEN q.question_id END) AS marked_count
         FROM questions q`;
 
-    if (studentId) {
-        countSql += ` LEFT JOIN (
+  if (studentId) {
+    countSql += ` LEFT JOIN (
             SELECT DISTINCT question_id, is_correct 
             FROM solved_questions 
             WHERE student_id = ?
         ) sq ON q.question_id = sq.question_id`;
-        countSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
-        countSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
-    } else {
-        countSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
-        countSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
-        countSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
-    }
+    countSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+    countSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
+  } else {
+    countSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
+    countSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+    countSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
+  }
 
-    countSql += ` WHERE q.topic_id IN (${placeholders})`;
+  countSql += ` WHERE q.topic_id IN (${placeholders})`;
 
-    if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
-        const difficultyPlaceholders = filters.status.map(() => '?').join(',');
-        countSql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
-    }
+  if (
+    filters.status &&
+    Array.isArray(filters.status) &&
+    filters.status.length > 0
+  ) {
+    const difficultyPlaceholders = filters.status.map(() => "?").join(",");
+    countSql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
+  }
 
-    const countValues = studentId ? [studentId, studentId, ...topicIds] : [...topicIds];
-    if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
-        countValues.push(...filters.status);
-    }
+  const countValues = studentId
+    ? [studentId, studentId, ...topicIds]
+    : [...topicIds];
+  if (
+    filters.status &&
+    Array.isArray(filters.status) &&
+    filters.status.length > 0
+  ) {
+    countValues.push(...filters.status);
+  }
 
-    const [countRows] = await client.execute(countSql, countValues);
-    const counts = countRows[0];
+  const [countRows] = await client.execute(countSql, countValues);
+  const counts = countRows[0];
 
-    // Determine which modes to include and how many questions from each
-    const availableModes = [];
-    if (filters.question_mode && Array.isArray(filters.question_mode) && filters.question_mode.length > 0) {
-        filters.question_mode.forEach(mode => {
-            const count = counts[`${mode}_count`] || 0;
-            if (count > 0) {
-                availableModes.push({ mode, count });
-            }
-        });
-    } else {
-        // If no mode specified, use all available modes
-        if (counts.unused_count > 0) availableModes.push({ mode: 'unused', count: counts.unused_count });
-        if (counts.incorrect_count > 0) availableModes.push({ mode: 'incorrect', count: counts.incorrect_count });
-        if (counts.correct_count > 0) availableModes.push({ mode: 'correct', count: counts.correct_count });
-        if (counts.marked_count > 0) availableModes.push({ mode: 'marked', count: counts.marked_count });
-    }
+  // Determine which modes to include and how many questions from each
+  const availableModes = [];
+  if (
+    filters.question_mode &&
+    Array.isArray(filters.question_mode) &&
+    filters.question_mode.length > 0
+  ) {
+    filters.question_mode.forEach((mode) => {
+      const count = counts[`${mode}_count`] || 0;
+      if (count > 0) {
+        availableModes.push({ mode, count });
+      }
+    });
+  } else {
+    // If no mode specified, use all available modes
+    if (counts.unused_count > 0)
+      availableModes.push({ mode: "unused", count: counts.unused_count });
+    if (counts.incorrect_count > 0)
+      availableModes.push({ mode: "incorrect", count: counts.incorrect_count });
+    if (counts.correct_count > 0)
+      availableModes.push({ mode: "correct", count: counts.correct_count });
+    if (counts.marked_count > 0)
+      availableModes.push({ mode: "marked", count: counts.marked_count });
+  }
 
-    // Calculate questions per mode (distribute evenly, but respect individual mode limits)
-    // First, check if total available questions is less than requested
-    const totalAvailable = availableModes.reduce((sum, { count }) => sum + count, 0);
-    const actualNumQuestions = Math.min(numQuestions, totalAvailable);
+  // Calculate questions per mode (distribute evenly, but respect individual mode limits)
+  // First, check if total available questions is less than requested
+  const totalAvailable = availableModes.reduce(
+    (sum, { count }) => sum + count,
+    0
+  );
+  const actualNumQuestions = Math.min(numQuestions, totalAvailable);
 
-    // If we have multiple topics, try to distribute questions across topics as well
-    let modeLimits = [];
-    let totalDistributed = 0;
+  // If we have multiple topics, try to distribute questions across topics as well
+  let modeLimits = [];
+  let totalDistributed = 0;
 
-    if (topicIds.length > 1) {
-        // Distribute questions across topics and modes proportionally
-        const questionsPerTopicBase = Math.floor(actualNumQuestions / topicIds.length);
-        const remainder = actualNumQuestions % topicIds.length;
+  if (topicIds.length > 1) {
+    // Distribute questions across topics and modes proportionally
+    const questionsPerTopicBase = Math.floor(
+      actualNumQuestions / topicIds.length
+    );
+    const remainder = actualNumQuestions % topicIds.length;
 
-        for (let topicIndex = 0; topicIndex < topicIds.length; topicIndex++) {
-            const topicId = topicIds[topicIndex];
-            // Give extra question to first few topics if there's a remainder
-            const questionsForThisTopic = questionsPerTopicBase + (topicIndex < remainder ? 1 : 0);
+    for (let topicIndex = 0; topicIndex < topicIds.length; topicIndex++) {
+      const topicId = topicIds[topicIndex];
+      // Give extra question to first few topics if there's a remainder
+      const questionsForThisTopic =
+        questionsPerTopicBase + (topicIndex < remainder ? 1 : 0);
 
-            if (questionsForThisTopic === 0) continue;
+      if (questionsForThisTopic === 0) continue;
 
-            // Distribute across modes for this topic
-            const questionsPerModeBase = Math.floor(questionsForThisTopic / availableModes.length);
-            const modeRemainder = questionsForThisTopic % availableModes.length;
+      // Distribute across modes for this topic
+      const questionsPerModeBase = Math.floor(
+        questionsForThisTopic / availableModes.length
+      );
+      const modeRemainder = questionsForThisTopic % availableModes.length;
 
-            for (let modeIndex = 0; modeIndex < availableModes.length; modeIndex++) {
-                const { mode, count } = availableModes[modeIndex];
-                // Give extra question to first few modes if there's a remainder
-                const questionsForThisMode = questionsPerModeBase + (modeIndex < modeRemainder ? 1 : 0);
+      for (let modeIndex = 0; modeIndex < availableModes.length; modeIndex++) {
+        const { mode, count } = availableModes[modeIndex];
+        // Give extra question to first few modes if there's a remainder
+        const questionsForThisMode =
+          questionsPerModeBase + (modeIndex < modeRemainder ? 1 : 0);
 
-                if (questionsForThisMode === 0 || totalDistributed >= actualNumQuestions) continue;
+        if (
+          questionsForThisMode === 0 ||
+          totalDistributed >= actualNumQuestions
+        )
+          continue;
 
-                // Ensure we don't exceed total and respect mode count limit
-                const limit = Math.min(
-                    questionsForThisMode,
-                    count,
-                    actualNumQuestions - totalDistributed
-                );
+        // Ensure we don't exceed total and respect mode count limit
+        const limit = Math.min(
+          questionsForThisMode,
+          count,
+          actualNumQuestions - totalDistributed
+        );
 
-                if (limit > 0) {
-                    modeLimits.push({ mode, limit, topicId });
-                    totalDistributed += limit;
-                }
-            }
+        if (limit > 0) {
+          modeLimits.push({ mode, limit, topicId });
+          totalDistributed += limit;
         }
-    } else {
-        // Single topic - distribute across modes only
-        const questionsPerModeBase = Math.floor(actualNumQuestions / availableModes.length);
-        const remainder = actualNumQuestions % availableModes.length;
-
-        for (let modeIndex = 0; modeIndex < availableModes.length; modeIndex++) {
-            const { mode, count } = availableModes[modeIndex];
-            // Give extra question to first few modes if there's a remainder
-            const questionsForThisMode = questionsPerModeBase + (modeIndex < remainder ? 1 : 0);
-
-            if (questionsForThisMode === 0 || totalDistributed >= actualNumQuestions) continue;
-
-            const limit = Math.min(
-                questionsForThisMode,
-                count,
-                actualNumQuestions - totalDistributed
-            );
-
-            if (limit > 0) {
-                modeLimits.push({ mode, limit, topicId: topicIds[0] });
-                totalDistributed += limit;
-            }
-        }
+      }
     }
+  } else {
+    // Single topic - distribute across modes only
+    const questionsPerModeBase = Math.floor(
+      actualNumQuestions / availableModes.length
+    );
+    const remainder = actualNumQuestions % availableModes.length;
 
-    console.log(`Requested: ${numQuestions}, Total available: ${totalAvailable}, Actual: ${actualNumQuestions}, Distributed: ${totalDistributed}, Limits: ${JSON.stringify(modeLimits)}`);
+    for (let modeIndex = 0; modeIndex < availableModes.length; modeIndex++) {
+      const { mode, count } = availableModes[modeIndex];
+      // Give extra question to first few modes if there's a remainder
+      const questionsForThisMode =
+        questionsPerModeBase + (modeIndex < remainder ? 1 : 0);
 
+      if (questionsForThisMode === 0 || totalDistributed >= actualNumQuestions)
+        continue;
 
+      const limit = Math.min(
+        questionsForThisMode,
+        count,
+        actualNumQuestions - totalDistributed
+      );
 
-
-
-
-
-
-    // If no questions available, return empty result
-    if (totalAvailable === 0) {
-
-        return {
-            questions: [],
-            counts: {
-                correct_count_easy: 0, correct_count_medium: 0, correct_count_hard: 0,
-                wrong_count_easy: 0, wrong_count_medium: 0, wrong_count_hard: 0,
-                unused_count_easy: 0, unused_count_medium: 0, unused_count_hard: 0,
-                marked_count_easy: 0, marked_count_medium: 0, marked_count_hard: 0,
-                total_questions: 0
-            }
-        };
+      if (limit > 0) {
+        modeLimits.push({ mode, limit, topicId: topicIds[0] });
+        totalDistributed += limit;
+      }
     }
+  }
 
-    // Now fetch questions based on calculated limits
-    let allQuestions = [];
-    let aggregatedCounts = {
-        correct_count_easy: 0, correct_count_medium: 0, correct_count_hard: 0,
-        wrong_count_easy: 0, wrong_count_medium: 0, wrong_count_hard: 0,
-        unused_count_easy: 0, unused_count_medium: 0, unused_count_hard: 0,
-        marked_count_easy: 0, marked_count_medium: 0, marked_count_hard: 0,
-        total_questions: 0
+  console.log(
+    `Requested: ${numQuestions}, Total available: ${totalAvailable}, Actual: ${actualNumQuestions}, Distributed: ${totalDistributed}, Limits: ${JSON.stringify(
+      modeLimits
+    )}`
+  );
+
+  // If no questions available, return empty result
+  if (totalAvailable === 0) {
+    return {
+      questions: [],
+      counts: {
+        correct_count_easy: 0,
+        correct_count_medium: 0,
+        correct_count_hard: 0,
+        wrong_count_easy: 0,
+        wrong_count_medium: 0,
+        wrong_count_hard: 0,
+        unused_count_easy: 0,
+        unused_count_medium: 0,
+        unused_count_hard: 0,
+        marked_count_easy: 0,
+        marked_count_medium: 0,
+        marked_count_hard: 0,
+        total_questions: 0,
+      },
     };
+  }
 
-    for (const { mode, limit, topicId } of modeLimits) {
-        if (limit <= 0) continue;
+  // Now fetch questions based on calculated limits
+  let allQuestions = [];
+  let aggregatedCounts = {
+    correct_count_easy: 0,
+    correct_count_medium: 0,
+    correct_count_hard: 0,
+    wrong_count_easy: 0,
+    wrong_count_medium: 0,
+    wrong_count_hard: 0,
+    unused_count_easy: 0,
+    unused_count_medium: 0,
+    unused_count_hard: 0,
+    marked_count_easy: 0,
+    marked_count_medium: 0,
+    marked_count_hard: 0,
+    total_questions: 0,
+  };
 
-        let modeSql = `SELECT 
+  for (const { mode, limit, topicId } of modeLimits) {
+    if (limit <= 0) continue;
+
+    let modeSql = `SELECT 
             q.*,
             COALESCE(
                 JSON_ARRAYAGG(
@@ -344,9 +412,9 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
             FROM questions q
             LEFT JOIN question_options qo ON q.question_id = qo.question_id`;
 
-        if (studentId) {
-            // Join latest attempt per question for this student
-            modeSql += ` LEFT JOIN (
+    if (studentId) {
+      // Join latest attempt per question for this student
+      modeSql += ` LEFT JOIN (
                 SELECT sq1.question_id, sq1.is_correct
                 FROM solved_questions sq1
                 INNER JOIN (
@@ -357,44 +425,50 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
                 ) latest ON latest.question_id = sq1.question_id AND latest.max_created = sq1.created_at
                 WHERE sq1.student_id = ?
             ) sq ON q.question_id = sq.question_id`;
-            modeSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
-            modeSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
-        } else {
-            modeSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
-            modeSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
-            modeSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
-        }
+      modeSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+      modeSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
+    } else {
+      modeSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
+      modeSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+      modeSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
+    }
 
-        modeSql += ` WHERE q.topic_id = ?`;
+    modeSql += ` WHERE q.topic_id = ?`;
 
-        const modeValues = studentId ? [studentId, studentId, studentId, topicId] : [topicId];
+    const modeValues = studentId
+      ? [studentId, studentId, studentId, topicId]
+      : [topicId];
 
-        if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
-            const difficultyPlaceholders = filters.status.map(() => '?').join(',');
-            modeSql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
-            modeValues.push(...filters.status);
-        }
+    if (
+      filters.status &&
+      Array.isArray(filters.status) &&
+      filters.status.length > 0
+    ) {
+      const difficultyPlaceholders = filters.status.map(() => "?").join(",");
+      modeSql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
+      modeValues.push(...filters.status);
+    }
 
-        // Add mode-specific condition
-        switch (mode) {
-            case 'unused':
-                modeSql += ` AND sq.question_id IS NULL`;
-                break;
-            case 'incorrect':
-                modeSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '0')`;
-                break;
-            case 'correct':
-                modeSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '1')`;
-                break;
-            case 'marked':
-                modeSql += ` AND (mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)`;
-                break;
-            case 'all':
-                break;
-        }
+    // Add mode-specific condition
+    switch (mode) {
+      case "unused":
+        modeSql += ` AND sq.question_id IS NULL`;
+        break;
+      case "incorrect":
+        modeSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '0')`;
+        break;
+      case "correct":
+        modeSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '1')`;
+        break;
+      case "marked":
+        modeSql += ` AND (mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)`;
+        break;
+      case "all":
+        break;
+    }
 
-        // Build aggregate counts over the FULL filtered scope (no LIMIT)
-        let countSql = `SELECT 
+    // Build aggregate counts over the FULL filtered scope (no LIMIT)
+    let countSql = `SELECT 
             COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'easy' THEN q.question_id END) AS correct_count_easy,
             COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'medium' THEN q.question_id END) AS correct_count_medium,
             COUNT(DISTINCT CASE WHEN sq.question_id IS NOT NULL AND sq.is_correct = '1' AND q.difficulty_level = 'hard' THEN q.question_id END) AS correct_count_hard,
@@ -409,9 +483,9 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
             COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL AND q.difficulty_level = 'hard' THEN q.question_id END) AS marked_count_hard
         FROM questions q`;
 
-        // replicate joins for counts (no options join needed)
-        if (studentId) {
-            countSql += ` LEFT JOIN (
+    // replicate joins for counts (no options join needed)
+    if (studentId) {
+      countSql += ` LEFT JOIN (
                 SELECT sq1.question_id, sq1.is_correct
                 FROM solved_questions sq1
                 INNER JOIN (
@@ -422,109 +496,136 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
                 ) latest ON latest.question_id = sq1.question_id AND latest.max_created = sq1.created_at
                 WHERE sq1.student_id = ?
             ) sq ON q.question_id = sq.question_id`;
-            countSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
-            countSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
-        } else {
-            countSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
-            countSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
-            countSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
-        }
-
-        let countWhere = ` WHERE q.topic_id = ?`;
-        const countValues = studentId ? [modeValues[0], modeValues[1], modeValues[2], topicId] : [topicId];
-        if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
-            const difficultyPlaceholders = filters.status.map(() => '?').join(',');
-            countWhere += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
-            countValues.push(...filters.status);
-        }
-        switch (mode) {
-            case 'unused':
-                countWhere += ` AND sq.question_id IS NULL`;
-                break;
-            case 'incorrect':
-                countWhere += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '0')`;
-                break;
-            case 'correct':
-                countWhere += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '1')`;
-                break;
-            case 'marked':
-                countWhere += ` AND (mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)`;
-                break;
-            case 'all':
-                break;
-        }
-        const [countRows] = await client.execute(countSql + countWhere, countValues);
-
-        modeSql += ` GROUP BY q.question_id ORDER BY RAND() LIMIT ?`;
-        modeValues.push(limit);
-        // console.log("modeSql", modeSql)
-        console.log("modeValues", modeValues)
-
-        const [modeRows] = await client.execute(modeSql, modeValues);
-
-        // Process questions
-        const processedQuestions = modeRows.map((q) => ({
-            ...q,
-            options: JSON.parse(q.options)?.filter(Boolean) || [],
-            question_mode: mode
-        }));
-
-        console.log(`Fetched ${processedQuestions.length} questions for mode=${mode}, topic=${topicId}, requested limit=${limit}`);
-
-        // Add questions, avoiding duplicates by question_id
-        const existingQuestionIds = new Set(allQuestions.map(q => q.question_id));
-        const newQuestions = processedQuestions.filter(q => !existingQuestionIds.has(q.question_id));
-        allQuestions = allQuestions.concat(newQuestions);
-
-        console.log(`Added ${newQuestions.length} new questions (${processedQuestions.length - newQuestions.length} duplicates skipped), total so far: ${allQuestions.length}`);
-
-        // Use aggregate counts from full scope
-        const agg = countRows && countRows[0] ? countRows[0] : {};
-        aggregatedCounts.correct_count_easy = Number(agg.correct_count_easy || 0);
-        aggregatedCounts.correct_count_medium = Number(agg.correct_count_medium || 0);
-        aggregatedCounts.correct_count_hard = Number(agg.correct_count_hard || 0);
-        aggregatedCounts.wrong_count_easy = Number(agg.wrong_count_easy || 0);
-        aggregatedCounts.wrong_count_medium = Number(agg.wrong_count_medium || 0);
-        aggregatedCounts.wrong_count_hard = Number(agg.wrong_count_hard || 0);
-        aggregatedCounts.unused_count_easy = Number(agg.unused_count_easy || 0);
-        aggregatedCounts.unused_count_medium = Number(agg.unused_count_medium || 0);
-        aggregatedCounts.unused_count_hard = Number(agg.unused_count_hard || 0);
-        aggregatedCounts.marked_count_easy = Number(agg.marked_count_easy || 0);
-        aggregatedCounts.marked_count_medium = Number(agg.marked_count_medium || 0);
-        aggregatedCounts.marked_count_hard = Number(agg.marked_count_hard || 0);
+      countSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+      countSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
+    } else {
+      countSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
+      countSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+      countSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
     }
 
-    aggregatedCounts.total_questions = allQuestions.length;
+    let countWhere = ` WHERE q.topic_id = ?`;
+    const countValues = studentId
+      ? [modeValues[0], modeValues[1], modeValues[2], topicId]
+      : [topicId];
+    if (
+      filters.status &&
+      Array.isArray(filters.status) &&
+      filters.status.length > 0
+    ) {
+      const difficultyPlaceholders = filters.status.map(() => "?").join(",");
+      countWhere += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
+      countValues.push(...filters.status);
+    }
+    switch (mode) {
+      case "unused":
+        countWhere += ` AND sq.question_id IS NULL`;
+        break;
+      case "incorrect":
+        countWhere += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '0')`;
+        break;
+      case "correct":
+        countWhere += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '1')`;
+        break;
+      case "marked":
+        countWhere += ` AND (mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)`;
+        break;
+      case "all":
+        break;
+    }
+    const [countRows] = await client.execute(
+      countSql + countWhere,
+      countValues
+    );
 
-    // If we have fewer questions than requested, try to fill from remaining available modes
-    if (allQuestions.length < actualNumQuestions && totalAvailable > allQuestions.length) {
-        console.log(`Shortage detected: Have ${allQuestions.length} questions, need ${actualNumQuestions}, trying to fill from remaining modes...`);
+    modeSql += ` GROUP BY q.question_id ORDER BY RAND() LIMIT ?`;
+    modeValues.push(limit);
+    // console.log("modeSql", modeSql)
+    console.log("modeValues", modeValues);
 
-        const existingQuestionIds = new Set(allQuestions.map(q => q.question_id));
-        const neededQuestions = actualNumQuestions - allQuestions.length;
+    const [modeRows] = await client.execute(modeSql, modeValues);
 
-        // Try to get more questions from any available mode/topic combination
-        for (const { mode, count } of availableModes) {
-            if (allQuestions.length >= actualNumQuestions) break;
+    // Process questions
+    const processedQuestions = modeRows.map((q) => ({
+      ...q,
+      options: JSON.parse(q.options)?.filter(Boolean) || [],
+      question_mode: mode,
+    }));
 
-            // Try each topic
-            for (const topicId of topicIds) {
-                if (allQuestions.length >= actualNumQuestions) break;
+    console.log(
+      `Fetched ${processedQuestions.length} questions for mode=${mode}, topic=${topicId}, requested limit=${limit}`
+    );
 
-                const remainingNeeded = actualNumQuestions - allQuestions.length;
-                if (remainingNeeded <= 0) break;
+    // Add questions, avoiding duplicates by question_id
+    const existingQuestionIds = new Set(allQuestions.map((q) => q.question_id));
+    const newQuestions = processedQuestions.filter(
+      (q) => !existingQuestionIds.has(q.question_id)
+    );
+    allQuestions = allQuestions.concat(newQuestions);
 
-                // Build a query to get more questions from this mode/topic, excluding already fetched ones
-                const extraLimit = Math.min(remainingNeeded, count);
-                if (extraLimit <= 0) continue;
+    console.log(
+      `Added ${newQuestions.length} new questions (${
+        processedQuestions.length - newQuestions.length
+      } duplicates skipped), total so far: ${allQuestions.length}`
+    );
 
-                try {
-                    // Handle NOT IN clause - if no existing questions, don't use NOT IN
-                    const excludeClause = existingQuestionIds.size > 0
-                        ? `AND q.question_id NOT IN (${Array.from(existingQuestionIds).map(() => '?').join(',')})`
-                        : '';
+    // Use aggregate counts from full scope
+    const agg = countRows && countRows[0] ? countRows[0] : {};
+    aggregatedCounts.correct_count_easy = Number(agg.correct_count_easy || 0);
+    aggregatedCounts.correct_count_medium = Number(
+      agg.correct_count_medium || 0
+    );
+    aggregatedCounts.correct_count_hard = Number(agg.correct_count_hard || 0);
+    aggregatedCounts.wrong_count_easy = Number(agg.wrong_count_easy || 0);
+    aggregatedCounts.wrong_count_medium = Number(agg.wrong_count_medium || 0);
+    aggregatedCounts.wrong_count_hard = Number(agg.wrong_count_hard || 0);
+    aggregatedCounts.unused_count_easy = Number(agg.unused_count_easy || 0);
+    aggregatedCounts.unused_count_medium = Number(agg.unused_count_medium || 0);
+    aggregatedCounts.unused_count_hard = Number(agg.unused_count_hard || 0);
+    aggregatedCounts.marked_count_easy = Number(agg.marked_count_easy || 0);
+    aggregatedCounts.marked_count_medium = Number(agg.marked_count_medium || 0);
+    aggregatedCounts.marked_count_hard = Number(agg.marked_count_hard || 0);
+  }
 
-                    let extraSql = `SELECT 
+  aggregatedCounts.total_questions = allQuestions.length;
+
+  // If we have fewer questions than requested, try to fill from remaining available modes
+  if (
+    allQuestions.length < actualNumQuestions &&
+    totalAvailable > allQuestions.length
+  ) {
+    console.log(
+      `Shortage detected: Have ${allQuestions.length} questions, need ${actualNumQuestions}, trying to fill from remaining modes...`
+    );
+
+    const existingQuestionIds = new Set(allQuestions.map((q) => q.question_id));
+    const neededQuestions = actualNumQuestions - allQuestions.length;
+
+    // Try to get more questions from any available mode/topic combination
+    for (const { mode, count } of availableModes) {
+      if (allQuestions.length >= actualNumQuestions) break;
+
+      // Try each topic
+      for (const topicId of topicIds) {
+        if (allQuestions.length >= actualNumQuestions) break;
+
+        const remainingNeeded = actualNumQuestions - allQuestions.length;
+        if (remainingNeeded <= 0) break;
+
+        // Build a query to get more questions from this mode/topic, excluding already fetched ones
+        const extraLimit = Math.min(remainingNeeded, count);
+        if (extraLimit <= 0) continue;
+
+        try {
+          // Handle NOT IN clause - if no existing questions, don't use NOT IN
+          const excludeClause =
+            existingQuestionIds.size > 0
+              ? `AND q.question_id NOT IN (${Array.from(existingQuestionIds)
+                  .map(() => "?")
+                  .join(",")})`
+              : "";
+
+          let extraSql = `SELECT 
                         q.*,
                         COALESCE(
                             JSON_ARRAYAGG(
@@ -542,11 +643,11 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
                         q.difficulty_level
                         FROM questions q`;
 
-                    const extraParams = [];
+          const extraParams = [];
 
-                    // Add JOINs
-                    if (studentId) {
-                        extraSql += ` LEFT JOIN (
+          // Add JOINs
+          if (studentId) {
+            extraSql += ` LEFT JOIN (
                             SELECT sq1.question_id, sq1.is_correct
                             FROM solved_questions sq1
                             INNER JOIN (
@@ -557,121 +658,163 @@ const fetchQuestionsByTopicIds = async (topicIds = [], filters = {}, studentId =
                             ) latest ON latest.question_id = sq1.question_id AND latest.max_created = sq1.created_at
                             WHERE sq1.student_id = ?
                         ) sq ON q.question_id = sq.question_id`;
-                        extraParams.push(studentId, studentId);
-                    } else {
-                        extraSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
-                    }
+            extraParams.push(studentId, studentId);
+          } else {
+            extraSql += ` LEFT JOIN solved_questions sq ON q.question_id = sq.question_id`;
+          }
 
-                    extraSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
-                    if (studentId) {
-                        extraSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
-                        extraParams.push(studentId);
-                    } else {
-                        extraSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
-                    }
+          extraSql += ` LEFT JOIN mark_category_question mcq ON q.question_id = mcq.question_id`;
+          if (studentId) {
+            extraSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id AND smc.student_id = ?`;
+            extraParams.push(studentId);
+          } else {
+            extraSql += ` LEFT JOIN student_mark_categories smc ON mcq.category_id = smc.student_mark_category_id`;
+          }
 
-                    extraSql += ` LEFT JOIN question_options qo ON q.question_id = qo.question_id
+          extraSql += ` LEFT JOIN question_options qo ON q.question_id = qo.question_id
                         WHERE q.topic_id = ? ${excludeClause}`;
 
-                    extraParams.push(topicId);
-                    if (existingQuestionIds.size > 0) {
-                        extraParams.push(...Array.from(existingQuestionIds));
-                    }
+          extraParams.push(topicId);
+          if (existingQuestionIds.size > 0) {
+            extraParams.push(...Array.from(existingQuestionIds));
+          }
 
-                    if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
-                        const difficultyPlaceholders = filters.status.map(() => '?').join(',');
-                        extraSql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
-                        extraParams.push(...filters.status);
-                    }
+          if (
+            filters.status &&
+            Array.isArray(filters.status) &&
+            filters.status.length > 0
+          ) {
+            const difficultyPlaceholders = filters.status
+              .map(() => "?")
+              .join(",");
+            extraSql += ` AND q.difficulty_level IN (${difficultyPlaceholders})`;
+            extraParams.push(...filters.status);
+          }
 
-                    // Add mode-specific condition
-                    switch (mode) {
-                        case 'unused':
-                            extraSql += ` AND sq.question_id IS NULL`;
-                            break;
-                        case 'incorrect':
-                            extraSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '0')`;
-                            break;
-                        case 'correct':
-                            extraSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '1')`;
-                            break;
-                        case 'marked':
-                            extraSql += ` AND (mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)`;
-                            break;
-                        case 'all':
-                            break;
-                    }
+          // Add mode-specific condition
+          switch (mode) {
+            case "unused":
+              extraSql += ` AND sq.question_id IS NULL`;
+              break;
+            case "incorrect":
+              extraSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '0')`;
+              break;
+            case "correct":
+              extraSql += ` AND (sq.question_id IS NOT NULL AND sq.is_correct = '1')`;
+              break;
+            case "marked":
+              extraSql += ` AND (mcq.question_id IS NOT NULL AND smc.student_id IS NOT NULL)`;
+              break;
+            case "all":
+              break;
+          }
 
-                    extraSql += ` GROUP BY q.question_id ORDER BY RAND() LIMIT ?`;
-                    extraParams.push(extraLimit);
+          extraSql += ` GROUP BY q.question_id ORDER BY RAND() LIMIT ?`;
+          extraParams.push(extraLimit);
 
-                    const [extraRows] = await client.execute(extraSql, extraParams);
+          const [extraRows] = await client.execute(extraSql, extraParams);
 
-                    if (extraRows.length > 0) {
-                        const extraQuestions = extraRows.map((q) => ({
-                            ...q,
-                            options: JSON.parse(q.options)?.filter(Boolean) || [],
-                            question_mode: mode
-                        }));
+          if (extraRows.length > 0) {
+            const extraQuestions = extraRows.map((q) => ({
+              ...q,
+              options: JSON.parse(q.options)?.filter(Boolean) || [],
+              question_mode: mode,
+            }));
 
-                        allQuestions = allQuestions.concat(extraQuestions);
-                        existingQuestionIds.clear();
-                        allQuestions.forEach(q => existingQuestionIds.add(q.question_id));
+            allQuestions = allQuestions.concat(extraQuestions);
+            existingQuestionIds.clear();
+            allQuestions.forEach((q) => existingQuestionIds.add(q.question_id));
 
-                        console.log(`Filled ${extraQuestions.length} more questions from mode=${mode}, topic=${topicId}, total now: ${allQuestions.length}`);
-                    }
-                } catch (error) {
-                    console.error(`Error fetching extra questions for mode=${mode}, topic=${topicId}:`, error.message);
-                }
-            }
+            console.log(
+              `Filled ${extraQuestions.length} more questions from mode=${mode}, topic=${topicId}, total now: ${allQuestions.length}`
+            );
+          }
+        } catch (error) {
+          console.error(
+            `Error fetching extra questions for mode=${mode}, topic=${topicId}:`,
+            error.message
+          );
         }
+      }
     }
+  }
 
-    // Final limit to ensure we don't exceed requested number
-    const finalQuestions = allQuestions.slice(0, actualNumQuestions);
+  // Final limit to ensure we don't exceed requested number
+  const finalQuestions = allQuestions.slice(0, actualNumQuestions);
 
-    aggregatedCounts.total_questions = finalQuestions.length;
+  aggregatedCounts.total_questions = finalQuestions.length;
 
-    console.log(`fetchQuestionsByTopicIds: Final result - Requested: ${numQuestions}, Actual needed: ${actualNumQuestions}, Returned: ${finalQuestions.length}, Limits applied: ${modeLimits.length} groups`);
+  console.log(
+    `fetchQuestionsByTopicIds: Final result - Requested: ${numQuestions}, Actual needed: ${actualNumQuestions}, Returned: ${finalQuestions.length}, Limits applied: ${modeLimits.length} groups`
+  );
 
-    return {
-        questions: finalQuestions,
-        counts: aggregatedCounts
-    };
-}
+  return {
+    questions: finalQuestions,
+    counts: aggregatedCounts,
+  };
+};
 
-const fetchModulesSubjectsTopicsQuestions = async ({ selected_modules = [], filters = {}, studentId = null }) => {
+const fetchModulesSubjectsTopicsQuestions = async ({
+  selected_modules = [],
+  filters = {},
+  studentId = null,
+}) => {
+  const modules = await fetchModules(selected_modules);
+  const moduleIds = modules.map((m) => m.module_id);
 
-    const modules = await fetchModules(selected_modules);
-    const moduleIds = modules.map(m => m.module_id);
+  const selectedSubjects = Array.isArray(filters.selected_subjects)
+    ? filters.selected_subjects
+    : [];
+  const subjects = selectedSubjects.length
+    ? await fetchSubjectsFromUnitsByModuleIds(moduleIds.length ? moduleIds : [])
+    : await fetchSubjectsFromUnitsByModuleIds(moduleIds);
 
+  let topics = [];
+  if (selectedSubjects.length) {
+    topics = await fetchTopicsByUnitIds(selectedSubjects);
+  } else {
+    topics = await fetchTopicsByModuleIds(moduleIds);
+  }
 
-    const selectedSubjects = Array.isArray(filters.selected_subjects) ? filters.selected_subjects : [];
-    const subjects = selectedSubjects.length
-        ? await fetchSubjectsFromUnitsByModuleIds(moduleIds.length ? moduleIds : [])
-        : await fetchSubjectsFromUnitsByModuleIds(moduleIds);
+  const explicitTopicIds = Array.isArray(filters.selected_topics)
+    ? filters.selected_topics
+    : [];
+  const topicIds = explicitTopicIds.length
+    ? explicitTopicIds
+    : topics.map((t) => t.topic_id);
 
+  const questions = await fetchQuestionsByTopicIds(
+    topicIds,
+    filters,
+    studentId
+  );
 
-    let topics = [];
-    if (selectedSubjects.length) {
-        topics = await fetchTopicsByUnitIds(selectedSubjects);
-    } else {
-        topics = await fetchTopicsByModuleIds(moduleIds);
-    }
+  return {
+    modules,
+    subjects,
+    topics,
+    questions: questions.questions,
+    counts: questions.counts,
+  };
+};
 
-
-    const explicitTopicIds = Array.isArray(filters.selected_topics) ? filters.selected_topics : [];
-    const topicIds = explicitTopicIds.length ? explicitTopicIds : topics.map(t => t.topic_id);
-
-    const questions = await fetchQuestionsByTopicIds(topicIds, filters, studentId);
-
-    return { modules, subjects, topics, questions: questions.questions, counts: questions.counts };
-}
-
-const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, selected_modules,
-    selected_subjects, day,
-    selected_topics, question_level, numQuestions, question_mode = ["all"], plan_id = 0, date_schedule = null }) => {
-    /**
+const createQbank = async ({
+  studentId,
+  qbankName,
+  tutorMode,
+  timed,
+  timeType,
+  selected_modules,
+  selected_subjects,
+  day,
+  selected_topics,
+  question_level,
+  numQuestions,
+  question_mode = ["all"],
+  plan_id = 0,
+  date_schedule = null,
+}) => {
+  /**
   numQuestions:null,
   question_mode:"",
   question_level:"",
@@ -681,125 +824,168 @@ const createQbank = async ({ studentId, qbankName, tutorMode, timed, timeType, s
   question_level:[]
      */
 
-
-
-
-
-
-
-
-
-    // Ensure numQuestions is a valid number
-    let cleanNumQuestions = numQuestions;
-    if (cleanNumQuestions === null || cleanNumQuestions === undefined || cleanNumQuestions === '') {
-        cleanNumQuestions = null;
-    } else {
-        cleanNumQuestions = parseInt(cleanNumQuestions, 10);
-        if (isNaN(cleanNumQuestions) || cleanNumQuestions <= 0) {
-            cleanNumQuestions = null;
-        }
+  // Ensure numQuestions is a valid number
+  let cleanNumQuestions = numQuestions;
+  if (
+    cleanNumQuestions === null ||
+    cleanNumQuestions === undefined ||
+    cleanNumQuestions === ""
+  ) {
+    cleanNumQuestions = null;
+  } else {
+    cleanNumQuestions = parseInt(cleanNumQuestions, 10);
+    if (isNaN(cleanNumQuestions) || cleanNumQuestions <= 0) {
+      cleanNumQuestions = null;
     }
+  }
 
-    const filters = {
-        selected_modules,
-        selected_subjects,
-        selected_topics,
-        status: question_level,
-        question_mode: question_mode,
-        numQuestions: cleanNumQuestions
-    }
-    console.log("createQbank: filters", JSON.stringify(filters, null, 2));
-    console.log("createQbank: numQuestions input =", numQuestions, ", cleaned =", cleanNumQuestions);
+  const filters = {
+    selected_modules,
+    selected_subjects,
+    selected_topics,
+    status: question_level,
+    question_mode: question_mode,
+    numQuestions: cleanNumQuestions,
+  };
+  console.log("createQbank: filters", JSON.stringify(filters, null, 2));
+  console.log(
+    "createQbank: numQuestions input =",
+    numQuestions,
+    ", cleaned =",
+    cleanNumQuestions
+  );
 
-    const questions = await fetchModulesSubjectsTopicsQuestions({ studentId, filters })
+  const questions = await fetchModulesSubjectsTopicsQuestions({
+    studentId,
+    filters,
+  });
 
-    console.log("createQbank: Received", questions?.questions?.length || 0, "questions from fetchModulesSubjectsTopicsQuestions");
+  console.log(
+    "createQbank: Received",
+    questions?.questions?.length || 0,
+    "questions from fetchModulesSubjectsTopicsQuestions"
+  );
 
-    const [insertQbank] = await client.execute(
-        `INSERT INTO qbank (qbank_name, tutor_mode, timed, time_type, active, deleted, student_id, plan_id, day, date_schedule)
+  const [insertQbank] = await client.execute(
+    `INSERT INTO qbank (qbank_name, tutor_mode, timed, time_type, active, deleted, student_id, plan_id, day, date_schedule)
          VALUES (?, ?, ?, ?,?, ?,? ,? ,?, ? )`,
-        [qbankName ? qbankName : new Date(), tutorMode, timed, timeType, '1', '0', studentId, plan_id ? plan_id : 0, day ? day : "---", date_schedule ? date_schedule : null]
+    [
+      qbankName ? qbankName : new Date(),
+      tutorMode,
+      timed,
+      timeType,
+      "1",
+      "0",
+      studentId,
+      plan_id ? plan_id : 0,
+      day ? day : "---",
+      date_schedule ? date_schedule : null,
+    ]
+  );
+  const rows = (questions?.questions || []).map((q) => [
+    q.question_id,
+    insertQbank.insertId,
+    (q.options || []).find((o) => ["1", 1, true].includes(o?.is_correct))
+      ?.option_text || "-",
+  ]);
+
+  console.log(
+    "createQbank: Inserting",
+    rows.length,
+    "questions into qbank_questions"
+  );
+
+  if (rows.length) {
+    await client.execute(
+      `INSERT INTO qbank_questions (question_id, qbank_id, correct_option) VALUES ${rows
+        .map(() => "(?,?,?)")
+        .join(",")}`,
+      rows.flat()
     );
-    const rows = (questions?.questions || []).map(q => [
-        q.question_id,
-        insertQbank.insertId,
-        (q.options || []).find(o => ['1', 1, true].includes(o?.is_correct))?.option_text || '-'
-    ]);
+    console.log(
+      "createQbank: Successfully inserted",
+      rows.length,
+      "questions. Qbank ID:",
+      insertQbank.insertId
+    );
+  } else {
+    console.warn(
+      "createQbank: No questions to insert! Qbank ID:",
+      insertQbank.insertId
+    );
+  }
 
-    console.log("createQbank: Inserting", rows.length, "questions into qbank_questions");
-
-    if (rows.length) {
-        await client.execute(
-            `INSERT INTO qbank_questions (question_id, qbank_id, correct_option) VALUES ${rows.map(() => '(?,?,?)').join(',')}`,
-            rows.flat()
-        );
-        console.log("createQbank: Successfully inserted", rows.length, "questions. Qbank ID:", insertQbank.insertId);
-    } else {
-        console.warn("createQbank: No questions to insert! Qbank ID:", insertQbank.insertId);
-    }
-
-    return insertQbank.insertId;
-}
+  return insertQbank.insertId;
+};
 const createCategory = async ({ studentId, category_name }) => {
-    const [insertCategory] = await client.query("INSERT INTO student_mark_categories(student_id, category_name) VALUES (?,?)", [studentId, category_name])
+  const [insertCategory] = await client.query(
+    "INSERT INTO student_mark_categories(student_id, category_name) VALUES (?,?)",
+    [studentId, category_name]
+  );
 
-    return insertCategory.insertId;
-}
+  return insertCategory.insertId;
+};
 
 const listCategories = async ({ studentId }) => {
-    const [rows] = await client.execute(
-        `SELECT * FROM student_mark_categories WHERE student_id = ? ORDER BY student_mark_category_id DESC`,
-        [studentId]
-    );
-    return rows;
-}
+  const [rows] = await client.execute(
+    `SELECT * FROM student_mark_categories WHERE student_id = ? ORDER BY student_mark_category_id DESC`,
+    [studentId]
+  );
+  return rows;
+};
 
-const createDeck = async ({ studentId, qbank_id, question_id, deck_title, deck_description }) => {
-    const [result] = await client.execute(
-        `INSERT INTO student_deck (student_id, deck_title, deck_description, created_at)
+const createDeck = async ({
+  studentId,
+  qbank_id,
+  question_id,
+  deck_title,
+  deck_description,
+}) => {
+  const [result] = await client.execute(
+    `INSERT INTO student_deck (student_id, deck_title, deck_description, created_at)
 		 VALUES (?, ?, ?, NOW())`,
-        [studentId, deck_title, deck_description || null]
-    );
-    return result.insertId;
-}
+    [studentId, deck_title, deck_description || null]
+  );
+  return result.insertId;
+};
 
 const updateDeck = async ({ deckId, deck_title, deck_description }) => {
-    let query = `UPDATE student_deck SET `;
-    const params = [];
-    const updates = [];
+  let query = `UPDATE student_deck SET `;
+  const params = [];
+  const updates = [];
 
-    if (deck_title !== undefined) {
-        updates.push(`deck_title = ?`);
-        params.push(deck_title);
-    }
+  if (deck_title !== undefined) {
+    updates.push(`deck_title = ?`);
+    params.push(deck_title);
+  }
 
-    if (deck_description !== undefined) {
-        updates.push(`deck_description = ?`);
-        params.push(deck_description || null);
-    }
+  if (deck_description !== undefined) {
+    updates.push(`deck_description = ?`);
+    params.push(deck_description || null);
+  }
 
-    if (updates.length === 0) {
-        return false; // No fields to update
-    }
+  if (updates.length === 0) {
+    return false; // No fields to update
+  }
 
-    query += updates.join(', ') + ` WHERE student_deck_id = ?`;
-    params.push(deckId);
+  query += updates.join(", ") + ` WHERE student_deck_id = ?`;
+  params.push(deckId);
 
-    const [result] = await client.execute(query, params);
-    return result.affectedRows > 0;
-}
+  const [result] = await client.execute(query, params);
+  return result.affectedRows > 0;
+};
 
 const deleteDeck = async ({ deckId }) => {
-    const [result] = await client.execute(
-        `DELETE FROM student_deck WHERE student_deck_id = ?`,
-        [deckId]
-    );
-    return result.affectedRows > 0;
-}
+  const [result] = await client.execute(
+    `DELETE FROM student_deck WHERE student_deck_id = ?`,
+    [deckId]
+  );
+  return result.affectedRows > 0;
+};
 
 const listDecks = async ({ studentId }) => {
-    const [rows] = await client.execute(
-        `SELECT 
+  const [rows] = await client.execute(
+    `SELECT 
             sd.*,
             COUNT(fc.student_flash_card_id) AS total_cards,
             SUM(CASE WHEN fc.card_solved = '1' AND DATE(fc.next_review) <= CURRENT_DATE() THEN 1 ELSE 0 END) AS solved_cards,
@@ -815,59 +1001,75 @@ const listDecks = async ({ studentId }) => {
          WHERE sd.student_id = ?
          GROUP BY sd.student_deck_id
          ORDER BY sd.created_at DESC`,
-        [studentId]
-    );
-    return rows;
-}
+    [studentId]
+  );
+  return rows;
+};
 
 const createNote = async ({ studentId, question_id, qbank_id, note_text }) => {
-    const [insertCategory] = await client.query("INSERT INTO question_notes(student_id, question_id, qbank_id, note_text) VALUES (?,?,?,?)", [studentId, question_id, qbank_id, note_text])
+  const [insertCategory] = await client.query(
+    "INSERT INTO question_notes(student_id, question_id, qbank_id, note_text) VALUES (?,?,?,?)",
+    [studentId, question_id, qbank_id, note_text]
+  );
 
-    return insertCategory.insertId;
-}
+  return insertCategory.insertId;
+};
 
 const deleteNote = async ({ note_id }) => {
-    const [deleteMark] = await client.query("DELETE FROM question_notes WHERE question_note_id = ? ", [note_id])
+  const [deleteMark] = await client.query(
+    "DELETE FROM question_notes WHERE question_note_id = ? ",
+    [note_id]
+  );
 
-    return deleteMark.affectedRows;
-}
+  return deleteMark.affectedRows;
+};
 
 const listNotes = async ({ studentId, qbank_id, question_id }) => {
-    const [rows] = await client.execute(
-        `SELECT *
+  const [rows] = await client.execute(
+    `SELECT *
          FROM question_notes
          WHERE student_id = ? AND qbank_id = ? AND question_id = ?
          ORDER BY question_note_id DESC`,
-        [studentId, qbank_id, question_id]
-    );
-    return rows;
-}
-
+    [studentId, qbank_id, question_id]
+  );
+  return rows;
+};
 
 const assignToCategory = async ({ question_id, qbank_id, category_id }) => {
-    const [insertCategory] = await client.query("INSERT INTO mark_category_question(question_id, qbank_id, category_id) VALUES (?,?,?)", [question_id, qbank_id, category_id])
+  const [insertCategory] = await client.query(
+    "INSERT INTO mark_category_question(question_id, qbank_id, category_id) VALUES (?,?,?)",
+    [question_id, qbank_id, category_id]
+  );
 
-    return insertCategory.insertId;
-}
+  return insertCategory.insertId;
+};
 
 const unAssignFromCategory = async ({ mark_id }) => {
-    const [deleteMark] = await client.query("DELETE FROM mark_category_question WHERE 	mark_category_question_id = ? ", [mark_id])
+  const [deleteMark] = await client.query(
+    "DELETE FROM mark_category_question WHERE 	mark_category_question_id = ? ",
+    [mark_id]
+  );
 
-    return deleteMark.affectedRows;
-}
+  return deleteMark.affectedRows;
+};
 
 const listQuestion = async ({ qbank_id, studentId, session_id }) => {
-    let where = `WHERE qq.qbank_id = ?`;
-    if (session_id) {
-        where += ` AND sq.session_id = ?`;
-    } else {
-        where += ` AND sq.session_id IS NULL`;
-    }
+  let where = `WHERE qq.qbank_id = ?`;
+  if (session_id) {
+    where += ` AND sq.session_id = ?`;
+  } else {
+    where += ` AND sq.session_id IS NULL`;
+  }
 
-    const qbank = await client.execute(`SELECT * FROM qbank WHERE qbank_id = ?`, [qbank_id]);
-    const [categories] = await client.query("SELECT * FROM student_mark_categories WHERE student_id = ?", [studentId])
-    const [rows] = await client.query(
-        `SELECT 
+  const qbank = await client.execute(`SELECT * FROM qbank WHERE qbank_id = ?`, [
+    qbank_id,
+  ]);
+  const [categories] = await client.query(
+    "SELECT * FROM student_mark_categories WHERE student_id = ?",
+    [studentId]
+  );
+  const [rows] = await client.query(
+    `SELECT 
 		sq.solved_question_id,
 		qq.qbank_id,
 		mcq.mark_category_question_id AS marked,
@@ -944,162 +1146,235 @@ const listQuestion = async ({ qbank_id, studentId, session_id }) => {
 	  GROUP BY q.question_id, qq.qbank_id
 	  ORDER BY q.question_id
 	  `,
-        [studentId, qbank_id]
-    );
+    [studentId, qbank_id]
+  );
 
-    for (const r of rows) {
-        try {
-            r.options = JSON.parse(r.options).filter(Boolean);
-            if (typeof r.keywords === 'string') r.keywords = JSON.parse(r.keywords).filter(Boolean);
+  for (const r of rows) {
+    try {
+      r.options = JSON.parse(r.options).filter(Boolean);
+      if (typeof r.keywords === "string")
+        r.keywords = JSON.parse(r.keywords).filter(Boolean);
 
-            if (typeof r.notes === 'string') r.notes = JSON.parse(r.notes).filter(Boolean);
-            const answerParsed = JSON.parse(r.your_answer);
-            answerParsed.option_id = r.options.find(option => option.option_text === answerParsed.answer)?.option_id;
-            answerParsed.solved = false
-            if (answerParsed?.is_correct != null) {
-                answerParsed.solved = true
-            }
-            r.your_answer = answerParsed
-            if (typeof r.flashcards === 'string') {
-                const parsed = JSON.parse(r.flashcards).filter(Boolean);
+      if (typeof r.notes === "string")
+        r.notes = JSON.parse(r.notes).filter(Boolean);
+      const answerParsed = JSON.parse(r.your_answer);
+      answerParsed.option_id = r.options.find(
+        (option) => option.option_text === answerParsed.answer
+      )?.option_id;
+      answerParsed.solved = false;
+      if (answerParsed?.is_correct != null) {
+        answerParsed.solved = true;
+      }
+      r.your_answer = answerParsed;
+      if (typeof r.flashcards === "string") {
+        const parsed = JSON.parse(r.flashcards).filter(Boolean);
 
-                for (const fc of parsed) {
-                    if (typeof fc.tags === 'string') {
-                        try { fc.tags = JSON.parse(fc.tags); } catch { }
-                    }
-                }
-                r.flashcards = parsed;
-            }
-            if (typeof r.tags === 'string') r.tags = JSON.parse(r.tags).filter(Boolean);
-        } catch { }
-    }
-    return { questions: rows, categories, qbank: qbank[0] };
+        for (const fc of parsed) {
+          if (typeof fc.tags === "string") {
+            try {
+              fc.tags = JSON.parse(fc.tags);
+            } catch {}
+          }
+        }
+        r.flashcards = parsed;
+      }
+      if (typeof r.tags === "string")
+        r.tags = JSON.parse(r.tags).filter(Boolean);
+    } catch {}
+  }
+  return { questions: rows, categories, qbank: qbank[0] };
 };
 
+const createFlashCard = async ({
+  deck_id,
+  front,
+  back,
+  tags = [],
+  difficulty = "medium",
+  question_id = 0,
+  qbank_id = 0,
+}) => {
+  const [res] = await client.execute(
+    `INSERT INTO student_flash_cards (student_flash_card_front, student_flash_card_back, deck_id, tags, card_status, card_solved, created_at, solved_at, difficulty, question_id, qbank_id)
+          VALUES (?, ?, ?, ?, 'not_seen', '0', NOW(), NULL, ?, ?, ?)`,
+    [
+      front,
+      back,
+      deck_id,
+      JSON.stringify(tags),
+      difficulty,
+      question_id,
+      qbank_id,
+    ]
+  );
+  return res.insertId;
+};
 
-const createFlashCard = async ({ deck_id, front, back, tags = [], difficulty = 'medium', question_id = 0, qbank_id = 0 }) => {
-    const [res] = await client.execute(
-        `INSERT INTO student_flash_cards (student_flash_card_front, student_flash_card_back, deck_id, tags, card_status, card_solved, created_at, solved_at, difficulty, question_id, qbank_id)
-          VALUES (?, ?, ?, ?, 'not_seen', '0', NOW(), NULL, ?, ?, ?)`
-        , [front, back, deck_id, JSON.stringify(tags), difficulty, question_id, qbank_id]
-    );
-    return res.insertId;
-}
-
-const updateFlashCard = async ({ student_flash_card_id, front, back, tags, card_status, card_solved, solved_at, difficulty }) => {
-    const fields = [];
-    const values = [];
-    if (front !== undefined) { fields.push('student_flash_card_front = ?'); values.push(front); }
-    if (back !== undefined) { fields.push('student_flash_card_back = ?'); values.push(back); }
-    if (tags !== undefined) { fields.push('tags = ?'); values.push(JSON.stringify(tags)); }
-    if (card_status !== undefined) { fields.push('card_status = ?'); values.push(card_status); }
-    if (card_solved !== undefined) { fields.push("card_solved = ?"); values.push(card_solved ? '1' : '0'); }
-    if (solved_at !== undefined) { fields.push('solved_at = ?'); values.push(solved_at || null); }
-    if (difficulty !== undefined) { fields.push('difficulty = ?'); values.push(difficulty); }
-    if (!fields.length) return 0;
-    values.push(student_flash_card_id);
-    const [res] = await client.execute(`UPDATE student_flash_cards SET ${fields.join(', ')} WHERE student_flash_card_id = ?`, values);
-    return res.affectedRows;
-}
+const updateFlashCard = async ({
+  student_flash_card_id,
+  front,
+  back,
+  tags,
+  card_status,
+  card_solved,
+  solved_at,
+  difficulty,
+}) => {
+  const fields = [];
+  const values = [];
+  if (front !== undefined) {
+    fields.push("student_flash_card_front = ?");
+    values.push(front);
+  }
+  if (back !== undefined) {
+    fields.push("student_flash_card_back = ?");
+    values.push(back);
+  }
+  if (tags !== undefined) {
+    fields.push("tags = ?");
+    values.push(JSON.stringify(tags));
+  }
+  if (card_status !== undefined) {
+    fields.push("card_status = ?");
+    values.push(card_status);
+  }
+  if (card_solved !== undefined) {
+    fields.push("card_solved = ?");
+    values.push(card_solved ? "1" : "0");
+  }
+  if (solved_at !== undefined) {
+    fields.push("solved_at = ?");
+    values.push(solved_at || null);
+  }
+  if (difficulty !== undefined) {
+    fields.push("difficulty = ?");
+    values.push(difficulty);
+  }
+  if (!fields.length) return 0;
+  values.push(student_flash_card_id);
+  const [res] = await client.execute(
+    `UPDATE student_flash_cards SET ${fields.join(
+      ", "
+    )} WHERE student_flash_card_id = ?`,
+    values
+  );
+  return res.affectedRows;
+};
 
 const deleteFlashCard = async ({ student_flash_card_id }) => {
-    const [res] = await client.execute(`DELETE FROM student_flash_cards WHERE student_flash_card_id = ?`, [student_flash_card_id]);
-    return res.affectedRows;
-}
+  const [res] = await client.execute(
+    `DELETE FROM student_flash_cards WHERE student_flash_card_id = ?`,
+    [student_flash_card_id]
+  );
+  return res.affectedRows;
+};
 
-const listFlashcardsByDeck = async ({ studentId, deck_id, mode = 'all' }) => {
-    let where = `sd.student_id = ? AND sfc.deck_id = ?`;
-    let order = `ORDER BY sfc.created_at DESC`;
-    const values = [studentId, deck_id];
+const listFlashcardsByDeck = async ({ studentId, deck_id, mode = "all" }) => {
+  let where = `sd.student_id = ? AND sfc.deck_id = ?`;
+  let order = `ORDER BY sfc.created_at DESC`;
+  const values = [studentId, deck_id];
 
-    if (mode === 'new') {
-        where += ` AND sfc.card_solved = '0'`;
-        order = `ORDER BY sfc.created_at DESC`;
-    } else if (mode === 'used') {
-        where += ` AND sfc.card_solved = '1'`;
-        order = `ORDER BY (sfc.last_reviewed IS NULL), sfc.last_reviewed DESC`;
-    } else if (mode === "spaced-repetition" || mode == "due-now") {
-        where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review <= NOW())`;
-        order = `ORDER BY COALESCE(sfc.next_review, sfc.created_at) ASC`;
-    }
+  if (mode === "new") {
+    where += ` AND sfc.card_solved = '0'`;
+    order = `ORDER BY sfc.created_at DESC`;
+  } else if (mode === "used") {
+    where += ` AND sfc.card_solved = '1'`;
+    order = `ORDER BY (sfc.last_reviewed IS NULL), sfc.last_reviewed DESC`;
+  } else if (mode === "spaced-repetition" || mode == "due-now") {
+    where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review <= NOW())`;
+    order = `ORDER BY COALESCE(sfc.next_review, sfc.created_at) ASC`;
+  }
 
-    let [rows] = await client.execute(
-        `SELECT sfc.*
+  let [rows] = await client.execute(
+    `SELECT sfc.*
          FROM student_flash_cards sfc
          INNER JOIN student_deck sd ON sd.student_deck_id = sfc.deck_id
          WHERE ${where}
          ${order}`,
-        values
+    values
+  );
+  if (mode == "new") {
+    rows = rows.filter((r) => r.card_solved === "0");
+  } else if (mode == "used") {
+    rows = rows.filter((r) => r.card_solved === "1");
+  } else if (mode == "spaced-repetition" || mode == "due-now") {
+    const nowTs = Date.now();
+    rows = rows.filter(
+      (r) => r.next_review && new Date(r.next_review).getTime() <= nowTs
     );
-    if (mode == "new") {
-        rows = rows.filter(r => r.card_solved === '0');
-    } else if (mode == "used") {
-        rows = rows.filter(r => r.card_solved === '1');
-    } else if (mode == "spaced-repetition" || mode == "due-now") {
-        const nowTs = Date.now();
-        rows = rows.filter(r => r.next_review && new Date(r.next_review).getTime() <= nowTs);
-    } else {
-        rows = rows.filter(r => r.card_solved === '0');
-    }
-    for (const r of rows) {
-        try { if (typeof r.tags === 'string') r.tags = JSON.parse(r.tags).filter(Boolean); } catch { }
-    }
-    return rows;
-}
+  } else {
+    rows = rows.filter((r) => r.card_solved === "0");
+  }
+  for (const r of rows) {
+    try {
+      if (typeof r.tags === "string")
+        r.tags = JSON.parse(r.tags).filter(Boolean);
+    } catch {}
+  }
+  return rows;
+};
 
+const getFlashcardsByMode = async ({
+  studentId,
+  mode = "repetition",
+  limit = 20,
+  deckId,
+}) => {
+  let where = `sd.student_id = ?`;
+  let order = `ORDER BY COALESCE(sfc.next_review, sfc.created_at) ASC`;
+  const values = [studentId];
+  if (mode === "new") {
+    where += ` AND sfc.card_solved = '0'`;
+    order = `ORDER BY sfc.created_at DESC`;
+  } else if (mode === "used") {
+    where += ` AND sfc.card_solved = '1'`;
+    order = `ORDER BY (sfc.last_reviewed IS NULL), sfc.last_reviewed DESC`;
+  } else if (mode == "spaced-repetition" || mode == "due-now") {
+    where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review <= NOW())`;
+  } else {
+    order = `ORDER BY sfc.created_at DESC`;
+  }
 
-const getFlashcardsByMode = async ({ studentId, mode = 'repetition', limit = 20, deckId }) => {
-    let where = `sd.student_id = ?`;
-    let order = `ORDER BY COALESCE(sfc.next_review, sfc.created_at) ASC`;
-    const values = [studentId];
-    if (mode === 'new') {
-        where += ` AND sfc.card_solved = '0'`;
-        order = `ORDER BY sfc.created_at DESC`;
-    } else if (mode === 'used') {
-        where += ` AND sfc.card_solved = '1'`;
-        order = `ORDER BY (sfc.last_reviewed IS NULL), sfc.last_reviewed DESC`;
-    } else if (mode == "spaced-repetition" || mode == "due-now") {
-        where += ` AND (sfc.next_review IS NOT NULL AND sfc.next_review <= NOW())`;
-    } else {
+  if (deckId) {
+    where += ` AND sfc.deck_id = ?`;
+    values.push(deckId);
+  }
 
-        order = `ORDER BY sfc.created_at DESC`;
-    }
-
-
-    if (deckId) {
-        where += ` AND sfc.deck_id = ?`;
-        values.push(deckId);
-    }
-
-    const sql = `SELECT sfc.*
+  const sql = `SELECT sfc.*
           FROM student_flash_cards sfc
           INNER JOIN student_deck sd ON sd.student_deck_id = sfc.deck_id
           WHERE ${where}
           ${order}
           LIMIT ?`;
-    values.push(Number(limit) || 20);
+  values.push(Number(limit) || 20);
 
-    const [rows] = await client.execute(sql, values);
-    for (const r of rows) {
-        try { if (typeof r.tags === 'string') r.tags = JSON.parse(r.tags).filter(Boolean); } catch { }
-    }
-    return rows;
-}
+  const [rows] = await client.execute(sql, values);
+  for (const r of rows) {
+    try {
+      if (typeof r.tags === "string")
+        r.tags = JSON.parse(r.tags).filter(Boolean);
+    } catch {}
+  }
+  return rows;
+};
 
-const reviewFlashcard = async ({ studentId, student_flash_card_id, quality, correct }) => {
+const reviewFlashcard = async ({
+  studentId,
+  student_flash_card_id,
+  quality,
+  correct,
+}) => {
+  let q;
+  if (quality !== undefined && quality !== null && quality !== "") {
+    q = Math.max(0, Math.min(5, Number(quality)));
+  } else if (correct !== undefined && correct !== null) {
+    q = correct === true || correct === 1 || correct === "1" ? 4 : 2;
+  } else {
+    q = 3;
+  }
 
-    let q;
-    if (quality !== undefined && quality !== null && quality !== "") {
-        q = Math.max(0, Math.min(5, Number(quality)));
-    } else if (correct !== undefined && correct !== null) {
-        q = (correct === true || correct === 1 || correct === '1') ? 4 : 2;
-    } else {
-
-        q = 3;
-    }
-
-    const [cards] = await client.execute(
-        `SELECT sfc.*
+  const [cards] = await client.execute(
+    `SELECT sfc.*
             , COALESCE(sfc.ease_factor, 2.5) AS ef
             , COALESCE(sfc.repetitions, 0)   AS reps
             , COALESCE(sfc.interval_days, 0) AS interval_days
@@ -1107,72 +1382,86 @@ const reviewFlashcard = async ({ studentId, student_flash_card_id, quality, corr
           INNER JOIN student_deck sd ON sd.student_deck_id = sfc.deck_id
           WHERE sfc.student_flash_card_id = ? AND sd.student_id = ?
           LIMIT 1`,
-        [student_flash_card_id, studentId]
-    );
-    if (!cards || cards.length === 0) return null;
-    const card = cards[0];
+    [student_flash_card_id, studentId]
+  );
+  if (!cards || cards.length === 0) return null;
+  const card = cards[0];
 
-    let easeFactor = Number(card.ef) || 2.5;
-    let repetitions = Number(card.reps) || 0;
-    let intervalDays = Number(card.interval_days) || 0;
+  let easeFactor = Number(card.ef) || 2.5;
+  let repetitions = Number(card.reps) || 0;
+  let intervalDays = Number(card.interval_days) || 0;
 
-    let useHours = false;
-    let intervalHours = 0;
-    if (q < 3) {
-        repetitions = 0;
+  let useHours = false;
+  let intervalHours = 0;
+  if (q < 3) {
+    repetitions = 0;
 
-        useHours = true;
-        intervalHours = 6;
-        intervalDays = 0;
-    } else {
+    useHours = true;
+    intervalHours = 6;
+    intervalDays = 0;
+  } else {
+    if (repetitions === 0) intervalDays = 1;
+    else if (repetitions === 1) intervalDays = 2;
+    else if (repetitions === 2) intervalDays = 4;
+    else intervalDays = Math.max(1, Math.round(intervalDays * easeFactor));
+    repetitions += 1;
+  }
 
-        if (repetitions === 0) intervalDays = 1;
-        else if (repetitions === 1) intervalDays = 2;
-        else if (repetitions === 2) intervalDays = 4;
-        else intervalDays = Math.max(1, Math.round(intervalDays * easeFactor));
-        repetitions += 1;
-    }
+  easeFactor = easeFactor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
+  if (easeFactor < 1.3) easeFactor = 1.3;
 
-    easeFactor = easeFactor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
-    if (easeFactor < 1.3) easeFactor = 1.3;
+  const status = q >= 3 ? "seen" : "not_seen";
+  const solved = q >= 4 ? "1" : card.card_solved || "0";
 
-    const status = q >= 3 ? 'seen' : 'not_seen';
-    const solved = q >= 4 ? '1' : (card.card_solved || '0');
+  const now = new Date();
+  const nextReview = useHours
+    ? new Date(now.getTime() + intervalHours * 60 * 60 * 1000)
+    : new Date(now.getTime() + intervalDays * 24 * 60 * 60 * 1000);
 
-
-    const now = new Date();
-    const nextReview = useHours
-        ? new Date(now.getTime() + intervalHours * 60 * 60 * 1000)
-        : new Date(now.getTime() + intervalDays * 24 * 60 * 60 * 1000);
-
-    const [res] = await client.execute(
-        `UPDATE student_flash_cards
+  const [res] = await client.execute(
+    `UPDATE student_flash_cards
          SET ease_factor = ?, repetitions = ?, interval_days = ?,
              last_reviewed = ?, next_review = ?,
              card_status = ?, card_solved = ?
          WHERE student_flash_card_id = ?`,
-        [easeFactor, repetitions, intervalDays, now, nextReview, status, '1', student_flash_card_id]
-    );
-    return res.affectedRows > 0 ? (
-        useHours ? {
-            next_review_in: intervalHours,
-            unit: 'hours',
-            ease_factor: easeFactor,
-            repetitions
-        } : {
-            next_review_in: intervalDays,
-            unit: 'days',
-            ease_factor: easeFactor,
-            repetitions
+    [
+      easeFactor,
+      repetitions,
+      intervalDays,
+      now,
+      nextReview,
+      status,
+      "1",
+      student_flash_card_id,
+    ]
+  );
+  return res.affectedRows > 0
+    ? useHours
+      ? {
+          next_review_in: intervalHours,
+          unit: "hours",
+          ease_factor: easeFactor,
+          repetitions,
         }
-    ) : null;
-}
+      : {
+          next_review_in: intervalDays,
+          unit: "days",
+          ease_factor: easeFactor,
+          repetitions,
+        }
+    : null;
+};
 
+const listQbanks = async ({
+  studentId,
+  page = 1,
+  limit = 20,
+  search = "",
+  status = "active",
+}) => {
+  const offset = (page - 1) * limit;
 
-const listQbanks = async ({ studentId, page = 1, limit = 20, search = "", status = "active" }) => {
-    const offset = (page - 1) * limit;
-
-    let sql = `
+  let sql = `
         SELECT 
             q.*,
             COUNT(DISTINCT qq.question_id) AS question_count,
@@ -1197,56 +1486,63 @@ const listQbanks = async ({ studentId, page = 1, limit = 20, search = "", status
         WHERE q.deleted = '0' AND q.student_id = ?
     `;
 
-    let params = [studentId, studentId];
+  let params = [studentId, studentId];
 
-    if (search) {
-        sql += ` AND q.qbank_name LIKE ?`;
-        params.push(`%${search}%`);
-    }
+  if (search) {
+    sql += ` AND q.qbank_name LIKE ?`;
+    params.push(`%${search}%`);
+  }
 
-    if (status) {
-        sql += ` AND q.active = ?`;
-        params.push(status === 'active' ? '1' : '0');
-    }
+  if (status) {
+    sql += ` AND q.active = ?`;
+    params.push(status === "active" ? "1" : "0");
+  }
 
-    sql += ` GROUP BY q.qbank_id ORDER BY q.qbank_id DESC LIMIT ? OFFSET ?`;
-    params.push(limit, offset);
+  sql += ` GROUP BY q.qbank_id ORDER BY q.qbank_id DESC LIMIT ? OFFSET ?`;
+  params.push(limit, offset);
 
-    const [rows] = await client.execute(sql, params);
+  const [rows] = await client.execute(sql, params);
 
+  let countSql = `SELECT COUNT(*) as total FROM qbank WHERE deleted = '0' AND student_id = ?`;
+  let countParams = [studentId];
 
-    let countSql = `SELECT COUNT(*) as total FROM qbank WHERE deleted = '0' AND student_id = ?`;
-    let countParams = [studentId];
+  if (search) {
+    countSql += ` AND qbank_name LIKE ?`;
+    countParams.push(`%${search}%`);
+  }
 
-    if (search) {
-        countSql += ` AND qbank_name LIKE ?`;
-        countParams.push(`%${search}%`);
-    }
+  if (status) {
+    countSql += ` AND active = ?`;
+    countParams.push(status === "active" ? "1" : "0");
+  }
 
-    if (status) {
-        countSql += ` AND active = ?`;
-        countParams.push(status === 'active' ? '1' : '0');
-    }
+  const [countResult] = await client.execute(countSql, countParams);
+  const total = countResult[0].total;
 
-    const [countResult] = await client.execute(countSql, countParams);
-    const total = countResult[0].total;
-
-    return {
-        qbanks: rows,
-        pagination: {
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
-        },
-    };
+  return {
+    qbanks: rows,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
+const getAvailableQuestions = async ({
+  page = 1,
+  limit = 50,
+  search = "",
+  subject = "",
+  topic = "",
+  difficulty = "",
+  question_type = "",
+  status = "active",
+}) => {
+  const offset = (page - 1) * limit;
 
-const getAvailableQuestions = async ({ page = 1, limit = 50, search = "", subject = "", topic = "", difficulty = "", question_type = "", status = "active" }) => {
-    const offset = (page - 1) * limit;
-
-    let sql = `
+  let sql = `
         SELECT 
             q.*,
             t.topic_name,
@@ -1270,97 +1566,100 @@ const getAvailableQuestions = async ({ page = 1, limit = 50, search = "", subjec
         WHERE q.status = ?
     `;
 
-    let params = [status];
+  let params = [status];
 
-    if (search) {
-        sql += ` AND (q.question_text LIKE ? OR q.model_answer LIKE ?)`;
-        params.push(`%${search}%`, `%${search}%`);
-    }
+  if (search) {
+    sql += ` AND (q.question_text LIKE ? OR q.model_answer LIKE ?)`;
+    params.push(`%${search}%`, `%${search}%`);
+  }
 
-    if (subject) {
-        sql += ` AND m.module_id = ?`;
-        params.push(subject);
-    }
+  if (subject) {
+    sql += ` AND m.module_id = ?`;
+    params.push(subject);
+  }
 
-    if (topic) {
-        sql += ` AND t.topic_id = ?`;
-        params.push(topic);
-    }
+  if (topic) {
+    sql += ` AND t.topic_id = ?`;
+    params.push(topic);
+  }
 
-    if (difficulty) {
-        sql += ` AND q.difficulty_level = ?`;
-        params.push(difficulty);
-    }
+  if (difficulty) {
+    sql += ` AND q.difficulty_level = ?`;
+    params.push(difficulty);
+  }
 
-    if (question_type) {
-        sql += ` AND q.question_type = ?`;
-        params.push(question_type);
-    }
+  if (question_type) {
+    sql += ` AND q.question_type = ?`;
+    params.push(question_type);
+  }
 
-    sql += ` GROUP BY q.question_id ORDER BY q.created_at DESC LIMIT ? OFFSET ?`;
-    params.push(limit, offset);
+  sql += ` GROUP BY q.question_id ORDER BY q.created_at DESC LIMIT ? OFFSET ?`;
+  params.push(limit, offset);
 
-    const [rows] = await client.execute(sql, params);
+  const [rows] = await client.execute(sql, params);
 
+  const questions = rows.map((q) => ({
+    ...q,
+    options: JSON.parse(q.options).filter(Boolean),
+  }));
 
-    const questions = rows.map(q => ({
-        ...q,
-        options: JSON.parse(q.options).filter(Boolean)
-    }));
-
-
-    let countSql = `SELECT COUNT(*) as total FROM questions q
+  let countSql = `SELECT COUNT(*) as total FROM questions q
         LEFT JOIN topics t ON q.topic_id = t.topic_id
         LEFT JOIN units u ON t.unit_id = u.unit_id
         LEFT JOIN modules m ON u.module_id = m.module_id
         WHERE q.status = ?`;
-    let countParams = [status];
+  let countParams = [status];
 
-    if (search) {
-        countSql += ` AND (q.question_text LIKE ? OR q.model_answer LIKE ?)`;
-        countParams.push(`%${search}%`, `%${search}%`);
-    }
+  if (search) {
+    countSql += ` AND (q.question_text LIKE ? OR q.model_answer LIKE ?)`;
+    countParams.push(`%${search}%`, `%${search}%`);
+  }
 
-    if (subject) {
-        countSql += ` AND m.module_id = ?`;
-        countParams.push(subject);
-    }
+  if (subject) {
+    countSql += ` AND m.module_id = ?`;
+    countParams.push(subject);
+  }
 
-    if (topic) {
-        countSql += ` AND t.topic_id = ?`;
-        countParams.push(topic);
-    }
+  if (topic) {
+    countSql += ` AND t.topic_id = ?`;
+    countParams.push(topic);
+  }
 
-    if (difficulty) {
-        countSql += ` AND q.difficulty_level = ?`;
-        countParams.push(difficulty);
-    }
+  if (difficulty) {
+    countSql += ` AND q.difficulty_level = ?`;
+    countParams.push(difficulty);
+  }
 
-    if (question_type) {
-        countSql += ` AND q.question_type = ?`;
-        countParams.push(question_type);
-    }
+  if (question_type) {
+    countSql += ` AND q.question_type = ?`;
+    countParams.push(question_type);
+  }
 
-    const [countResult] = await client.execute(countSql, countParams);
-    const total = countResult[0].total;
+  const [countResult] = await client.execute(countSql, countParams);
+  const total = countResult[0].total;
 
-    return {
-        questions,
-        pagination: {
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
-        },
-    };
+  return {
+    questions,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
+const getStudentExams = async ({
+  studentId,
+  page = 1,
+  limit = 20,
+  search = "",
+  status = "published",
+  difficulty = "",
+}) => {
+  const offset = (page - 1) * limit;
 
-
-const getStudentExams = async ({ studentId, page = 1, limit = 20, search = "", status = "published", difficulty = "" }) => {
-    const offset = (page - 1) * limit;
-
-    let sql = `
+  let sql = `
         SELECT 
             e.exam_id as id,
             e.title as name,
@@ -1385,28 +1684,28 @@ const getStudentExams = async ({ studentId, page = 1, limit = 20, search = "", s
         )
     `;
 
-    let params = [status, studentId];
+  let params = [status, studentId];
 
-    if (search) {
-        sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
-        params.push(`%${search}%`, `%${search}%`);
-    }
+  if (search) {
+    sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
+    params.push(`%${search}%`, `%${search}%`);
+  }
 
-    if (difficulty) {
-        sql += ` AND e.difficulty = ?`;
-        params.push(difficulty);
-    }
+  if (difficulty) {
+    sql += ` AND e.difficulty = ?`;
+    params.push(difficulty);
+  }
 
-    sql += ` GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ?`;
-    params.push(limit, offset);
+  sql += ` GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ?`;
+  params.push(limit, offset);
 
-    const [rows] = await client.execute(sql, params);
+  const [rows] = await client.execute(sql, params);
 
-    // Transform the data
-    const transformedExams = rows.map(exam => transformExamData(exam));
+  // Transform the data
+  const transformedExams = rows.map((exam) => transformExamData(exam));
 
-    // Get total count
-    let countSql = `
+  // Get total count
+  let countSql = `
         SELECT COUNT(DISTINCT e.exam_id) as total 
         FROM exams e
         LEFT JOIN modules m ON e.subject_id = m.module_id
@@ -1417,37 +1716,43 @@ const getStudentExams = async ({ studentId, page = 1, limit = 20, search = "", s
             WHERE se.student_id = ? AND se.status = 'active'
         )
     `;
-    let countParams = [status, studentId];
+  let countParams = [status, studentId];
 
-    if (search) {
-        countSql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
-        countParams.push(`%${search}%`, `%${search}%`);
-    }
+  if (search) {
+    countSql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
+    countParams.push(`%${search}%`, `%${search}%`);
+  }
 
-    if (difficulty) {
-        countSql += ` AND e.difficulty = ?`;
-        countParams.push(difficulty);
-    }
+  if (difficulty) {
+    countSql += ` AND e.difficulty = ?`;
+    countParams.push(difficulty);
+  }
 
-    const [countResult] = await client.execute(countSql, countParams);
-    const total = countResult[0].total;
+  const [countResult] = await client.execute(countSql, countParams);
+  const total = countResult[0].total;
 
-    return {
-        exams: transformedExams,
-        pagination: {
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
-        },
-    };
+  return {
+    exams: transformedExams,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 // Get upcoming exams for student (scheduled or published)
-const getUpcomingExams = async ({ studentId, page = 1, limit = 20, search = "", difficulty = "" }) => {
-    const offset = (page - 1) * limit;
+const getUpcomingExams = async ({
+  studentId,
+  page = 1,
+  limit = 20,
+  search = "",
+  difficulty = "",
+}) => {
+  const offset = (page - 1) * limit;
 
-    let sql = `
+  let sql = `
         SELECT 
             e.exam_id as id,
             e.title as name,
@@ -1477,45 +1782,57 @@ const getUpcomingExams = async ({ studentId, page = 1, limit = 20, search = "", 
         )
     `;
 
-    let params = [studentId, studentId];
+  let params = [studentId, studentId];
 
-    if (search) {
-        sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
-        params.push(`%${search}%`, `%${search}%`);
-    }
+  if (search) {
+    sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
+    params.push(`%${search}%`, `%${search}%`);
+  }
 
-    if (difficulty) {
-        sql += ` AND e.difficulty = ?`;
-        params.push(difficulty);
-    }
+  if (difficulty) {
+    sql += ` AND e.difficulty = ?`;
+    params.push(difficulty);
+  }
 
-    sql += ` GROUP BY e.exam_id ORDER BY COALESCE(e.scheduled_date, e.start_date, e.end_date, e.created_at) ASC LIMIT ? OFFSET ?`;
-    params.push(limit, offset);
+  sql += ` GROUP BY e.exam_id ORDER BY COALESCE(e.scheduled_date, e.start_date, e.end_date, e.created_at) ASC LIMIT ? OFFSET ?`;
+  params.push(limit, offset);
 
-    const [rows] = await client.execute(sql, params);
+  const [rows] = await client.execute(sql, params);
 
-    // Transform the data
-    const transformedExams = rows.map(exam => transformExamData(exam));
+  // Transform the data
+  const transformedExams = rows.map((exam) => transformExamData(exam));
 
-    // Get total count
-    const total = await getExamCount(studentId, ['published', 'scheduled'], search, difficulty, true);
+  // Get total count
+  const total = await getExamCount(
+    studentId,
+    ["published", "scheduled"],
+    search,
+    difficulty,
+    true
+  );
 
-    return {
-        exams: transformedExams,
-        pagination: {
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
-        },
-    };
+  return {
+    exams: transformedExams,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 // Get on-demand exams for student (published and available now)
-const getOnDemandExams = async ({ studentId, page = 1, limit = 20, search = "", difficulty = "" }) => {
-    const offset = (page - 1) * limit;
+const getOnDemandExams = async ({
+  studentId,
+  page = 1,
+  limit = 20,
+  search = "",
+  difficulty = "",
+}) => {
+  const offset = (page - 1) * limit;
 
-    let sql = `
+  let sql = `
         SELECT 
             e.exam_id as id,
             e.title as name,
@@ -1542,45 +1859,57 @@ AND (e.start_date IS NOT NULL AND e.start_date <= NOW())
         )
     `;
 
-    let params = [studentId];
+  let params = [studentId];
 
-    if (search) {
-        sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
-        params.push(`%${search}%`, `%${search}%`);
-    }
+  if (search) {
+    sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
+    params.push(`%${search}%`, `%${search}%`);
+  }
 
-    if (difficulty) {
-        sql += ` AND e.difficulty = ?`;
-        params.push(difficulty);
-    }
+  if (difficulty) {
+    sql += ` AND e.difficulty = ?`;
+    params.push(difficulty);
+  }
 
-    sql += ` GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ?`;
-    params.push(limit, offset);
+  sql += ` GROUP BY e.exam_id ORDER BY e.created_at DESC LIMIT ? OFFSET ?`;
+  params.push(limit, offset);
 
-    const [rows] = await client.execute(sql, params);
+  const [rows] = await client.execute(sql, params);
 
-    // Transform the data
-    const transformedExams = rows.map(exam => transformExamData(exam));
+  // Transform the data
+  const transformedExams = rows.map((exam) => transformExamData(exam));
 
-    // Get total count
-    const total = await getExamCount(studentId, ['published'], search, difficulty, false);
+  // Get total count
+  const total = await getExamCount(
+    studentId,
+    ["published"],
+    search,
+    difficulty,
+    false
+  );
 
-    return {
-        exams: transformedExams,
-        pagination: {
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
-        },
-    };
+  return {
+    exams: transformedExams,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 // Get past exam results for student
-const getExamResults = async ({ studentId, page = 1, limit = 20, search = "", difficulty = "" }) => {
-    const offset = (page - 1) * limit;
+const getExamResults = async ({
+  studentId,
+  page = 1,
+  limit = 20,
+  search = "",
+  difficulty = "",
+}) => {
+  const offset = (page - 1) * limit;
 
-    let sql = `
+  let sql = `
         SELECT 
             e.exam_id as id,
             e.title as name,
@@ -1605,80 +1934,88 @@ const getExamResults = async ({ studentId, page = 1, limit = 20, search = "", di
         )
     `;
 
-    let params = [studentId, studentId];
+  let params = [studentId, studentId];
 
-    if (search) {
-        sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
-        params.push(`%${search}%`, `%${search}%`);
-    }
+  if (search) {
+    sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
+    params.push(`%${search}%`, `%${search}%`);
+  }
 
-    if (difficulty) {
-        sql += ` AND e.difficulty = ?`;
-        params.push(difficulty);
-    }
+  if (difficulty) {
+    sql += ` AND e.difficulty = ?`;
+    params.push(difficulty);
+  }
 
-    sql += ` GROUP BY ea.exam_id, ea.started_at ORDER BY ea.submitted_at DESC LIMIT ? OFFSET ?`;
-    params.push(limit, offset);
+  sql += ` GROUP BY ea.exam_id, ea.started_at ORDER BY ea.submitted_at DESC LIMIT ? OFFSET ?`;
+  params.push(limit, offset);
 
-    const [rows] = await client.execute(sql, params);
+  const [rows] = await client.execute(sql, params);
 
-    // Transform the data for results
-    const transformedResults = rows.map(result => {
-        const examDate = result.submitted_at || result.started_at;
-        const formattedDate = examDate ? new Date(examDate).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        }) : 'TBD';
+  // Transform the data for results
+  const transformedResults = rows.map((result) => {
+    const examDate = result.submitted_at || result.started_at;
+    const formattedDate = examDate
+      ? new Date(examDate).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+      : "TBD";
 
-        const durationHours = result.time_spent ? Math.floor(result.time_spent / 3600) : 0;
-        const durationMinutes = result.time_spent ? Math.floor((result.time_spent % 3600) / 60) : 0;
-        const formattedDuration = durationHours > 0 ?
-            `${durationHours}h ${durationMinutes}m` :
-            `${durationMinutes}m`;
+    const durationHours = result.time_spent
+      ? Math.floor(result.time_spent / 3600)
+      : 0;
+    const durationMinutes = result.time_spent
+      ? Math.floor((result.time_spent % 3600) / 60)
+      : 0;
+    const formattedDuration =
+      durationHours > 0
+        ? `${durationHours}h ${durationMinutes}m`
+        : `${durationMinutes}m`;
 
-        // Calculate percentage score
-        const totalQuestions = result.questions || 1;
-        const percentage = Math.round((result.total_score / totalQuestions) * 100);
-
-        return {
-            id: result.id,
-            name: result.name,
-            date: formattedDate,
-            score: `${percentage}%`,
-            percentile: `${Math.min(percentage + 10, 99)}th`, // Mock percentile calculation
-            correct: `${result.total_score}/${totalQuestions}`,
-            duration: formattedDuration,
-            difficulty: result.difficulty || 'Medium',
-            subject_name: result.subject_name,
-            attempt_status: result.attempt_status
-        };
-    });
-
-    // Get total count
-    const total = await getExamResultsCount(studentId, search, difficulty);
+    // Calculate percentage score
+    const totalQuestions = result.questions || 1;
+    const percentage = Math.round((result.total_score / totalQuestions) * 100);
 
     return {
-        results: transformedResults,
-        pagination: {
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
-        },
+      id: result.id,
+      name: result.name,
+      date: formattedDate,
+      score: `${percentage}%`,
+      percentile: `${Math.min(percentage + 10, 99)}th`, // Mock percentile calculation
+      correct: `${result.total_score}/${totalQuestions}`,
+      duration: formattedDuration,
+      difficulty: result.difficulty || "Medium",
+      subject_name: result.subject_name,
+      attempt_status: result.attempt_status,
     };
+  });
+
+  // Get total count
+  const total = await getExamResultsCount(studentId, search, difficulty);
+
+  return {
+    results: transformedResults,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 // Start an exam (create exam attempt)
 const startExam = async ({ studentId, examId, session_id }) => {
-    let where = `WHERE e.exam_id = ?`;
-    if (session_id) {
-        where += ` AND ea.session_id = ?`;
-    } else {
-        where += ` AND ea.session_id IS NULL`;
-    }
-    // Check if exam exists and student has access
-    const examCheck = await client.execute(`
+  let where = `WHERE e.exam_id = ?`;
+  if (session_id) {
+    where += ` AND ea.session_id = ?`;
+  } else {
+    where += ` AND ea.session_id IS NULL`;
+  }
+  // Check if exam exists and student has access
+  const examCheck = await client.execute(
+    `
         SELECT *
         FROM exams e
         LEFT JOIN modules m ON e.subject_id = m.module_id
@@ -1689,131 +2026,172 @@ const startExam = async ({ studentId, examId, session_id }) => {
             FROM student_enrollments se
             WHERE se.student_id = ? AND se.status = 'active'
         )
-    `, [examId, studentId]);
+    `,
+    [examId, studentId]
+  );
 
-    if (examCheck[0].length === 0) {
-        throw new Error('Exam not found or access denied');
-    }
+  if (examCheck[0].length === 0) {
+    throw new Error("Exam not found or access denied");
+  }
 
-    // Check if student already has an active attempt
-    // Build where clause and params properly
-    let attemptWhere = `WHERE e.exam_id = ? AND ea.student_id = ?`;
-    let attemptParams = [examId, studentId];
+  // Check if student already has an active attempt
+  // Build where clause and params properly
+  let attemptWhere = `WHERE e.exam_id = ? AND ea.student_id = ?`;
+  let attemptParams = [examId, studentId];
 
-    // Clean and validate session_id
-    const cleanSessionId = session_id && session_id !== 0 && session_id !== '' && !isNaN(parseInt(session_id))
-        ? parseInt(session_id)
-        : null;
+  // Clean and validate session_id
+  const cleanSessionId =
+    session_id &&
+    session_id !== 0 &&
+    session_id !== "" &&
+    !isNaN(parseInt(session_id))
+      ? parseInt(session_id)
+      : null;
 
-    if (cleanSessionId !== null) {
-        attemptWhere += ` AND ea.session_id = ?`;
-        attemptParams.push(cleanSessionId);
-    } else {
-        attemptWhere += ` AND ea.session_id IS NULL`;
-    }
+  if (cleanSessionId !== null) {
+    attemptWhere += ` AND ea.session_id = ?`;
+    attemptParams.push(cleanSessionId);
+  } else {
+    attemptWhere += ` AND ea.session_id IS NULL`;
+  }
 
-    const activeAttempt = await client.execute(`
+  const activeAttempt = await client.execute(
+    `
         SELECT ea.* FROM exam_attempts ea
         LEFT JOIN exams e ON ea.exam_id = e.exam_id
         ${attemptWhere}
-    `, attemptParams);
+    `,
+    attemptParams
+  );
 
-    if (activeAttempt[0].length > 0) {
-        return activeAttempt[0][0].exam_attempt_id; // Return existing attempt
-    }
-    // Create new exam attempt
-    // Use the same cleaned session_id from above
+  if (activeAttempt[0].length > 0) {
+    return activeAttempt[0][0].exam_attempt_id; // Return existing attempt
+  }
+  // Create new exam attempt
+  // Use the same cleaned session_id from above
 
-    const [result] = await client.execute(`
+  const [result] = await client.execute(
+    `
         INSERT INTO exam_attempts (exam_id, student_id, status, session_id, started_at)
         VALUES (?, ?, 'in_progress', ?, NOW())
-    `, [examId, studentId, cleanSessionId]);
+    `,
+    [examId, studentId, cleanSessionId]
+  );
 
-    return result.insertId;
+  return result.insertId;
 };
 
 // Submit exam answers
-const submitExamAnswer = async ({ attemptId, examQuestionId, answerText, selectedOptionId, timeSpent, }) => {
-    // Check if answer already exists
-    const existingAnswer = await client.execute(`
+const submitExamAnswer = async ({
+  attemptId,
+  examQuestionId,
+  answerText,
+  selectedOptionId,
+  timeSpent,
+}) => {
+  // Check if answer already exists
+  const existingAnswer = await client.execute(
+    `
         SELECT exam_answer_id FROM exam_answers 
         WHERE attempt_id = ? AND exam_question_id = ?
-    `, [attemptId, examQuestionId]);
+    `,
+    [attemptId, examQuestionId]
+  );
 
-    if (existingAnswer[0].length > 0) {
-        // Update existing answer
-        const [result] = await client.execute(`
+  if (existingAnswer[0].length > 0) {
+    // Update existing answer
+    const [result] = await client.execute(
+      `
             UPDATE exam_answers 
             SET answer_text = ?, selected_option_id = ?, time_spent = ?, answered_at = NOW()
             WHERE attempt_id = ? AND exam_question_id = ?
-        `, [answerText, selectedOptionId, timeSpent, attemptId, examQuestionId]);
+        `,
+      [answerText, selectedOptionId, timeSpent, attemptId, examQuestionId]
+    );
 
-        return result.affectedRows > 0;
-    } else {
-        // Create new answer
-        const [result] = await client.execute(`
+    return result.affectedRows > 0;
+  } else {
+    // Create new answer
+    const [result] = await client.execute(
+      `
             INSERT INTO exam_answers (attempt_id, exam_question_id, answer_text, selected_option_id, time_spent)
             VALUES (?, ?, ?, ?, ?)
-        `, [attemptId, examQuestionId, answerText, selectedOptionId, timeSpent]);
+        `,
+      [attemptId, examQuestionId, answerText, selectedOptionId, timeSpent]
+    );
 
-        return result.affectedRows > 0;
-    }
+    return result.affectedRows > 0;
+  }
 };
 
 // Submit exam (complete attempt)
 const submitExam = async ({ attemptId, studentId }) => {
-    // Get all answers and calculate score
-    const [answers] = await client.execute(`
+  // Get all answers and calculate score
+  const [answers] = await client.execute(
+    `
         SELECT ea.*, qo.is_correct, eq.points
         FROM exam_answers ea
         INNER JOIN exam_questions eq ON ea.exam_question_id = eq.id
         LEFT JOIN question_options qo ON ea.selected_option_id = qo.option_id
         WHERE ea.attempt_id = ?
-    `, [attemptId]);
+    `,
+    [attemptId]
+  );
 
-    let totalScore = 0;
-    let totalPoints = 0;
+  let totalScore = 0;
+  let totalPoints = 0;
 
-    // Update answers with correctness and points
-    for (const answer of answers) {
-        const isCorrect = answer.is_correct ? 1 : 0;
-        const pointsEarned = isCorrect ? (answer.points || 1) : 0;
+  // Update answers with correctness and points
+  for (const answer of answers) {
+    const isCorrect = answer.is_correct ? 1 : 0;
+    const pointsEarned = isCorrect ? answer.points || 1 : 0;
 
-        totalScore += pointsEarned;
-        totalPoints += (answer.points || 1);
+    totalScore += pointsEarned;
+    totalPoints += answer.points || 1;
 
-        // Update answer record
-        await client.execute(`
+    // Update answer record
+    await client.execute(
+      `
             UPDATE exam_answers 
             SET is_correct = ?, points_earned = ?
             WHERE exam_answer_id = ?
-        `, [isCorrect, pointsEarned, answer.exam_answer_id]);
-    }
+        `,
+      [isCorrect, pointsEarned, answer.exam_answer_id]
+    );
+  }
 
-    // Update attempt record
-    const [result] = await client.execute(`
+  // Update attempt record
+  const [result] = await client.execute(
+    `
         UPDATE exam_attempts 
         SET status = 'submitted', submitted_at = NOW(), total_score = ?
         WHERE exam_attempt_id = ? AND student_id = ?
-    `, [totalScore, attemptId, studentId]);
+    `,
+    [totalScore, attemptId, studentId]
+  );
 
-    return {
-        success: result.affectedRows > 0,
-        totalScore,
-        totalPoints,
-        percentage: Math.round((totalScore / totalPoints) * 100)
-    };
+  return {
+    success: result.affectedRows > 0,
+    totalScore,
+    totalPoints,
+    percentage: Math.round((totalScore / totalPoints) * 100),
+  };
 };
 
 // Get exam questions for a specific exam
 const getExamQuestions = async ({ examId, studentId, session_id }) => {
-    // Clean and validate session_id
-    const cleanSessionId = session_id && session_id !== 0 && session_id !== '' && !isNaN(parseInt(session_id))
-        ? parseInt(session_id)
-        : null;
+  // Clean and validate session_id
+  const cleanSessionId =
+    session_id &&
+    session_id !== 0 &&
+    session_id !== "" &&
+    !isNaN(parseInt(session_id))
+      ? parseInt(session_id)
+      : null;
 
-    // Verify student has access to exam
-    const examCheck = await client.execute(`
+  // Verify student has access to exam
+  const examCheck = await client.execute(
+    `
         SELECT e.*
         FROM exams e
         LEFT JOIN modules m ON e.subject_id = m.module_id
@@ -1827,37 +2205,43 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
                 WHERE se.student_id = ? AND se.status = 'active'
             )
         )
-    `, [examId, studentId]);
+    `,
+    [examId, studentId]
+  );
 
-    if (examCheck[0].length === 0) {
-        throw new Error('Exam not found or access denied');
-    }
+  if (examCheck[0].length === 0) {
+    throw new Error("Exam not found or access denied");
+  }
 
-    const exam = examCheck[0][0];
+  const exam = examCheck[0][0];
 
-    // Find student's active attempt for this exam (matching session_id if provided)
-    let attemptWhere = `WHERE ea.exam_id = ? AND ea.student_id = ?`;
-    let attemptParams = [examId, studentId];
+  // Find student's active attempt for this exam (matching session_id if provided)
+  let attemptWhere = `WHERE ea.exam_id = ? AND ea.student_id = ?`;
+  let attemptParams = [examId, studentId];
 
-    if (cleanSessionId !== null) {
-        attemptWhere += ` AND ea.session_id = ?`;
-        attemptParams.push(cleanSessionId);
-    } else {
-        attemptWhere += ` AND ea.session_id IS NULL`;
-    }
+  if (cleanSessionId !== null) {
+    attemptWhere += ` AND ea.session_id = ?`;
+    attemptParams.push(cleanSessionId);
+  } else {
+    attemptWhere += ` AND ea.session_id IS NULL`;
+  }
 
-    const [attemptRows] = await client.execute(`
+  const [attemptRows] = await client.execute(
+    `
         SELECT ea.exam_attempt_id
         FROM exam_attempts ea
         ${attemptWhere}
         ORDER BY ea.started_at DESC
         LIMIT 1
-    `, attemptParams);
+    `,
+    attemptParams
+  );
 
-    const activeAttemptId = attemptRows?.[0]?.exam_attempt_id || null;
+  const activeAttemptId = attemptRows?.[0]?.exam_attempt_id || null;
 
-    // Get exam questions with options and any previously selected answer for the active attempt
-    const [questions] = await client.execute(`
+  // Get exam questions with options and any previously selected answer for the active attempt
+  const [questions] = await client.execute(
+    `
         SELECT 
             eq.id,
             eq.order_index,
@@ -1888,34 +2272,44 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
         WHERE eq.exam_id = ?
         GROUP BY eq.id, q.question_id
         ORDER BY eq.order_index
-    `, [activeAttemptId, examId]);
+    `,
+    [activeAttemptId, examId]
+  );
 
-    // Parse options for each question
-    const questionsWithOptions = questions.map(q => ({
-        ...q,
-        options: JSON.parse(q.options).filter(Boolean),
-        selected_option_id: q.selected_option_id || null,
-        selected_answer_text: q.selected_answer_text || null
-    }));
+  // Parse options for each question
+  const questionsWithOptions = questions.map((q) => ({
+    ...q,
+    options: JSON.parse(q.options).filter(Boolean),
+    selected_option_id: q.selected_option_id || null,
+    selected_answer_text: q.selected_answer_text || null,
+  }));
 
-    return {
-        exam: {
-            exam_id: exam.exam_id,
-            title: exam.title,
-            duration: exam.duration,
-            instructions: exam.instructions,
-            total_questions: questions.length
-        },
-        questions: questionsWithOptions
-    };
+  return {
+    exam: {
+      exam_id: exam.exam_id,
+      title: exam.title,
+      duration: exam.duration,
+      instructions: exam.instructions,
+      total_questions: questions.length,
+    },
+    questions: questionsWithOptions,
+  };
 };
 
 // Register student for an exam (scheduled slot/metadata)
-const registerForExam = async ({ studentId, examId, startSlot, notifications, notes, startISO, endISO }) => {
-    // Ensure registration table exists (idempotent)
+const registerForExam = async ({
+  studentId,
+  examId,
+  startSlot,
+  notifications,
+  notes,
+  startISO,
+  endISO,
+}) => {
+  // Ensure registration table exists (idempotent)
 
-
-    const [result] = await client.execute(`
+  const [result] = await client.execute(
+    `
         INSERT INTO exam_registrations (exam_id, student_id, start_slot, notifications, notes, start_iso, end_iso)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
@@ -1924,75 +2318,96 @@ const registerForExam = async ({ studentId, examId, startSlot, notifications, no
           notes = VALUES(notes),
           start_iso = VALUES(start_iso),
           end_iso = VALUES(end_iso)`,
-        [examId, studentId, startSlot || null, notifications ? JSON.stringify(notifications) : null, notes || null, startISO || null, endISO || null]
-    );
+    [
+      examId,
+      studentId,
+      startSlot || null,
+      notifications ? JSON.stringify(notifications) : null,
+      notes || null,
+      startISO || null,
+      endISO || null,
+    ]
+  );
 
-    return { registered: true };
+  return { registered: true };
 };
 
 // Helper function to transform exam data
 const transformExamData = (exam) => {
-    // Format date
-    const examDate = exam.scheduled_date || exam.start_date;
-    const formattedDate = examDate ? new Date(examDate).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    }) : 'TBD';
+  // Format date
+  const examDate = exam.scheduled_date || exam.start_date;
+  const formattedDate = examDate
+    ? new Date(examDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : "TBD";
 
-    // Format time
-    const formattedTime = examDate ? new Date(examDate).toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-    }) : 'TBD';
+  // Format time
+  const formattedTime = examDate
+    ? new Date(examDate).toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })
+    : "TBD";
 
-    // Format duration
-    const durationHours = exam.duration ? Math.floor(exam.duration / 60) : 0;
-    const durationMinutes = exam.duration ? exam.duration % 60 : 0;
-    const formattedDuration = durationHours > 0 ?
-        `${durationHours}h ${durationMinutes > 0 ? durationMinutes + 'm' : ''}`.trim() :
-        `${durationMinutes}m`;
+  // Format duration
+  const durationHours = exam.duration ? Math.floor(exam.duration / 60) : 0;
+  const durationMinutes = exam.duration ? exam.duration % 60 : 0;
+  const formattedDuration =
+    durationHours > 0
+      ? `${durationHours}h ${
+          durationMinutes > 0 ? durationMinutes + "m" : ""
+        }`.trim()
+      : `${durationMinutes}m`;
 
-    // Get difficulty color
-    const getDifficultyColor = (difficulty) => {
-        switch (difficulty?.toLowerCase()) {
-            case "easy":
-                return "green";
-            case "medium":
-                return "yellow";
-            case "hard":
-                return "red";
-            default:
-                return "gray";
-        }
-    };
+  // Get difficulty color
+  const getDifficultyColor = (difficulty) => {
+    switch (difficulty?.toLowerCase()) {
+      case "easy":
+        return "green";
+      case "medium":
+        return "yellow";
+      case "hard":
+        return "red";
+      default:
+        return "gray";
+    }
+  };
 
-    return {
-        ...exam,
-        id: exam.id,
-        name: exam.name,
-        date: exam.scheduled_date,
-        time: formattedTime,
-        duration: formattedDuration,
-        questions: exam.questions || 0,
-        registered: Number(exam.is_registered) || 0,
-        difficulty: exam.difficulty || 'Medium',
-        color: getDifficultyColor(exam.difficulty),
-        type: "teacher", // Assuming all exams are created by teachers
-        subject_name: exam.subject_name,
-        status: exam.status,
-        instructions: exam.instructions
-    };
+  return {
+    ...exam,
+    id: exam.id,
+    name: exam.name,
+    date: exam.scheduled_date,
+    time: formattedTime,
+    duration: formattedDuration,
+    questions: exam.questions || 0,
+    registered: Number(exam.is_registered) || 0,
+    difficulty: exam.difficulty || "Medium",
+    color: getDifficultyColor(exam.difficulty),
+    type: "teacher", // Assuming all exams are created by teachers
+    subject_name: exam.subject_name,
+    status: exam.status,
+    instructions: exam.instructions,
+  };
 };
 
 // Helper function to get exam count
-const getExamCount = async (studentId, statuses, search, difficulty, upcomingOnly = false) => {
-    let sql = `
+const getExamCount = async (
+  studentId,
+  statuses,
+  search,
+  difficulty,
+  upcomingOnly = false
+) => {
+  let sql = `
         SELECT COUNT(DISTINCT e.exam_id) as total 
         FROM exams e
         LEFT JOIN modules m ON e.subject_id = m.module_id
-        WHERE e.status IN (${statuses.map(() => '?').join(',')}) 
+        WHERE e.status IN (${statuses.map(() => "?").join(",")}) 
         AND (
             m.module_id IS NULL 
             OR m.module_id IN (
@@ -2003,29 +2418,29 @@ const getExamCount = async (studentId, statuses, search, difficulty, upcomingOnl
         )
     `;
 
-    let params = [...statuses, studentId];
+  let params = [...statuses, studentId];
 
-    if (upcomingOnly) {
-        sql += ` AND (e.scheduled_date IS NOT NULL AND e.scheduled_date > NOW())`;
-    }
+  if (upcomingOnly) {
+    sql += ` AND (e.scheduled_date IS NOT NULL AND e.scheduled_date > NOW())`;
+  }
 
-    if (search) {
-        sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
-        params.push(`%${search}%`, `%${search}%`);
-    }
+  if (search) {
+    sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
+    params.push(`%${search}%`, `%${search}%`);
+  }
 
-    if (difficulty) {
-        sql += ` AND e.difficulty = ?`;
-        params.push(difficulty);
-    }
+  if (difficulty) {
+    sql += ` AND e.difficulty = ?`;
+    params.push(difficulty);
+  }
 
-    const [countResult] = await client.execute(sql, params);
-    return countResult[0].total;
+  const [countResult] = await client.execute(sql, params);
+  return countResult[0].total;
 };
 
 // Helper function to get exam results count
 const getExamResultsCount = async (studentId, search, difficulty) => {
-    let sql = `
+  let sql = `
         SELECT COUNT(DISTINCT ea.exam_attempt_id) as total 
         FROM exam_attempts ea
         INNER JOIN exams e ON ea.exam_id = e.exam_id
@@ -2039,58 +2454,58 @@ const getExamResultsCount = async (studentId, search, difficulty) => {
         )
     `;
 
-    let params = [studentId, studentId];
+  let params = [studentId, studentId];
 
-    if (search) {
-        sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
-        params.push(`%${search}%`, `%${search}%`);
-    }
+  if (search) {
+    sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
+    params.push(`%${search}%`, `%${search}%`);
+  }
 
-    if (difficulty) {
-        sql += ` AND e.difficulty = ?`;
-        params.push(difficulty);
-    }
+  if (difficulty) {
+    sql += ` AND e.difficulty = ?`;
+    params.push(difficulty);
+  }
 
-    const [countResult] = await client.execute(sql, params);
-    return countResult[0].total;
+  const [countResult] = await client.execute(sql, params);
+  return countResult[0].total;
 };
 
 module.exports = {
-    solveQuestion,
-    createQbank,
-    fetchModules,
-    fetchSubjectsFromUnitsByModuleIds,
-    fetchTopicsByModuleIds,
-    fetchTopicsByUnitIds,
-    fetchQuestionsByTopicIds,
-    fetchModulesSubjectsTopicsQuestions,
-    listQuestion,
-    createCategory,
-    listCategories,
-    assignToCategory,
-    unAssignFromCategory,
-    createNote,
-    deleteNote,
-    listNotes,
-    createDeck,
-    listDecks,
-    createFlashCard,
-    updateFlashCard,
-    deleteFlashCard,
-    listFlashcardsByDeck,
-    getFlashcardsByMode,
-    reviewFlashcard,
-    listQbanks,
-    getAvailableQuestions,
-    getStudentExams,
-    getUpcomingExams,
-    getOnDemandExams,
-    getExamResults,
-    startExam,
-    submitExamAnswer,
-    submitExam,
-    getExamQuestions,
-    registerForExam,
-    updateDeck,
-    deleteDeck
-}
+  solveQuestion,
+  createQbank,
+  fetchModules,
+  fetchSubjectsFromUnitsByModuleIds,
+  fetchTopicsByModuleIds,
+  fetchTopicsByUnitIds,
+  fetchQuestionsByTopicIds,
+  fetchModulesSubjectsTopicsQuestions,
+  listQuestion,
+  createCategory,
+  listCategories,
+  assignToCategory,
+  unAssignFromCategory,
+  createNote,
+  deleteNote,
+  listNotes,
+  createDeck,
+  listDecks,
+  createFlashCard,
+  updateFlashCard,
+  deleteFlashCard,
+  listFlashcardsByDeck,
+  getFlashcardsByMode,
+  reviewFlashcard,
+  listQbanks,
+  getAvailableQuestions,
+  getStudentExams,
+  getUpcomingExams,
+  getOnDemandExams,
+  getExamResults,
+  startExam,
+  submitExamAnswer,
+  submitExam,
+  getExamQuestions,
+  registerForExam,
+  updateDeck,
+  deleteDeck,
+};

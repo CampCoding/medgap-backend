@@ -18,6 +18,7 @@ async function listLibrariesByModule({
   const sql = `
     SELECT u.*, fl.library_id, fl.library_name, fl.description, fl.difficulty_level,
            fl.estimated_time, fl.created_at,
+           sd.old_deck_id AS imported,
            COUNT(f.flashcard_id) AS total_cards,
            COALESCE(slp.studied_count, 0) AS studied_count,
            COALESCE(slp.correct_count, 0) AS correct_count,
@@ -25,6 +26,7 @@ async function listLibrariesByModule({
            COALESCE(slp.status, 'not_started') AS progress_status
     FROM flashcard_libraries fl
     LEFT JOIN flashcards f ON f.library_id = fl.library_id
+    LEFT JOIN student_deck sd ON sd.old_deck_id = fl.library_id
     LEFT JOIN topics t ON t.topic_id = fl.topic_id
     LEFT JOIN units u ON u.unit_id = t.unit_id
     LEFT JOIN modules m ON m.module_id = u.module_id
@@ -470,14 +472,14 @@ async function copyDeckById({ sourceDeckId, studentId, newDeckTitle, newDeckDesc
     
     // Create a new deck for the student
     const createDeckSql = `
-      INSERT INTO student_deck (student_id, deck_title, deck_description)
-      VALUES (?, ?, ?)
+      INSERT INTO student_deck (student_id, deck_title, deck_description, old_deck_id)
+      VALUES (?, ?, ?, ?)
     `;
     
     const deckTitle = newDeckTitle || `${sourceLibrary.library_name}`;
     const deckDescription = newDeckDescription || `"${sourceLibrary.library_name}"`;
     
-    const [deckResult] = await client.execute(createDeckSql, [studentId, deckTitle, deckDescription]);
+    const [deckResult] = await client.execute(createDeckSql, [studentId, deckTitle, deckDescription, sourceDeckId]);
     const newDeckId = deckResult.insertId;
     
     // Get all flashcards from the source library

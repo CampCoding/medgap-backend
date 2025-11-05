@@ -1515,9 +1515,11 @@ async function getTodayOverview({ studentId }) {
   let studyTimeMinutes = 0;
 
   const tasks = sessionsToday.map((s, idx) => {
-    const isQuestions =
-      s.session_type === "question_bank" || s.session_type === "questions";
-    const isFlashcards = s.session_type === "flashcards";
+    const hasQbank = !!(s.qbank && s.qbank.qbank_id);
+    const hasFlashcards = !!(
+      s.flashcards_decks && s.flashcards_decks.flashcarddeck_id
+    );
+    const hasExam = !!(s.exams && s.exams.exam_id);
     const title = isQuestions
       ? "Practice Questions"
       : isFlashcards
@@ -1533,6 +1535,8 @@ async function getTodayOverview({ studentId }) {
       exams.exam_name ||
       ebooks.ebook_name ||
       "General";
+    const isQuestions = hasQbank;
+    const isFlashcards = hasFlashcards;
     const status = s.status || "pending";
     if (status === "completed") completedCount += 1;
 
@@ -1580,13 +1584,12 @@ async function getTodayOverview({ studentId }) {
   });
 
   const questionsGoalToday =
-    sessionsToday.filter(
-      (s) =>
-        s.session_type === "question_bank" || s.session_type === "questions"
-    ).length * questionsGoalPerSession;
+    sessionsToday.filter((s) => s.qbank && s.qbank.qbank_id).length *
+    questionsGoalPerSession;
   const flashcardsGoalToday =
-    sessionsToday.filter((s) => s.session_type === "flashcards").length *
-    flashcardsGoalPerSession;
+    sessionsToday.filter(
+      (s) => s.flashcards_decks && s.flashcards_decks.flashcarddeck_id
+    ).length * flashcardsGoalPerSession;
   const accuracyPercent =
     totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
   const completionPercentage = tasks.length
@@ -1594,13 +1597,22 @@ async function getTodayOverview({ studentId }) {
     : 0;
 
   const [recentRows] = await client.execute(
-    `SELECT s.session_id, s.study_day_date AS session_date, s.session_type, s.status,
-            COALESCE(s.questions_attempted,0) AS questions_attempted,
-            COALESCE(s.flashcards_studied,0) AS flashcards_studied,
-            COALESCE(s.time_spent,0) AS time_spent
+    `SELECT 
+       s.session_id,
+       s.study_day_date AS session_date,
+       CASE 
+         WHEN s.qbank_id IS NOT NULL THEN 'question_bank'
+         WHEN s.flashcarddeck_id IS NOT NULL THEN 'flashcards'
+         WHEN s.exam_id IS NOT NULL THEN 'exams'
+         ELSE 'content'
+       END AS session_type,
+       'pending' AS status,
+       0 AS questions_attempted,
+       0 AS flashcards_studied,
+       0 AS time_spent
      FROM new_student_plan_sessions s
      WHERE s.plan_id = ?
-     ORDER BY s.study_day_date DESC, s.created_at DESC
+     ORDER BY s.study_day_date DESC, s.session_id DESC
      LIMIT 5`,
     [plan.plan_id]
   );
