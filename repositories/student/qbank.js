@@ -811,7 +811,7 @@ const createQbank = async ({
   question_level,
   numQuestions,
   question_mode = ["all"],
-  
+
   plan_id = 0,
   date_schedule = null,
 }) => {
@@ -2021,11 +2021,10 @@ const startExam = async ({ studentId, examId, session_id }) => {
         FROM exams e
         LEFT JOIN modules m ON e.subject_id = m.module_id
         WHERE e.exam_id = ? 
-        AND e.status = 'published'
         AND m.module_id IN (
             SELECT se.module_id
             FROM student_enrollments se
-            WHERE se.student_id = ? AND se.status = 'active'
+            WHERE se.student_id = ?
         )
     `,
     [examId, studentId]
@@ -2185,7 +2184,9 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
   const cleanSessionId =
     session_id &&
     session_id !== 0 &&
-    session_id !== "" && session_id != undefined && session_id != "undefined" &&
+    session_id !== "" &&
+    session_id != undefined &&
+    session_id != "undefined" &&
     !isNaN(parseInt(session_id))
       ? parseInt(session_id)
       : null;
@@ -2197,13 +2198,12 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
         FROM exams e
         LEFT JOIN modules m ON e.subject_id = m.module_id
         WHERE e.exam_id = ? 
-        AND e.status = 'published'
         AND (
             m.module_id IS NULL 
             OR m.module_id IN (
                 SELECT se.module_id
                 FROM student_enrollments se
-                WHERE se.student_id = ? AND se.status = 'active'
+                WHERE se.student_id = ? 
             )
         )
     `,
