@@ -890,7 +890,7 @@ async function getPlanSessions({
   let params = [studentId, planId];
   // Default to today's sessions when no date is provided
   const effectiveDate = date || new Date().toISOString().split("T")[0];
-  sql += ` AND nsps.study_day_date =NOW()`;
+  sql += ` AND DATE(nsps.study_day_date) = CURDATE()`;
   // params.push(effectiveDate);
   if (status) {
     sql += ` AND nsps.status = ?`;
