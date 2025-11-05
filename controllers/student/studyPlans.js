@@ -65,6 +65,7 @@ async function createPlan(req, res) {
     question_bank_subject,
     question_bank_topics,
     books_module,
+    question_mode,
     books,
     book_indeces,
   } = req.body || {};
@@ -84,6 +85,7 @@ async function createPlan(req, res) {
       dailyLimits: daily_limits || null,
       questionMode: qbank_modes || ["all"],
       qbank_modes: qbank_modes || [],
+      question_mode,
       difficultyBalance: difficulty_balance || "balanced",
       questionsPerSession: questions_per_session || 20,
       questionBankModules: toArray(question_bank_modules),

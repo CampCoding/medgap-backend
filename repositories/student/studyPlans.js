@@ -21,6 +21,7 @@ async function createStudyPlan({
   booksModule,
   books,
   flashcardsDecks,
+  question_mode,
   flashcardsModules,
   booksIndeces,
   exams_modules,
@@ -41,7 +42,7 @@ async function createStudyPlan({
     JSON.stringify(studyDays),
     dailyTimeBudget,
     dailyLimits ? JSON.stringify(dailyLimits) : null,
-    questionMode,
+    question_mode,
     difficultyBalance,
     questionsPerSession,
     questionBankModules ? JSON.stringify(questionBankModules) : null,
@@ -122,7 +123,7 @@ async function createStudyPlan({
           question_level: question_level,
           numQuestions: numQuestions,
           question_mode: qbank_modes,
-          qbank_modes: qbank_modes
+          qbank_modes: qbank_modes,
         });
       }
       return null;
@@ -1967,10 +1968,12 @@ async function getTopicsByModule({ moduleId }) {
 async function getTopicsBySubject({ moduleId, studentId }) {
   // ---------- 1. Normalise unit ids ----------
   let unitIds = moduleId;
-  if (typeof unitIds === 'string')
-    unitIds = unitIds.split(',').map(s => s.trim()).filter(Boolean);
-  else if (!Array.isArray(unitIds))
-    unitIds = [unitIds];
+  if (typeof unitIds === "string")
+    unitIds = unitIds
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  else if (!Array.isArray(unitIds)) unitIds = [unitIds];
 
   if (!unitIds?.length) return [];
 
@@ -1979,15 +1982,19 @@ async function getTopicsBySubject({ moduleId, studentId }) {
   const unitTmp = `tmp_units_${Date.now()}_${Math.random()
     .toString(36)
     .substr(2, 5)}`;
-  await client.execute(`CREATE TEMPORARY TABLE ${unitTmp} (unit_id INT PRIMARY KEY) ENGINE=MEMORY`);
-  const insertBatch = unitIds
-    .map(id => `(${client.escape(id)})`);
-  await client.execute(`INSERT INTO ${unitTmp} VALUES ${insertBatch.join(',')}`);
+  await client.execute(
+    `CREATE TEMPORARY TABLE ${unitTmp} (unit_id INT PRIMARY KEY) ENGINE=MEMORY`
+  );
+  const insertBatch = unitIds.map((id) => `(${client.escape(id)})`);
+  await client.execute(
+    `INSERT INTO ${unitTmp} VALUES ${insertBatch.join(",")}`
+  );
 
   // ---------- 3. Pre-aggregate *latest* attempt per question ----------
   const latestTmp = studentId ? `tmp_latest_${Date.now()}` : null;
   if (studentId) {
-    await client.execute(`
+    await client.execute(
+      `
       CREATE TEMPORARY TABLE ${latestTmp} (
         question_id INT PRIMARY KEY,
         is_correct  CHAR(1)
@@ -2004,7 +2011,9 @@ async function getTopicsBySubject({ moduleId, studentId }) {
         ON s2.question_id = s1.question_id
        AND s2.max_created = s1.created_at
       WHERE s1.student_id = ?
-    `, [studentId, studentId]);
+    `,
+      [studentId, studentId]
+    );
   }
 
   // ---------- 4. ONE final SELECT ----------
@@ -2023,7 +2032,9 @@ async function getTopicsBySubject({ moduleId, studentId }) {
       COALESCE(q_medium.cnt,0)                   AS medium_count,
       COALESCE(q_hard.cnt,0)                     AS difficult_count,
 
-      ${studentId ? `
+      ${
+        studentId
+          ? `
       COALESCE(sq_cnt.attempted,0)               AS attempted_count,
       COALESCE(sq_correct.cnt,0)                 AS correct_count,
       COALESCE(sq_wrong.cnt,0)                   AS wrong_count,
@@ -2045,7 +2056,8 @@ async function getTopicsBySubject({ moduleId, studentId }) {
       COALESCE(mcq_easy.cnt,0)                   AS marked_count_easy,
       COALESCE(mcq_medium.cnt,0)                 AS marked_count_medium,
       COALESCE(mcq_hard.cnt,0)                   AS marked_count_hard
-      ` : `
+      `
+          : `
       0 AS attempted_count, 0 AS correct_count, 0 AS wrong_count,
       COALESCE(q_cnt.questions,0) AS unsolved_count,
       0 AS marked_count,
@@ -2055,7 +2067,8 @@ async function getTopicsBySubject({ moduleId, studentId }) {
       COALESCE(q_medium.cnt,0) AS unused_count_medium,
       COALESCE(q_hard.cnt,0)   AS unused_count_hard,
       0 AS marked_count_easy,  0 AS marked_count_medium,  0 AS marked_count_hard
-      `}
+      `
+      }
     FROM topics t
     INNER JOIN units u       ON u.unit_id = t.unit_id AND u.status = 'active'
     INNER JOIN ${unitTmp} tu ON tu.unit_id = u.unit_id
@@ -2069,7 +2082,9 @@ async function getTopicsBySubject({ moduleId, studentId }) {
     LEFT JOIN (SELECT topic_id, COUNT(*) AS cnt FROM questions WHERE difficulty_level='medium' GROUP BY topic_id) q_medium ON q_medium.topic_id = t.topic_id
     LEFT JOIN (SELECT topic_id, COUNT(*) AS cnt FROM questions WHERE difficulty_level='hard'   GROUP BY topic_id) q_hard   ON q_hard.topic_id   = t.topic_id
 
-    ${studentId ? `
+    ${
+      studentId
+        ? `
     LEFT JOIN ${latestTmp} sq ON sq.question_id IN (SELECT question_id FROM questions WHERE topic_id = t.topic_id)
     LEFT JOIN (SELECT topic_id, COUNT(*) AS attempted FROM questions q
                INNER JOIN ${latestTmp} s ON s.question_id = q.question_id
@@ -2134,7 +2149,9 @@ async function getTopicsBySubject({ moduleId, studentId }) {
                  ON smc.student_mark_category_id = mcq.category_id
                 AND smc.student_id = ?
                WHERE q.difficulty_level='hard' GROUP BY q.topic_id) mcq_hard   ON mcq_hard.topic_id   = t.topic_id
-    ` : ''}
+    `
+        : ""
+    }
 
     WHERE t.status = 'active'
     GROUP BY t.topic_id, t.topic_name, t.short_description, u.unit_id, u.unit_name
@@ -2147,9 +2164,12 @@ async function getTopicsBySubject({ moduleId, studentId }) {
 
   // Clean up temp tables (fire-and-forget)
   client.execute(`DROP TEMPORARY TABLE IF EXISTS ${unitTmp}`).catch(() => {});
-  if (latestTmp) client.execute(`DROP TEMPORARY TABLE IF EXISTS ${latestTmp}`).catch(() => {});
+  if (latestTmp)
+    client
+      .execute(`DROP TEMPORARY TABLE IF EXISTS ${latestTmp}`)
+      .catch(() => {});
 
-  return rows.map(r => ({ ...r, questions: [] }));
+  return rows.map((r) => ({ ...r, questions: [] }));
 }
 
 async function getSubjectsByModule({ moduleId }) {
