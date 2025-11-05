@@ -1964,115 +1964,191 @@ async function getTopicsByModule({ moduleId }) {
 }
 
 async function getTopicsBySubject({ moduleId, studentId }) {
+  // ---------- 1. Normalise unit ids ----------
   let unitIds = moduleId;
-  if (typeof unitIds === "string") {
-    unitIds = unitIds.split(",").map(id => id.trim()).filter(Boolean);
-  } else if (!Array.isArray(unitIds)) {
+  if (typeof unitIds === 'string')
+    unitIds = unitIds.split(',').map(s => s.trim()).filter(Boolean);
+  else if (!Array.isArray(unitIds))
     unitIds = [unitIds];
-  }
 
   if (!unitIds?.length) return [];
 
-  const placeholders = unitIds.map(() => "?").join(",");
-  const baseParams = [...unitIds];
+  // ---------- 2. Build a *temporary* table of the unit list ----------
+  // This lets MySQL treat the list as a real table → index-friendly
+  const unitTmp = `tmp_units_${Date.now()}_${Math.random()
+    .toString(36)
+    .substr(2, 5)}`;
+  await client.execute(`CREATE TEMPORARY TABLE ${unitTmp} (unit_id INT PRIMARY KEY) ENGINE=MEMORY`);
+  const insertBatch = unitIds
+    .map(id => `(${client.escape(id)})`);
+  await client.execute(`INSERT INTO ${unitTmp} VALUES ${insertBatch.join(',')}`);
 
-  // Build only the necessary part of the query
-  const selectFields = `
-    t.topic_id, 
-    t.topic_name, 
-    t.short_description,
-    u.unit_id, 
-    u.unit_name,
-    COUNT(DISTINCT q.question_id) AS questions_count,
-    COUNT(DISTINCT f.flashcard_id) AS flashcards_count,
-    COUNT(DISTINCT CASE WHEN q.difficulty_level = 'easy' THEN q.question_id END) AS easy_count,
-    COUNT(DISTINCT CASE WHEN q.difficulty_level = 'medium' THEN q.question_id END) AS medium_count,
-    COUNT(DISTINCT CASE WHEN q.difficulty_level = 'hard' THEN q.question_id END) AS difficult_count
-  `;
+  // ---------- 3. Pre-aggregate *latest* attempt per question ----------
+  const latestTmp = studentId ? `tmp_latest_${Date.now()}` : null;
+  if (studentId) {
+    await client.execute(`
+      CREATE TEMPORARY TABLE ${latestTmp} (
+        question_id INT PRIMARY KEY,
+        is_correct  CHAR(1)
+      ) ENGINE=MEMORY
+      AS
+      SELECT s1.question_id, s1.is_correct
+      FROM solved_questions s1
+      INNER JOIN (
+        SELECT question_id, MAX(created_at) AS max_created
+        FROM solved_questions
+        WHERE student_id = ?
+        GROUP BY question_id
+      ) s2
+        ON s2.question_id = s1.question_id
+       AND s2.max_created = s1.created_at
+      WHERE s1.student_id = ?
+    `, [studentId, studentId]);
+  }
 
-  const studentFields = studentId ? `,
-    COUNT(DISTINCT sq.question_id) AS attempted_count,
-    COUNT(DISTINCT CASE WHEN sq.is_correct = '1' THEN sq.question_id END) AS correct_count,
-    COUNT(DISTINCT CASE WHEN sq.is_correct = '0' THEN sq.question_id END) AS wrong_count,
-    COUNT(DISTINCT CASE WHEN q.question_id IS NOT NULL AND sq.question_id IS NULL THEN q.question_id END) AS unsolved_count,
-    COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL THEN q.question_id END) AS marked_count,
+  // ---------- 4. ONE final SELECT ----------
+  const sql = `
+    SELECT
+      t.topic_id,
+      t.topic_name,
+      t.short_description,
+      u.unit_id,
+      u.unit_name,
 
-    -- Correct by difficulty
-    COUNT(DISTINCT CASE WHEN sq.is_correct = '1' AND q.difficulty_level = 'easy' THEN q.question_id END) AS correct_count_easy,
-    COUNT(DISTINCT CASE WHEN sq.is_correct = '1' AND q.difficulty_level = 'medium' THEN q.question_id END) AS correct_count_medium,
-    COUNT(DISTINCT CASE WHEN sq.is_correct = '1' AND q.difficulty_level = 'hard' THEN q.question_id END) AS correct_count_hard,
+      COALESCE(q_cnt.questions,0)                AS questions_count,
+      COALESCE(f_cnt.flashcards,0)               AS flashcards_count,
 
-    -- Wrong by difficulty
-    COUNT(DISTINCT CASE WHEN sq.is_correct = '0' AND q.difficulty_level = 'easy' THEN q.question_id END) AS wrong_count_easy,
-    COUNT(DISTINCT CASE WHEN sq.is_correct = '0' AND q.difficulty_level = 'medium' THEN q.question_id END) AS wrong_count_medium,
-    COUNT(DISTINCT CASE WHEN sq.is_correct = '0' AND q.difficulty_level = 'hard' THEN q.question_id END) AS wrong_count_hard,
+      COALESCE(q_easy.cnt,0)                     AS easy_count,
+      COALESCE(q_medium.cnt,0)                   AS medium_count,
+      COALESCE(q_hard.cnt,0)                     AS difficult_count,
 
-    -- Unsolved (unused) by difficulty
-    COUNT(DISTINCT CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'easy' THEN q.question_id END) AS unused_count_easy,
-    COUNT(DISTINCT CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'medium' THEN q.question_id END) AS unused_count_medium,
-    COUNT(DISTINCT CASE WHEN sq.question_id IS NULL AND q.difficulty_level = 'hard' THEN q.question_id END) AS unused_count_hard,
+      ${studentId ? `
+      COALESCE(sq_cnt.attempted,0)               AS attempted_count,
+      COALESCE(sq_correct.cnt,0)                 AS correct_count,
+      COALESCE(sq_wrong.cnt,0)                   AS wrong_count,
+      COALESCE(q_cnt.questions,0) - COALESCE(sq_cnt.attempted,0) AS unsolved_count,
+      COALESCE(mcq_cnt.marked,0)                 AS marked_count,
 
-    -- Marked by difficulty
-    COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND q.difficulty_level = 'easy' THEN q.question_id END) AS marked_count_easy,
-    COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND q.difficulty_level = 'medium' THEN q.question_id END) AS marked_count_medium,
-    COUNT(DISTINCT CASE WHEN mcq.question_id IS NOT NULL AND q.difficulty_level = 'hard' THEN q.question_id END) AS marked_count_hard
-  ` : `,
-    0 AS attempted_count,
-    0 AS correct_count,
-    0 AS wrong_count,
-    COUNT(DISTINCT q.question_id) AS unsolved_count,
-    0 AS marked_count,
-    0 AS correct_count_easy, 0 AS correct_count_medium, 0 AS correct_count_hard,
-    0 AS wrong_count_easy, 0 AS wrong_count_medium, 0 AS wrong_count_hard,
-    COUNT(DISTINCT CASE WHEN q.difficulty_level = 'easy' THEN q.question_id END) AS unused_count_easy,
-    COUNT(DISTINCT CASE WHEN q.difficulty_level = 'medium' THEN q.question_id END) AS unused_count_medium,
-    COUNT(DISTINCT CASE WHEN q.difficulty_level = 'hard' THEN q.question_id END) AS unused_count_hard,
-    0 AS marked_count_easy, 0 AS marked_count_medium, 0 AS marked_count_hard
-  `;
+      COALESCE(sq_easy_correct.cnt,0)            AS correct_count_easy,
+      COALESCE(sq_medium_correct.cnt,0)          AS correct_count_medium,
+      COALESCE(sq_hard_correct.cnt,0)            AS correct_count_hard,
 
-  const topicsSql = `
-    SELECT 
-      ${selectFields}
-      ${studentFields}
+      COALESCE(sq_easy_wrong.cnt,0)              AS wrong_count_easy,
+      COALESCE(sq_medium_wrong.cnt,0)            AS wrong_count_medium,
+      COALESCE(sq_hard_wrong.cnt,0)              AS wrong_count_hard,
+
+      COALESCE(q_easy.cnt,0) - COALESCE(sq_easy_correct.cnt,0) - COALESCE(sq_easy_wrong.cnt,0) AS unused_count_easy,
+      COALESCE(q_medium.cnt,0) - COALESCE(sq_medium_correct.cnt,0) - COALESCE(sq_medium_wrong.cnt,0) AS unused_count_medium,
+      COALESCE(q_hard.cnt,0) - COALESCE(sq_hard_correct.cnt,0) - COALESCE(sq_hard_wrong.cnt,0) AS unused_count_hard,
+
+      COALESCE(mcq_easy.cnt,0)                   AS marked_count_easy,
+      COALESCE(mcq_medium.cnt,0)                 AS marked_count_medium,
+      COALESCE(mcq_hard.cnt,0)                   AS marked_count_hard
+      ` : `
+      0 AS attempted_count, 0 AS correct_count, 0 AS wrong_count,
+      COALESCE(q_cnt.questions,0) AS unsolved_count,
+      0 AS marked_count,
+      0 AS correct_count_easy, 0 AS correct_count_medium, 0 AS correct_count_hard,
+      0 AS wrong_count_easy,   0 AS wrong_count_medium,   0 AS wrong_count_hard,
+      COALESCE(q_easy.cnt,0)   AS unused_count_easy,
+      COALESCE(q_medium.cnt,0) AS unused_count_medium,
+      COALESCE(q_hard.cnt,0)   AS unused_count_hard,
+      0 AS marked_count_easy,  0 AS marked_count_medium,  0 AS marked_count_hard
+      `}
     FROM topics t
-    INNER JOIN units u ON u.unit_id = t.unit_id AND u.status = 'active'
-    LEFT JOIN questions q ON q.topic_id = t.topic_id
-    LEFT JOIN flashcards f ON f.topic_id = t.topic_id
+    INNER JOIN units u       ON u.unit_id = t.unit_id AND u.status = 'active'
+    INNER JOIN ${unitTmp} tu ON tu.unit_id = u.unit_id
+    /* ---- pre-aggregated counts (all use indexes) ---- */
+    LEFT JOIN (SELECT topic_id, COUNT(*) AS questions FROM questions GROUP BY topic_id) q_cnt
+           ON q_cnt.topic_id = t.topic_id
+    LEFT JOIN (SELECT topic_id, COUNT(*) AS flashcards FROM flashcards GROUP BY topic_id) f_cnt
+           ON f_cnt.topic_id = t.topic_id
+
+    LEFT JOIN (SELECT topic_id, COUNT(*) AS cnt FROM questions WHERE difficulty_level='easy'   GROUP BY topic_id) q_easy   ON q_easy.topic_id   = t.topic_id
+    LEFT JOIN (SELECT topic_id, COUNT(*) AS cnt FROM questions WHERE difficulty_level='medium' GROUP BY topic_id) q_medium ON q_medium.topic_id = t.topic_id
+    LEFT JOIN (SELECT topic_id, COUNT(*) AS cnt FROM questions WHERE difficulty_level='hard'   GROUP BY topic_id) q_hard   ON q_hard.topic_id   = t.topic_id
+
     ${studentId ? `
-      LEFT JOIN (
-        SELECT s1.question_id, s1.is_correct
-        FROM solved_questions s1
-        INNER JOIN (
-          SELECT question_id, MAX(created_at) AS max_created
-          FROM solved_questions
-          WHERE student_id = ?
-          GROUP BY question_id
-        ) s2 ON s2.question_id = s1.question_id AND s2.max_created = s1.created_at
-        WHERE s1.student_id = ?
-      ) sq ON sq.question_id = q.question_id
-      LEFT JOIN mark_category_question mcq ON mcq.question_id = q.question_id
-      LEFT JOIN student_mark_categories smc 
-        ON mcq.category_id = smc.student_mark_category_id 
-        AND smc.student_id = ?
+    LEFT JOIN ${latestTmp} sq ON sq.question_id IN (SELECT question_id FROM questions WHERE topic_id = t.topic_id)
+    LEFT JOIN (SELECT topic_id, COUNT(*) AS attempted FROM questions q
+               INNER JOIN ${latestTmp} s ON s.question_id = q.question_id
+               GROUP BY topic_id) sq_cnt ON sq_cnt.topic_id = t.topic_id
+
+    LEFT JOIN (SELECT topic_id, COUNT(*) AS cnt FROM questions q
+               INNER JOIN ${latestTmp} s ON s.question_id = q.question_id AND s.is_correct='1'
+               GROUP BY topic_id) sq_correct ON sq_correct.topic_id = t.topic_id
+    LEFT JOIN (SELECT topic_id, COUNT(*) AS cnt FROM questions q
+               INNER JOIN ${latestTmp} s ON s.question_id = q.question_id AND s.is_correct='0'
+               GROUP BY topic_id) sq_wrong   ON sq_wrong.topic_id   = t.topic_id
+
+    /* per-difficulty correct */
+    LEFT JOIN (SELECT topic_id, COUNT(*) AS cnt FROM questions q
+               INNER JOIN ${latestTmp} s ON s.question_id = q.question_id AND s.is_correct='1' AND q.difficulty_level='easy'
+               GROUP BY topic_id) sq_easy_correct   ON sq_easy_correct.topic_id   = t.topic_id
+    LEFT JOIN (SELECT topic_id, COUNT(*) AS cnt FROM questions q
+               INNER JOIN ${latestTmp} s ON s.question_id = q.question_id AND s.is_correct='1' AND q.difficulty_level='medium'
+               GROUP BY topic_id) sq_medium_correct ON sq_medium_correct.topic_id = t.topic_id
+    LEFT JOIN (SELECT topic_id, COUNT(*) AS cnt FROM questions q
+               INNER JOIN ${latestTmp} s ON s.question_id = q.question_id AND s.is_correct='1' AND q.difficulty_level='hard'
+               GROUP BY topic_id) sq_hard_correct   ON sq_hard_correct.topic_id   = t.topic_id
+
+    /* per-difficulty wrong */
+    LEFT JOIN (SELECT topic_id, COUNT(*) AS cnt FROM questions q
+               INNER JOIN ${latestTmp} s ON s.question_id = q.question_id AND s.is_correct='0' AND q.difficulty_level='easy'
+               GROUP BY topic_id) sq_easy_wrong   ON sq_easy_wrong.topic_id   = t.topic_id
+    LEFT JOIN (SELECT topic_id, COUNT(*) AS cnt FROM questions q
+               INNER JOIN ${latestTmp} s ON s.question_id = q.question_id AND s.is_correct='0' AND q.difficulty_level='medium'
+               GROUP BY topic_id) sq_medium_wrong ON sq_medium_wrong.topic_id = t.topic_id
+    LEFT JOIN (SELECT topic_id, COUNT(*) AS cnt FROM questions q
+               INNER JOIN ${latestTmp} s ON s.question_id = q.question_id AND s.is_correct='0' AND q.difficulty_level='hard'
+               GROUP BY topic_id) sq_hard_wrong   ON sq_hard_wrong.topic_id   = t.topic_id
+
+    /* marked */
+    LEFT JOIN (SELECT q.topic_id, COUNT(*) AS marked
+               FROM mark_category_question mcq
+               INNER JOIN questions q ON q.question_id = mcq.question_id
+               INNER JOIN student_mark_categories smc
+                 ON smc.student_mark_category_id = mcq.category_id
+                AND smc.student_id = ?
+               GROUP BY q.topic_id) mcq_cnt ON mcq_cnt.topic_id = t.topic_id
+
+    LEFT JOIN (SELECT q.topic_id, COUNT(*) AS cnt
+               FROM mark_category_question mcq
+               INNER JOIN questions q ON q.question_id = mcq.question_id
+               INNER JOIN student_mark_categories smc
+                 ON smc.student_mark_category_id = mcq.category_id
+                AND smc.student_id = ?
+               WHERE q.difficulty_level='easy' GROUP BY q.topic_id) mcq_easy   ON mcq_easy.topic_id   = t.topic_id
+    LEFT JOIN (SELECT q.topic_id, COUNT(*) AS cnt
+               FROM mark_category_question mcq
+               INNER JOIN questions q ON q.question_id = mcq.question_id
+               INNER JOIN student_mark_categories smc
+                 ON smc.student_mark_category_id = mcq.category_id
+                AND smc.student_id = ?
+               WHERE q.difficulty_level='medium' GROUP BY q.topic_id) mcq_medium ON mcq_medium.topic_id = t.topic_id
+    LEFT JOIN (SELECT q.topic_id, COUNT(*) AS cnt
+               FROM mark_category_question mcq
+               INNER JOIN questions q ON q.question_id = mcq.question_id
+               INNER JOIN student_mark_categories smc
+                 ON smc.student_mark_category_id = mcq.category_id
+                AND smc.student_id = ?
+               WHERE q.difficulty_level='hard' GROUP BY q.topic_id) mcq_hard   ON mcq_hard.topic_id   = t.topic_id
     ` : ''}
-    WHERE t.unit_id IN (${placeholders})
-      AND t.status = 'active'
+
+    WHERE t.status = 'active'
     GROUP BY t.topic_id, t.topic_name, t.short_description, u.unit_id, u.unit_name
-    ORDER BY u.unit_order, t.topic_order, t.topic_name
+    ORDER BY u.unit_order, t.topic_order, t.topic_name;
   `;
 
-  const params = studentId
-    ? [studentId, studentId, studentId, ...baseParams]
-    : baseParams;
+  const params = studentId ? [studentId, studentId, studentId, studentId] : [];
 
-  // SINGLE QUERY ONLY — no parallel, no unused questions fetch
-  const [topicRows] = await client.execute(topicsSql, params);
+  const [rows] = await client.execute(sql, params);
 
-  // Always return questions: [] since you're not using per-question details
-  return topicRows.map(topic => ({
-    ...topic,
-    questions: []
-  }));
+  // Clean up temp tables (fire-and-forget)
+  client.execute(`DROP TEMPORARY TABLE IF EXISTS ${unitTmp}`).catch(() => {});
+  if (latestTmp) client.execute(`DROP TEMPORARY TABLE IF EXISTS ${latestTmp}`).catch(() => {});
+
+  return rows.map(r => ({ ...r, questions: [] }));
 }
 
 async function getSubjectsByModule({ moduleId }) {
