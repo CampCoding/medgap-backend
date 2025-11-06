@@ -26,7 +26,7 @@ async function listLibrariesByModule({
            COALESCE(slp.status, 'not_started') AS progress_status
     FROM flashcard_libraries fl
     LEFT JOIN flashcards f ON f.library_id = fl.library_id
-    LEFT JOIN student_deck sd ON sd.old_deck_id = fl.library_id
+    LEFT JOIN student_deck sd ON sd.old_deck_id = fl.library_id AND sd.student_id = ?
     LEFT JOIN topics t ON t.topic_id = fl.topic_id
     LEFT JOIN units u ON u.unit_id = t.unit_id
     LEFT JOIN modules m ON m.module_id = u.module_id
@@ -43,6 +43,7 @@ async function listLibrariesByModule({
     WHERE ${where.join(" AND ")}
   `;
   const [rows] = await client.execute(sql, [
+    studentId,
     studentId,
     ...params,
     limit,
