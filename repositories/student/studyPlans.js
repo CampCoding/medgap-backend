@@ -151,7 +151,6 @@ async function createStudyPlan({
       return null;
     })
   );
-
   await Promise.all(
     availableDates.map(async (date, index) => {
       const safeValue = (value) => {
@@ -170,7 +169,7 @@ async function createStudyPlan({
 
       const qbankIdForThisDate = index < qbankId.length ? qbankId[index] : null;
 
-      const sessionCreated = await createSession({
+      await createSession({
         planId: result.insertId,
         studentId: studentId,
         studyDay: index + 1,
@@ -200,7 +199,7 @@ async function createStudyPlan({
         notes: "Not Found",
       });
     })
-  ); 
+  );
 
   return { plan_id: result.insertId };
 }
@@ -960,15 +959,15 @@ async function getPlanSessions({
     'started', COALESCE((SELECT new_student_plan_content.id FROM new_student_plan_content WHERE content_type = 'ebook' AND content_id = eb.ebook_id AND session_id = nsps.session_id LIMIT 1), 0)
   ) AS ebooks
              FROM new_student_plan_sessions AS nsps
-             LEFT JOIN qbank AS q ON nsps.qbank_id = q.qbank_id AND Date(q.date_schedule) = CURDATE()
+             LEFT JOIN qbank AS q ON nsps.plan_id = q.plan_id AND DATE(q.date_schedule) = CURDATE()
              LEFT JOIN exams AS e ON nsps.exam_id = e.exam_id
              LEFT JOIN flashcard_libraries AS fl ON nsps.flashcarddeck_id = fl.library_id
              LEFT JOIN ebooks AS eb ON nsps.ebook_id = eb.ebook_id
              LEFT JOIN ebook_indeces AS ei ON nsps.index_id = ei.ebook_index_id
-             WHERE nsps.plan_id = ?
-             GROUP BY nsps.session_id`;
+             WHERE nsps.plan_id = ?`;
 
   let params = [studentId, planId];
+  console.log(params);
   // Default to today's sessions when no date is provided
   const effectiveDate = date || new Date().toISOString().split("T")[0];
   sql += ` AND DATE(nsps.study_day_date) = CURDATE()`;
@@ -977,6 +976,8 @@ async function getPlanSessions({
     sql += ` AND nsps.status = ?`;
     params.push(status);
   }
+  // Ensure grouping happens after WHERE filters
+  sql += ` GROUP BY nsps.session_id`;
   const [rows] = await client.execute(sql, params);
   rows.map((item) => {
     item.flashcards_decks = JSON.parse(item.flashcards_decks);
