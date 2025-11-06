@@ -165,9 +165,6 @@ const fetchQuestionsByTopicIds = async (
       numQuestions = 10;
     }
   }
-  console.log(
-    `fetchQuestionsByTopicIds: numQuestions = ${numQuestions} (from filters.numQuestions = ${filters?.numQuestions})`
-  );
 
   // First, get counts for each mode to determine distribution
   let countSql = `SELECT 
@@ -328,11 +325,7 @@ const fetchQuestionsByTopicIds = async (
     }
   }
 
-  console.log(
-    `Requested: ${numQuestions}, Total available: ${totalAvailable}, Actual: ${actualNumQuestions}, Distributed: ${totalDistributed}, Limits: ${JSON.stringify(
-      modeLimits
-    )}`
-  );
+
 
   // If no questions available, return empty result
   if (totalAvailable === 0) {
@@ -540,8 +533,8 @@ const fetchQuestionsByTopicIds = async (
 
     modeSql += ` GROUP BY q.question_id ORDER BY RAND() LIMIT ?`;
     modeValues.push(limit);
-    // console.log("modeSql", modeSql)
-    console.log("modeValues", modeValues);
+    // 
+    
 
     const [modeRows] = await client.execute(modeSql, modeValues);
 
@@ -552,9 +545,6 @@ const fetchQuestionsByTopicIds = async (
       question_mode: mode,
     }));
 
-    console.log(
-      `Fetched ${processedQuestions.length} questions for mode=${mode}, topic=${topicId}, requested limit=${limit}`
-    );
 
     // Add questions, avoiding duplicates by question_id
     const existingQuestionIds = new Set(allQuestions.map((q) => q.question_id));
@@ -563,11 +553,6 @@ const fetchQuestionsByTopicIds = async (
     );
     allQuestions = allQuestions.concat(newQuestions);
 
-    console.log(
-      `Added ${newQuestions.length} new questions (${
-        processedQuestions.length - newQuestions.length
-      } duplicates skipped), total so far: ${allQuestions.length}`
-    );
 
     // Use aggregate counts from full scope
     const agg = countRows && countRows[0] ? countRows[0] : {};
@@ -594,9 +579,7 @@ const fetchQuestionsByTopicIds = async (
     allQuestions.length < actualNumQuestions &&
     totalAvailable > allQuestions.length
   ) {
-    console.log(
-      `Shortage detected: Have ${allQuestions.length} questions, need ${actualNumQuestions}, trying to fill from remaining modes...`
-    );
+
 
     const existingQuestionIds = new Set(allQuestions.map((q) => q.question_id));
     const neededQuestions = actualNumQuestions - allQuestions.length;
@@ -725,9 +708,7 @@ const fetchQuestionsByTopicIds = async (
             existingQuestionIds.clear();
             allQuestions.forEach((q) => existingQuestionIds.add(q.question_id));
 
-            console.log(
-              `Filled ${extraQuestions.length} more questions from mode=${mode}, topic=${topicId}, total now: ${allQuestions.length}`
-            );
+           
           }
         } catch (error) {
           console.error(
@@ -744,9 +725,7 @@ const fetchQuestionsByTopicIds = async (
 
   aggregatedCounts.total_questions = finalQuestions.length;
 
-  console.log(
-    `fetchQuestionsByTopicIds: Final result - Requested: ${numQuestions}, Actual needed: ${actualNumQuestions}, Returned: ${finalQuestions.length}, Limits applied: ${modeLimits.length} groups`
-  );
+
 
   return {
     questions: finalQuestions,
@@ -843,29 +822,20 @@ const createQbank = async ({
   const filters = {
     selected_modules,
     selected_subjects,
-    selected_topics,
-    status: question_level,
+    selected_topics, 
+    status: question_level, 
     question_mode: question_mode,
     numQuestions: cleanNumQuestions,
   };
-  console.log("createQbank: filters", JSON.stringify(filters, null, 2));
-  console.log(
-    "createQbank: numQuestions input =",
-    numQuestions,
-    ", cleaned =",
-    cleanNumQuestions
-  );
+  
+
 
   const questions = await fetchModulesSubjectsTopicsQuestions({
     studentId,
     filters,
   });
 
-  console.log(
-    "createQbank: Received",
-    questions?.questions?.length || 0,
-    "questions from fetchModulesSubjectsTopicsQuestions"
-  );
+ 
 
   const [insertQbank] = await client.execute(
     `INSERT INTO qbank (qbank_name, tutor_mode, timed, time_type, active, deleted, student_id, plan_id, day, date_schedule)
@@ -890,11 +860,7 @@ const createQbank = async ({
       ?.option_text || "-",
   ]);
 
-  console.log(
-    "createQbank: Inserting",
-    rows.length,
-    "questions into qbank_questions"
-  );
+
 
   if (rows.length) {
     await client.execute(
@@ -903,12 +869,7 @@ const createQbank = async ({
         .join(",")}`,
       rows.flat()
     );
-    console.log(
-      "createQbank: Successfully inserted",
-      rows.length,
-      "questions. Qbank ID:",
-      insertQbank.insertId
-    );
+   
   } else {
     console.warn(
       "createQbank: No questions to insert! Qbank ID:",

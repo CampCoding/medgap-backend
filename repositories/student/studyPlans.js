@@ -75,6 +75,8 @@ async function createStudyPlan({
     timeZone: "Africa/Cairo",
   });
 
+  console.log("availableDates", dailyLimits?.max_questions);
+
   let questionsPerDate = [];
   let datesToUse = [];
   let remainingQuestions = totalQuestions;
@@ -84,19 +86,37 @@ async function createStudyPlan({
     availableDates.length > 0 &&
     questionsPerSession > 0
   ) {
-    questionsPerDate = availableDates.map(() => {
+    // Get daily limit for questions (if set)
+    const dailyQuestionLimit = dailyLimits?.max_questions
+      ? Number(dailyLimits.max_questions)
+      : null;
+
+    // Calculate how many sessions per day based on daily limit
+    const sessionsPerDay = dailyQuestionLimit
+      ? Math.floor(dailyQuestionLimit / questionsPerSession)
+      : 1;
+
+    // Expand dates array: duplicate each date based on sessionsPerDay
+    // Example: if sessionsPerDay = 2, each date appears twice
+    datesToUse = [];
+    availableDates.forEach((date) => {
+      for (let i = 0; i < sessionsPerDay; i++) {
+        datesToUse.push(date);
+      }
+    });
+
+    // Distribute questions across all date entries (each representing a qbank session)
+    questionsPerDate = datesToUse.map(() => {
       if (remainingQuestions <= 0) {
         return 0;
       }
-      const questionsForThisDay = Math.min(
+      const questionsForThisSession = Math.min(
         questionsPerSession,
         remainingQuestions
       );
-      remainingQuestions -= questionsForThisDay;
-      return questionsForThisDay;
+      remainingQuestions -= questionsForThisSession;
+      return questionsForThisSession;
     });
-
-    datesToUse = availableDates;
   } else if (availableDates.length > 0) {
     datesToUse = availableDates;
     questionsPerDate = availableDates.map(() => 0);
@@ -824,36 +844,41 @@ async function getPlanSessions({
 }) {
   let sql = `SELECT 
   nsps.*,
-  JSON_OBJECT(
-  'qbank_id', q.qbank_id,
-  'qbank_name', q.qbank_name,
-  'qbank_created_at', q.created_at,
-  'started', COALESCE(
-    (SELECT id FROM new_student_plan_content WHERE content_type = 'qbank' AND content_id = q.qbank_id AND session_id = nsps.session_id LIMIT 1),
-    0
-  ),
-  'progress',
-  (
-    SELECT 
-      IFNULL(
-        ROUND(
-          (
-            SELECT COUNT(DISTINCT sq.question_id) 
-            FROM solved_questions sq
-            WHERE sq.qbank_id = q.qbank_id AND sq.student_id = ? AND sq.is_correct = '1'
-          ) 
-          *
-          100.0 /
-          (
-            SELECT COUNT(*) 
-            FROM qbank_questions qq 
-            WHERE qq.qbank_id = q.qbank_id
-          )
-          , 0
-        ), 0
+  COALESCE(
+    JSON_ARRAYAGG(
+      DISTINCT JSON_OBJECT(
+        'qbank_id', q.qbank_id,
+        'qbank_name', q.qbank_name,
+        'qbank_created_at', q.created_at,
+        'started', COALESCE(
+          (SELECT id FROM new_student_plan_content WHERE content_type = 'qbank' AND content_id = q.qbank_id AND session_id = nsps.session_id LIMIT 1),
+          0
+        ),
+        'progress',
+        (
+          SELECT 
+            IFNULL(
+              ROUND(
+                (
+                  SELECT COUNT(DISTINCT sq.question_id) 
+                  FROM solved_questions sq
+                  WHERE sq.qbank_id = q.qbank_id AND sq.student_id = ? AND sq.is_correct = '1'
+                ) 
+                *
+                100.0 /
+                (
+                  SELECT COUNT(*) 
+                  FROM qbank_questions qq 
+                  WHERE qq.qbank_id = q.qbank_id
+                )
+                , 0
+              ), 0
+            )
+        )
       )
-  )
-) AS qbank,
+    ),
+    JSON_ARRAY()
+  ) AS qbank,
   JSON_OBJECT(
     'exam_id', e.exam_id,
     'exam_name', e.title,
@@ -885,7 +910,8 @@ async function getPlanSessions({
              LEFT JOIN flashcard_libraries AS fl ON nsps.flashcarddeck_id = fl.library_id
              LEFT JOIN ebooks AS eb ON nsps.ebook_id = eb.ebook_id
              LEFT JOIN ebook_indeces AS ei ON nsps.index_id = ei.ebook_index_id
-             WHERE nsps.plan_id = ?`;
+             WHERE nsps.plan_id = ?
+             GROUP BY nsps.session_id`;
 
   let params = [studentId, planId];
   // Default to today's sessions when no date is provided
@@ -908,7 +934,9 @@ async function getPlanSessions({
       ? item.flashcards_decks
       : {};
     item.exams = item.exams?.exam_id ? item.exams : {};
-    item.qbank = item.qbank?.qbank_id ? item.qbank : {};
+    item.qbank = item.qbank?.length
+      ? item.qbank?.filter((item) => item?.qbank_id)
+      : [];
     return item;
   });
   return rows.map((item) => {

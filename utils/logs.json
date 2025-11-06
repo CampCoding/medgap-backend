@@ -1,5 +1,821 @@
 [
   {
+    "timestamp": "2025-11-06T11:07:11.303Z",
+    "level": "info",
+    "message": "Study sessions retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/171/sessions",
+    "additional_data": [
+      {
+        "session_id": 490,
+        "plan_id": 171,
+        "student_id": 4,
+        "study_day": 1,
+        "study_day_name": "Thu",
+        "qbank_id": 861,
+        "exam_id": 17,
+        "flashcarddeck_id": 22,
+        "ebook_id": 1,
+        "index_id": null,
+        "created_at": "2025-11-06T08:51:48.000Z",
+        "updated_at": "2025-11-06T08:51:48.000Z",
+        "study_day_date": "2025-10-29T21:00:00.000Z",
+        "qbank": [
+          {
+            "qbank_id": 861,
+            "qbank_name": "خطة التحضير لامتحان USMLE4",
+            "qbank_created_at": "2025-11-06 10:51:48",
+            "started": 0,
+            "progress": 0
+          },
+          {
+            "qbank_id": 862,
+            "qbank_name": "خطة التحضير لامتحان USMLE4",
+            "qbank_created_at": "2025-11-06 10:51:48",
+            "started": 0,
+            "progress": 0
+          },
+          {
+            "qbank_id": 863,
+            "qbank_name": "خطة التحضير لامتحان USMLE4",
+            "qbank_created_at": "2025-11-06 10:51:48",
+            "started": 0,
+            "progress": 0
+          }
+        ],
+        "exams": {
+          "exam_id": 17,
+          "exam_name": "test",
+          "difficulty": "hard",
+          "exam_created_at": "2025-10-12 16:58:43",
+          "started": 0
+        },
+        "flashcards_decks": {
+          "flashcarddeck_id": 22,
+          "flashcarddeck_name": "mn",
+          "flashcarddeck_description": "mmmmmmmmmmmmmmmmmmmmmmmm",
+          "flashcarddeck_created_at": "2025-10-12 09:44:11",
+          "started": 0
+        },
+        "ebooks": {}
+      },
+      {
+        "session_id": 495,
+        "plan_id": 171,
+        "student_id": 4,
+        "study_day": 5,
+        "study_day_name": "Thu",
+        "qbank_id": null,
+        "exam_id": null,
+        "flashcarddeck_id": null,
+        "ebook_id": 1,
+        "index_id": null,
+        "created_at": "2025-11-06T08:51:48.000Z",
+        "updated_at": "2025-11-06T08:51:48.000Z",
+        "study_day_date": "2025-11-05T22:00:00.000Z",
+        "qbank": [],
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      }
+    ],
+    "error_details": null,
+    "request_response": [
+      {
+        "session_id": 490,
+        "plan_id": 171,
+        "student_id": 4,
+        "study_day": 1,
+        "study_day_name": "Thu",
+        "qbank_id": 861,
+        "exam_id": 17,
+        "flashcarddeck_id": 22,
+        "ebook_id": 1,
+        "index_id": null,
+        "created_at": "2025-11-06T08:51:48.000Z",
+        "updated_at": "2025-11-06T08:51:48.000Z",
+        "study_day_date": "2025-10-29T21:00:00.000Z",
+        "qbank": [
+          {
+            "qbank_id": 861,
+            "qbank_name": "خطة التحضير لامتحان USMLE4",
+            "qbank_created_at": "2025-11-06 10:51:48",
+            "started": 0,
+            "progress": 0
+          },
+          {
+            "qbank_id": 862,
+            "qbank_name": "خطة التحضير لامتحان USMLE4",
+            "qbank_created_at": "2025-11-06 10:51:48",
+            "started": 0,
+            "progress": 0
+          },
+          {
+            "qbank_id": 863,
+            "qbank_name": "خطة التحضير لامتحان USMLE4",
+            "qbank_created_at": "2025-11-06 10:51:48",
+            "started": 0,
+            "progress": 0
+          }
+        ],
+        "exams": {
+          "exam_id": 17,
+          "exam_name": "test",
+          "difficulty": "hard",
+          "exam_created_at": "2025-10-12 16:58:43",
+          "started": 0
+        },
+        "flashcards_decks": {
+          "flashcarddeck_id": 22,
+          "flashcarddeck_name": "mn",
+          "flashcarddeck_description": "mmmmmmmmmmmmmmmmmmmmmmmm",
+          "flashcarddeck_created_at": "2025-10-12 09:44:11",
+          "started": 0
+        },
+        "ebooks": {}
+      },
+      {
+        "session_id": 495,
+        "plan_id": 171,
+        "student_id": 4,
+        "study_day": 5,
+        "study_day_name": "Thu",
+        "qbank_id": null,
+        "exam_id": null,
+        "flashcarddeck_id": null,
+        "ebook_id": 1,
+        "index_id": null,
+        "created_at": "2025-11-06T08:51:48.000Z",
+        "updated_at": "2025-11-06T08:51:48.000Z",
+        "study_day_date": "2025-11-05T22:00:00.000Z",
+        "qbank": [],
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-11-06T11:06:36.910Z",
+    "level": "info",
+    "message": "Study sessions retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/171/sessions",
+    "additional_data": [
+      {
+        "session_id": 490,
+        "plan_id": 171,
+        "student_id": 4,
+        "study_day": 1,
+        "study_day_name": "Thu",
+        "qbank_id": 861,
+        "exam_id": 17,
+        "flashcarddeck_id": 22,
+        "ebook_id": 1,
+        "index_id": null,
+        "created_at": "2025-11-06T08:51:48.000Z",
+        "updated_at": "2025-11-06T08:51:48.000Z",
+        "study_day_date": "2025-10-29T21:00:00.000Z",
+        "qbank": [
+          {
+            "qbank_id": 861,
+            "qbank_name": "خطة التحضير لامتحان USMLE4",
+            "qbank_created_at": "2025-11-06 10:51:48",
+            "started": 0,
+            "progress": 0
+          },
+          {
+            "qbank_id": 862,
+            "qbank_name": "خطة التحضير لامتحان USMLE4",
+            "qbank_created_at": "2025-11-06 10:51:48",
+            "started": 0,
+            "progress": 0
+          },
+          {
+            "qbank_id": 863,
+            "qbank_name": "خطة التحضير لامتحان USMLE4",
+            "qbank_created_at": "2025-11-06 10:51:48",
+            "started": 0,
+            "progress": 0
+          },
+          {
+            "qbank_id": null,
+            "qbank_name": null,
+            "qbank_created_at": null,
+            "started": 0,
+            "progress": 0
+          }
+        ],
+        "exams": {
+          "exam_id": 17,
+          "exam_name": "test",
+          "difficulty": "hard",
+          "exam_created_at": "2025-10-12 16:58:43",
+          "started": 0
+        },
+        "flashcards_decks": {
+          "flashcarddeck_id": 22,
+          "flashcarddeck_name": "mn",
+          "flashcarddeck_description": "mmmmmmmmmmmmmmmmmmmmmmmm",
+          "flashcarddeck_created_at": "2025-10-12 09:44:11",
+          "started": 0
+        },
+        "ebooks": {}
+      },
+      {
+        "session_id": 495,
+        "plan_id": 171,
+        "student_id": 4,
+        "study_day": 5,
+        "study_day_name": "Thu",
+        "qbank_id": null,
+        "exam_id": null,
+        "flashcarddeck_id": null,
+        "ebook_id": 1,
+        "index_id": null,
+        "created_at": "2025-11-06T08:51:48.000Z",
+        "updated_at": "2025-11-06T08:51:48.000Z",
+        "study_day_date": "2025-11-05T22:00:00.000Z",
+        "qbank": [
+          {
+            "qbank_id": null,
+            "qbank_name": null,
+            "qbank_created_at": null,
+            "started": 0,
+            "progress": 0
+          }
+        ],
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      }
+    ],
+    "error_details": null,
+    "request_response": [
+      {
+        "session_id": 490,
+        "plan_id": 171,
+        "student_id": 4,
+        "study_day": 1,
+        "study_day_name": "Thu",
+        "qbank_id": 861,
+        "exam_id": 17,
+        "flashcarddeck_id": 22,
+        "ebook_id": 1,
+        "index_id": null,
+        "created_at": "2025-11-06T08:51:48.000Z",
+        "updated_at": "2025-11-06T08:51:48.000Z",
+        "study_day_date": "2025-10-29T21:00:00.000Z",
+        "qbank": [
+          {
+            "qbank_id": 861,
+            "qbank_name": "خطة التحضير لامتحان USMLE4",
+            "qbank_created_at": "2025-11-06 10:51:48",
+            "started": 0,
+            "progress": 0
+          },
+          {
+            "qbank_id": 862,
+            "qbank_name": "خطة التحضير لامتحان USMLE4",
+            "qbank_created_at": "2025-11-06 10:51:48",
+            "started": 0,
+            "progress": 0
+          },
+          {
+            "qbank_id": 863,
+            "qbank_name": "خطة التحضير لامتحان USMLE4",
+            "qbank_created_at": "2025-11-06 10:51:48",
+            "started": 0,
+            "progress": 0
+          },
+          {
+            "qbank_id": null,
+            "qbank_name": null,
+            "qbank_created_at": null,
+            "started": 0,
+            "progress": 0
+          }
+        ],
+        "exams": {
+          "exam_id": 17,
+          "exam_name": "test",
+          "difficulty": "hard",
+          "exam_created_at": "2025-10-12 16:58:43",
+          "started": 0
+        },
+        "flashcards_decks": {
+          "flashcarddeck_id": 22,
+          "flashcarddeck_name": "mn",
+          "flashcarddeck_description": "mmmmmmmmmmmmmmmmmmmmmmmm",
+          "flashcarddeck_created_at": "2025-10-12 09:44:11",
+          "started": 0
+        },
+        "ebooks": {}
+      },
+      {
+        "session_id": 495,
+        "plan_id": 171,
+        "student_id": 4,
+        "study_day": 5,
+        "study_day_name": "Thu",
+        "qbank_id": null,
+        "exam_id": null,
+        "flashcarddeck_id": null,
+        "ebook_id": 1,
+        "index_id": null,
+        "created_at": "2025-11-06T08:51:48.000Z",
+        "updated_at": "2025-11-06T08:51:48.000Z",
+        "study_day_date": "2025-11-05T22:00:00.000Z",
+        "qbank": [
+          {
+            "qbank_id": null,
+            "qbank_name": null,
+            "qbank_created_at": null,
+            "started": 0,
+            "progress": 0
+          }
+        ],
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-11-06T09:58:58.294Z",
+    "level": "info",
+    "message": "Study sessions retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/171/sessions",
+    "additional_data": [
+      {
+        "session_id": 490,
+        "plan_id": 171,
+        "student_id": 4,
+        "study_day": 1,
+        "study_day_name": "Thu",
+        "qbank_id": 861,
+        "exam_id": 17,
+        "flashcarddeck_id": 22,
+        "ebook_id": 1,
+        "index_id": null,
+        "created_at": "2025-11-06T08:51:48.000Z",
+        "updated_at": "2025-11-06T08:51:48.000Z",
+        "study_day_date": "2025-10-29T21:00:00.000Z",
+        "qbank": {},
+        "exams": {
+          "exam_id": 17,
+          "exam_name": "test",
+          "difficulty": "hard",
+          "exam_created_at": "2025-10-12 16:58:43",
+          "started": 0
+        },
+        "flashcards_decks": {
+          "flashcarddeck_id": 22,
+          "flashcarddeck_name": "mn",
+          "flashcarddeck_description": "mmmmmmmmmmmmmmmmmmmmmmmm",
+          "flashcarddeck_created_at": "2025-10-12 09:44:11",
+          "started": 0
+        },
+        "ebooks": {}
+      },
+      {
+        "session_id": 495,
+        "plan_id": 171,
+        "student_id": 4,
+        "study_day": 5,
+        "study_day_name": "Thu",
+        "qbank_id": null,
+        "exam_id": null,
+        "flashcarddeck_id": null,
+        "ebook_id": 1,
+        "index_id": null,
+        "created_at": "2025-11-06T08:51:48.000Z",
+        "updated_at": "2025-11-06T08:51:48.000Z",
+        "study_day_date": "2025-11-05T22:00:00.000Z",
+        "qbank": {},
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      }
+    ],
+    "error_details": null,
+    "request_response": [
+      {
+        "session_id": 490,
+        "plan_id": 171,
+        "student_id": 4,
+        "study_day": 1,
+        "study_day_name": "Thu",
+        "qbank_id": 861,
+        "exam_id": 17,
+        "flashcarddeck_id": 22,
+        "ebook_id": 1,
+        "index_id": null,
+        "created_at": "2025-11-06T08:51:48.000Z",
+        "updated_at": "2025-11-06T08:51:48.000Z",
+        "study_day_date": "2025-10-29T21:00:00.000Z",
+        "qbank": {},
+        "exams": {
+          "exam_id": 17,
+          "exam_name": "test",
+          "difficulty": "hard",
+          "exam_created_at": "2025-10-12 16:58:43",
+          "started": 0
+        },
+        "flashcards_decks": {
+          "flashcarddeck_id": 22,
+          "flashcarddeck_name": "mn",
+          "flashcarddeck_description": "mmmmmmmmmmmmmmmmmmmmmmmm",
+          "flashcarddeck_created_at": "2025-10-12 09:44:11",
+          "started": 0
+        },
+        "ebooks": {}
+      },
+      {
+        "session_id": 495,
+        "plan_id": 171,
+        "student_id": 4,
+        "study_day": 5,
+        "study_day_name": "Thu",
+        "qbank_id": null,
+        "exam_id": null,
+        "flashcarddeck_id": null,
+        "ebook_id": 1,
+        "index_id": null,
+        "created_at": "2025-11-06T08:51:48.000Z",
+        "updated_at": "2025-11-06T08:51:48.000Z",
+        "study_day_date": "2025-11-05T22:00:00.000Z",
+        "qbank": {},
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-11-06T09:51:48.913Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 171
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 171
+    }
+  },
+  {
+    "timestamp": "2025-11-06T09:51:17.032Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 170
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 170
+    }
+  },
+  {
+    "timestamp": "2025-11-06T09:50:25.317Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-06T09:48:49.322Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-06T09:48:19.834Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-06T09:38:24.891Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-06T09:37:13.813Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-06T09:37:06.228Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-06T09:37:04.179Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-06T09:19:10.282Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 169
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 169
+    }
+  },
+  {
+    "timestamp": "2025-11-06T09:18:39.065Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-06T09:15:03.457Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-06T09:14:36.459Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-06T09:14:17.159Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-06T09:13:24.817Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 168
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 168
+    }
+  },
+  {
+    "timestamp": "2025-11-06T09:09:15.591Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-06T09:04:04.576Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-06T09:03:38.648Z",
+    "level": "error",
+    "message": "Failed to create study plan",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-06T08:19:27.505Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 166
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 166
+    }
+  },
+  {
+    "timestamp": "2025-11-06T07:49:31.277Z",
+    "level": "info",
+    "message": "Study sessions retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/164/sessions",
+    "additional_data": [
+      {
+        "session_id": 441,
+        "plan_id": 164,
+        "student_id": 4,
+        "study_day": 5,
+        "study_day_name": "Thu",
+        "qbank_id": 819,
+        "exam_id": null,
+        "flashcarddeck_id": null,
+        "ebook_id": 1,
+        "index_id": null,
+        "created_at": "2025-11-06T06:49:21.000Z",
+        "updated_at": "2025-11-06T06:49:21.000Z",
+        "study_day_date": "2025-11-05T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 819,
+          "qbank_name": "خطة التحضير لامتحان USMLE4",
+          "qbank_created_at": "2025-11-06 08:49:20",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      }
+    ],
+    "error_details": null,
+    "request_response": [
+      {
+        "session_id": 441,
+        "plan_id": 164,
+        "student_id": 4,
+        "study_day": 5,
+        "study_day_name": "Thu",
+        "qbank_id": 819,
+        "exam_id": null,
+        "flashcarddeck_id": null,
+        "ebook_id": 1,
+        "index_id": null,
+        "created_at": "2025-11-06T06:49:21.000Z",
+        "updated_at": "2025-11-06T06:49:21.000Z",
+        "study_day_date": "2025-11-05T22:00:00.000Z",
+        "qbank": {
+          "qbank_id": 819,
+          "qbank_name": "خطة التحضير لامتحان USMLE4",
+          "qbank_created_at": "2025-11-06 08:49:20",
+          "started": 0,
+          "progress": 0
+        },
+        "exams": {},
+        "flashcards_decks": {},
+        "ebooks": {}
+      }
+    ]
+  },
+  {
+    "timestamp": "2025-11-06T07:49:22.243Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 164
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 164
+    }
+  },
+  {
+    "timestamp": "2025-11-06T07:49:11.319Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 163
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 163
+    }
+  },
+  {
+    "timestamp": "2025-11-06T07:48:35.862Z",
+    "level": "info",
+    "message": "Study sessions retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/162/sessions",
+    "additional_data": [],
+    "error_details": null,
+    "request_response": []
+  },
+  {
+    "timestamp": "2025-11-06T07:48:23.029Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 162
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 162
+    }
+  },
+  {
+    "timestamp": "2025-11-06T07:48:10.068Z",
+    "level": "warn",
+    "message": "Study plan not found",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/221/sessions",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
     "timestamp": "2025-11-06T07:01:19.067Z",
     "level": "info",
     "message": "Flashcard libraries retrieved successfully",

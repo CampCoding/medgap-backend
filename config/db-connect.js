@@ -6,7 +6,7 @@ const mysql2 = require("mysql2/promise");
 const ENV = (process.env.ENV || process.env.NODE_ENV || "development")
   .trim()
   .toLowerCase();
-  // console.log("ENV",ENV)
+// console.log("ENV",ENV)
 const USING_PG = false;
 
 // --------- POSTGRES -------------
@@ -28,7 +28,8 @@ const mysqlClient = mysql2.createPool({
   waitForConnections: true,
   connectionLimit: 5, // Reduced from 10 to prevent connection limit issues
   queueLimit: 0,
-  charset: "utf8mb4"
+  charset: "utf8mb4",
+  port: process.env.MYSQL_PORT || 3306,
 });
 
 // --------- DRIVER SELECTION -----
@@ -36,11 +37,9 @@ let client;
 if (USING_PG) {
   console.log("[DB] Using Postgres driver");
   client = pgClient;
-  
 } else {
   console.log("[DB] Using MySQL driver");
   client = mysqlClient;
- 
 }
 
 module.exports = { client };
