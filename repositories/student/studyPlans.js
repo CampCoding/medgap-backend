@@ -91,37 +91,38 @@ async function createStudyPlan({
       ? Number(dailyLimits.max_questions)
       : null;
 
-    // Calculate how many sessions per day based on daily limit
-    const sessionsPerDay = dailyQuestionLimit
-      ? Math.floor(dailyQuestionLimit / questionsPerSession)
-      : 1;
-
-    // Expand dates array: duplicate each date based on sessionsPerDay
-    // Example: if sessionsPerDay = 2, each date appears twice
     datesToUse = [];
-    availableDates.forEach((date) => {
-      for (let i = 0; i < sessionsPerDay; i++) {
-        datesToUse.push(date);
-      }
-    });
+    questionsPerDate = [];
 
-    // Distribute questions across all date entries (each representing a qbank session)
-    questionsPerDate = datesToUse.map(() => {
-      if (remainingQuestions <= 0) {
-        return 0;
+    for (const date of availableDates) {
+      if (remainingQuestions <= 0) break;
+
+      // How many questions can we schedule on this day in total
+      const dayCapacity =
+        dailyQuestionLimit && dailyQuestionLimit > 0
+          ? Math.min(dailyQuestionLimit, remainingQuestions)
+          : Math.min(questionsPerSession, remainingQuestions);
+
+      // Allocate multiple sessions for the day until we hit the day's capacity
+      let toAllocate = dayCapacity;
+      while (toAllocate > 0 && remainingQuestions > 0) {
+        const sessionSize = Math.min(
+          questionsPerSession,
+          toAllocate,
+          remainingQuestions
+        );
+        datesToUse.push(date);
+        questionsPerDate.push(sessionSize);
+        remainingQuestions -= sessionSize;
+        toAllocate -= sessionSize;
       }
-      const questionsForThisSession = Math.min(
-        questionsPerSession,
-        remainingQuestions
-      );
-      remainingQuestions -= questionsForThisSession;
-      return questionsForThisSession;
-    });
+    }
   } else if (availableDates.length > 0) {
     datesToUse = availableDates;
     questionsPerDate = availableDates.map(() => 0);
   }
 
+  console.log(`Dates To Use:`, datesToUse);
   const qbankId = await Promise.all(
     datesToUse.map(async (date, index) => {
       const numQuestions = questionsPerDate[index] || 0;
@@ -134,6 +135,7 @@ async function createStudyPlan({
           tutorMode: 0,
           timed: 0,
           timeType: "none",
+
           plan_id: result.insertId,
           day: date.day?.substring(0, 3),
           date_schedule: date.date,
@@ -198,7 +200,7 @@ async function createStudyPlan({
         notes: "Not Found",
       });
     })
-  );
+  ); 
 
   return { plan_id: result.insertId };
 }
@@ -750,7 +752,7 @@ async function updateStudyPlan({
 
 async function deleteStudyPlan({ planId, studentId }) {
   // Begin transaction to ensure atomic deletion
-  await client.execute('START TRANSACTION');
+  await client.execute("START TRANSACTION");
   try {
     // Collect qbank ids associated with this plan's sessions
     const [qbankRows] = await client.execute(
@@ -762,7 +764,7 @@ async function deleteStudyPlan({ planId, studentId }) {
       .filter((id) => id != null);
 
     if (qbankIds.length) {
-      const placeholders = qbankIds.map(() => '?').join(',');
+      const placeholders = qbankIds.map(() => "?").join(",");
       // Delete qbank questions first, then qbank
       await client.execute(
         `DELETE FROM qbank_questions WHERE qbank_id IN (${placeholders})`,
@@ -775,10 +777,10 @@ async function deleteStudyPlan({ planId, studentId }) {
     }
 
     // Delete new plan content relations
-    await client.execute(
-      `DELETE FROM new_student_plan_content WHERE plan_id = ?`,
-      [planId]
-    );
+    // await client.execute(
+    //   `DELETE FROM new_student_plan_content WHERE plan_id = ?`,
+    //   [planId]
+    // );
 
     // Delete new plan sessions
     await client.execute(
@@ -787,14 +789,13 @@ async function deleteStudyPlan({ planId, studentId }) {
     );
 
     // Legacy tables cleanup (if any rows exist)
-    await client.execute(
-      `DELETE FROM student_plan_sessions WHERE plan_id = ?`,
-      [planId]
-    );
-    await client.execute(
-      `DELETE FROM student_plan_content WHERE plan_id = ?`,
-      [planId]
-    );
+    // await client.execute(
+    //   `DELETE FROM student_plan_sessions WHERE plan_id = ?`,
+    //   [planId]
+    // );
+    // await client.execute(`DELETE FROM student_plan_content WHERE plan_id = ?`, [
+    //   planId,
+    // ]);
 
     // Finally, delete the plan itself
     const [planDel] = await client.execute(
@@ -802,10 +803,10 @@ async function deleteStudyPlan({ planId, studentId }) {
       [planId, studentId]
     );
 
-    await client.execute('COMMIT');
+    await client.execute("COMMIT");
     return planDel.affectedRows > 0;
   } catch (err) {
-    await client.execute('ROLLBACK');
+    await client.execute("ROLLBACK");
     throw err;
   }
 }
@@ -959,7 +960,7 @@ async function getPlanSessions({
     'started', COALESCE((SELECT new_student_plan_content.id FROM new_student_plan_content WHERE content_type = 'ebook' AND content_id = eb.ebook_id AND session_id = nsps.session_id LIMIT 1), 0)
   ) AS ebooks
              FROM new_student_plan_sessions AS nsps
-             LEFT JOIN qbank AS q ON nsps.qbank_id = q.qbank_id
+             LEFT JOIN qbank AS q ON nsps.qbank_id = q.qbank_id AND Date(q.date_schedule) = CURDATE()
              LEFT JOIN exams AS e ON nsps.exam_id = e.exam_id
              LEFT JOIN flashcard_libraries AS fl ON nsps.flashcarddeck_id = fl.library_id
              LEFT JOIN ebooks AS eb ON nsps.ebook_id = eb.ebook_id

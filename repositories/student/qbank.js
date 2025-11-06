@@ -835,7 +835,7 @@ const createQbank = async ({
     filters,
   });
 
- 
+ console.log("date_schedule", date_schedule)
 
   const [insertQbank] = await client.execute(
     `INSERT INTO qbank (qbank_name, tutor_mode, timed, time_type, active, deleted, student_id, plan_id, day, date_schedule)
