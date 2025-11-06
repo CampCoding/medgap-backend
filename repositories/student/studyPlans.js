@@ -749,11 +749,65 @@ async function updateStudyPlan({
 }
 
 async function deleteStudyPlan({ planId, studentId }) {
-  const [result] = await client.execute(
-    `DELETE FROM student_study_plans WHERE plan_id = ? AND student_id = ?`,
-    [planId, studentId]
-  );
-  return result.affectedRows > 0;
+  // Begin transaction to ensure atomic deletion
+  await client.execute('START TRANSACTION');
+  try {
+    // Collect qbank ids associated with this plan's sessions
+    const [qbankRows] = await client.execute(
+      `SELECT qbank_id FROM new_student_plan_sessions WHERE plan_id = ? AND qbank_id IS NOT NULL`,
+      [planId]
+    );
+    const qbankIds = (qbankRows || [])
+      .map((r) => r.qbank_id)
+      .filter((id) => id != null);
+
+    if (qbankIds.length) {
+      const placeholders = qbankIds.map(() => '?').join(',');
+      // Delete qbank questions first, then qbank
+      await client.execute(
+        `DELETE FROM qbank_questions WHERE qbank_id IN (${placeholders})`,
+        qbankIds
+      );
+      await client.execute(
+        `DELETE FROM qbank WHERE qbank_id IN (${placeholders})`,
+        qbankIds
+      );
+    }
+
+    // Delete new plan content relations
+    await client.execute(
+      `DELETE FROM new_student_plan_content WHERE plan_id = ?`,
+      [planId]
+    );
+
+    // Delete new plan sessions
+    await client.execute(
+      `DELETE FROM new_student_plan_sessions WHERE plan_id = ?`,
+      [planId]
+    );
+
+    // Legacy tables cleanup (if any rows exist)
+    await client.execute(
+      `DELETE FROM student_plan_sessions WHERE plan_id = ?`,
+      [planId]
+    );
+    await client.execute(
+      `DELETE FROM student_plan_content WHERE plan_id = ?`,
+      [planId]
+    );
+
+    // Finally, delete the plan itself
+    const [planDel] = await client.execute(
+      `DELETE FROM student_study_plans WHERE plan_id = ? AND student_id = ?`,
+      [planId, studentId]
+    );
+
+    await client.execute('COMMIT');
+    return planDel.affectedRows > 0;
+  } catch (err) {
+    await client.execute('ROLLBACK');
+    throw err;
+  }
 }
 
 async function addPlanContent({
@@ -847,38 +901,38 @@ async function getPlanSessions({
   COALESCE(
     JSON_ARRAYAGG(
       DISTINCT JSON_OBJECT(
-        'qbank_id', q.qbank_id,
-        'qbank_name', q.qbank_name,
-        'qbank_created_at', q.created_at,
-        'started', COALESCE(
-          (SELECT id FROM new_student_plan_content WHERE content_type = 'qbank' AND content_id = q.qbank_id AND session_id = nsps.session_id LIMIT 1),
-          0
-        ),
-        'progress',
-        (
-          SELECT 
-            IFNULL(
-              ROUND(
-                (
-                  SELECT COUNT(DISTINCT sq.question_id) 
-                  FROM solved_questions sq
-                  WHERE sq.qbank_id = q.qbank_id AND sq.student_id = ? AND sq.is_correct = '1'
-                ) 
-                *
-                100.0 /
-                (
-                  SELECT COUNT(*) 
-                  FROM qbank_questions qq 
-                  WHERE qq.qbank_id = q.qbank_id
-                )
-                , 0
-              ), 0
-            )
-        )
+  'qbank_id', q.qbank_id,
+  'qbank_name', q.qbank_name,
+  'qbank_created_at', q.created_at,
+  'started', COALESCE(
+    (SELECT id FROM new_student_plan_content WHERE content_type = 'qbank' AND content_id = q.qbank_id AND session_id = nsps.session_id LIMIT 1),
+    0
+  ),
+  'progress',
+  (
+    SELECT 
+      IFNULL(
+        ROUND(
+          (
+            SELECT COUNT(DISTINCT sq.question_id) 
+            FROM solved_questions sq
+            WHERE sq.qbank_id = q.qbank_id AND sq.student_id = ? AND sq.is_correct = '1'
+          ) 
+          *
+          100.0 /
+          (
+            SELECT COUNT(*) 
+            FROM qbank_questions qq 
+            WHERE qq.qbank_id = q.qbank_id
+          )
+          , 0
+        ), 0
+      )
+  )
       )
     ),
     JSON_ARRAY()
-  ) AS qbank,
+) AS qbank,
   JSON_OBJECT(
     'exam_id', e.exam_id,
     'exam_name', e.title,
@@ -2046,11 +2100,11 @@ async function getTopicsBySubject({ moduleId, studentId }) {
 
   // ---------- 4. ONE final SELECT ----------
   const sql = `
-    SELECT
-      t.topic_id,
-      t.topic_name,
+    SELECT 
+      t.topic_id, 
+      t.topic_name, 
       t.short_description,
-      u.unit_id,
+      u.unit_id, 
       u.unit_name,
 
       COALESCE(q_cnt.questions,0)                AS questions_count,
@@ -2088,7 +2142,7 @@ async function getTopicsBySubject({ moduleId, studentId }) {
           : `
       0 AS attempted_count, 0 AS correct_count, 0 AS wrong_count,
       COALESCE(q_cnt.questions,0) AS unsolved_count,
-      0 AS marked_count,
+        0 AS marked_count,
       0 AS correct_count_easy, 0 AS correct_count_medium, 0 AS correct_count_hard,
       0 AS wrong_count_easy,   0 AS wrong_count_medium,   0 AS wrong_count_hard,
       COALESCE(q_easy.cnt,0)   AS unused_count_easy,
