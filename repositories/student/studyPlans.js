@@ -959,25 +959,31 @@ async function getPlanSessions({
     'started', COALESCE((SELECT new_student_plan_content.id FROM new_student_plan_content WHERE content_type = 'ebook' AND content_id = eb.ebook_id AND session_id = nsps.session_id LIMIT 1), 0)
   ) AS ebooks
              FROM new_student_plan_sessions AS nsps
-             LEFT JOIN qbank AS q ON nsps.plan_id = q.plan_id AND DATE(q.date_schedule) = CURDATE()
+             LEFT JOIN qbank AS q ON nsps.qbank_id = q.qbank_id
              LEFT JOIN exams AS e ON nsps.exam_id = e.exam_id
              LEFT JOIN flashcard_libraries AS fl ON nsps.flashcarddeck_id = fl.library_id
              LEFT JOIN ebooks AS eb ON nsps.ebook_id = eb.ebook_id
              LEFT JOIN ebook_indeces AS ei ON nsps.index_id = ei.ebook_index_id
              WHERE nsps.plan_id = ?`;
 
+  // Parameter order: studentId (for subquery), planId (for WHERE), then date/status
   let params = [studentId, planId];
-  console.log(params);
-  // Default to today's sessions when no date is provided
-  const effectiveDate = date || new Date().toISOString().split("T")[0];
-  sql += ` AND DATE(nsps.study_day_date) = CURDATE()`;
-  // params.push(effectiveDate);
+
+  // Handle date filter - only apply if date is provided
+  // If date is null/undefined, don't filter by date (get all sessions)
+  if (date !== null && date !== undefined) {
+    sql += ` AND DATE(nsps.study_day_date) = DATE(?)`;
+    params.push(date);
+  }
+  // If date is null/undefined, we don't add any date filter - get all sessions
+
   if (status) {
     sql += ` AND nsps.status = ?`;
     params.push(status);
   }
   // Ensure grouping happens after WHERE filters
   sql += ` GROUP BY nsps.session_id`;
+
   const [rows] = await client.execute(sql, params);
   rows.map((item) => {
     item.flashcards_decks = JSON.parse(item.flashcards_decks);
@@ -1549,6 +1555,86 @@ async function getSessionsWithSchedule({ planId, studentId }) {
 
 async function getTodayOverview({ studentId }) {
   const today = new Date().toISOString().split("T")[0];
+
+  // Calculate streak based on consecutive days with activity
+  // Opening dashboard today counts as activity, so include today
+  // Get distinct dates where student had activity from activity log
+  const [activityDatesFromLog] = await client.execute(
+    `SELECT DISTINCT DATE(created_at) as activity_date
+     FROM student_activity_log 
+     WHERE student_id = ? 
+     ORDER BY activity_date DESC 
+     LIMIT 30`,
+    [studentId]
+  );
+
+  // Also check daily_activity table for additional dates
+  let activityDates = [...activityDatesFromLog];
+  try {
+    const [dailyActivityDates] = await client.execute(
+      `SELECT DISTINCT DATE(activity_date) as activity_date
+       FROM student_daily_activity 
+       WHERE student_id = ? 
+       ORDER BY activity_date DESC 
+       LIMIT 30`,
+      [studentId]
+    );
+    // Merge dates, avoiding duplicates
+    const existingDates = new Set(
+      activityDates.map((d) => String(d.activity_date).split("T")[0])
+    );
+    dailyActivityDates.forEach((d) => {
+      const dateStr = String(d.activity_date).split("T")[0];
+      if (!existingDates.has(dateStr)) {
+        activityDates.push(d);
+        existingDates.add(dateStr);
+      }
+    });
+  } catch (err) {
+    // Table might not exist, continue with activity log only
+  }
+
+  // Opening dashboard today counts as activity - ensure today is included
+  const todayIncluded = activityDates.some(
+    (row) => String(row.activity_date).split("T")[0] === today
+  );
+  if (!todayIncluded) {
+    activityDates.unshift({ activity_date: today });
+  }
+
+  // Sort dates descending (most recent first)
+  activityDates.sort((a, b) => {
+    const dateA = new Date(String(a.activity_date).split("T")[0]);
+    const dateB = new Date(String(b.activity_date).split("T")[0]);
+    return dateB - dateA;
+  });
+
+  // Calculate streak from consecutive days
+  let streak = 0;
+  if (activityDates && activityDates.length > 0) {
+    const todayDate = new Date(today);
+    todayDate.setHours(0, 0, 0, 0);
+
+    // Check consecutive days from today backwards
+    for (let i = 0; i < activityDates.length; i++) {
+      const rowDate = activityDates[i].activity_date;
+      const activityDate =
+        rowDate instanceof Date
+          ? new Date(rowDate)
+          : new Date(String(rowDate).split("T")[0]);
+      activityDate.setHours(0, 0, 0, 0);
+
+      const expectedDate = new Date(todayDate);
+      expectedDate.setDate(todayDate.getDate() - i);
+
+      if (activityDate.getTime() === expectedDate.getTime()) {
+        streak++;
+      } else {
+        break; // Streak broken
+      }
+    }
+  }
+
   const [plans] = await client.execute(
     `SELECT * FROM student_study_plans 
      WHERE student_id = ? AND status = 'active' 
@@ -1558,6 +1644,7 @@ async function getTodayOverview({ studentId }) {
   );
   if (!plans.length) {
     return {
+      streak,
       tasks: [],
       stats: {
         study_time_minutes: 0,
@@ -1570,17 +1657,27 @@ async function getTodayOverview({ studentId }) {
   }
   const plan = plans[0];
 
+  // Get all sessions for the plan (without date filter) and filter in JavaScript
+  // This ensures we get all sessions and can properly handle date comparisons
   const sessions = await getPlanSessions({
     planId: plan.plan_id,
     studentId,
-    date: today,
+    date: null, // Get all sessions, we'll filter in JavaScript
     status: null,
   });
 
-  // Ensure we only use today's sessions even if the repository function ignores the date filter
+  // Filter to today's sessions - handle different date formats
   const sessionsToday = (sessions || []).filter((s) => {
-    const d = (s.study_day_date || s.session_date || "").toString();
-    return d.slice(0, 10) === today;
+    const sessionDate = s.study_day_date || s.session_date;
+    if (!sessionDate) return false;
+
+    // Convert to date string for comparison
+    const sessionDateStr =
+      sessionDate instanceof Date
+        ? sessionDate.toISOString().split("T")[0]
+        : String(sessionDate).split("T")[0];
+
+    return sessionDateStr === today;
   });
 
   const dailyLimits = plan.daily_limits ? JSON.parse(plan.daily_limits) : {};
@@ -1600,18 +1697,130 @@ async function getTodayOverview({ studentId }) {
   let completedCount = 0;
   let studyTimeMinutes = 0;
 
+  // Get all qbank IDs from today's sessions
+  const todayQbankIds = [];
+  sessionsToday.forEach((s) => {
+    const qbanks = Array.isArray(s.qbank)
+      ? s.qbank
+      : s.qbank?.qbank_id
+      ? [s.qbank]
+      : [];
+    qbanks.forEach((q) => {
+      if (q?.qbank_id) {
+        todayQbankIds.push(q.qbank_id);
+      }
+    });
+  });
+
+  // Get actual questions stats from solved_questions table for today
+  // Count total attempts (not just distinct questions) for more accurate stats
+  let questionsStatsToday = { attempted: 0, correct: 0 };
+  if (todayQbankIds.length > 0) {
+    try {
+      const placeholders = todayQbankIds.map(() => "?").join(",");
+      const [questionsStats] = await client.execute(
+        `SELECT 
+          COUNT(*) as attempted,
+          SUM(CASE WHEN sq.is_correct = '1' THEN 1 ELSE 0 END) as correct
+         FROM solved_questions sq
+         WHERE sq.qbank_id IN (${placeholders})
+           AND sq.student_id = ?
+           AND DATE(sq.created_at) = ?`,
+        [...todayQbankIds, studentId, today]
+      );
+      if (questionsStats[0]) {
+        questionsStatsToday.attempted =
+          Number(questionsStats[0].attempted) || 0;
+        questionsStatsToday.correct = Number(questionsStats[0].correct) || 0;
+      }
+    } catch (err) {
+      console.error("Failed to get questions stats:", err);
+    }
+  }
+
+  // Get actual flashcards stats - count distinct flashcards studied today
+  // and get correct count from session data or activity log
+  let flashcardsStatsToday = { studied: 0, correct: 0 };
+  try {
+    // Count distinct flashcards studied today (where last_seen is today)
+    const [flashcardStudied] = await client.execute(
+      `SELECT COUNT(DISTINCT flashcard_id) as studied
+       FROM student_flashcard_card_progress
+       WHERE student_id = ? 
+         AND DATE(last_seen) = ?`,
+      [studentId, today]
+    );
+    flashcardsStatsToday.studied = Number(flashcardStudied[0]?.studied) || 0;
+
+    // Get correct count from activity log for today's flashcard reviews
+    const [flashcardCorrect] = await client.execute(
+      `SELECT COUNT(*) as correct
+       FROM student_activity_log
+       WHERE student_id = ?
+         AND activity_type = 'flashcard_studied'
+         AND DATE(created_at) = ?
+         AND JSON_EXTRACT(metadata, '$.is_correct') = true`,
+      [studentId, today]
+    );
+    flashcardsStatsToday.correct = Number(flashcardCorrect[0]?.correct) || 0;
+
+    // If activity log doesn't have correct count, try to get from progress table
+    // (count flashcards that were studied today and have correct > 0)
+    if (
+      flashcardsStatsToday.correct === 0 &&
+      flashcardsStatsToday.studied > 0
+    ) {
+      const [flashcardProgress] = await client.execute(
+        `SELECT COUNT(DISTINCT flashcard_id) as correct_count
+         FROM student_flashcard_card_progress
+         WHERE student_id = ? 
+           AND DATE(last_seen) = ?
+           AND correct > 0`,
+        [studentId, today]
+      );
+      flashcardsStatsToday.correct =
+        Number(flashcardProgress[0]?.correct_count) || 0;
+    }
+
+    // Fallback: if no progress data, use session-level flashcards_studied
+    if (flashcardsStatsToday.studied === 0) {
+      flashcardsStatsToday.studied = sessionsToday.reduce(
+        (sum, s) => sum + (Number(s.flashcards_studied) || 0),
+        0
+      );
+    }
+  } catch (err) {
+    console.error("Failed to get flashcards stats:", err);
+    // Fallback to session-level data
+    flashcardsStatsToday.studied = sessionsToday.reduce(
+      (sum, s) => sum + (Number(s.flashcards_studied) || 0),
+      0
+    );
+  }
+
   const tasks = sessionsToday.map((s, idx) => {
-    const hasQbank = !!(s.qbank && s.qbank.qbank_id);
+    // Handle qbank as array (from JSON_ARRAYAGG)
+    const qbanks = Array.isArray(s.qbank)
+      ? s.qbank
+      : s.qbank?.qbank_id
+      ? [s.qbank]
+      : [];
+    const hasQbank = qbanks.length > 0 && qbanks.some((q) => q?.qbank_id);
     const hasFlashcards = !!(
       s.flashcards_decks && s.flashcards_decks.flashcarddeck_id
     );
     const hasExam = !!(s.exams && s.exams.exam_id);
+
+    const isQuestions = hasQbank;
+    const isFlashcards = hasFlashcards;
+
     const title = isQuestions
       ? "Practice Questions"
       : isFlashcards
       ? "Study Flashcards"
       : "Study Content";
-    const qbank = s.qbank || {};
+
+    const qbank = qbanks[0] || {};
     const exams = s.exams || {};
     const flashcardsDeck = s.flashcards_decks || {};
     const ebooks = s.ebooks || {};
@@ -1621,33 +1830,41 @@ async function getTodayOverview({ studentId }) {
       exams.exam_name ||
       ebooks.ebook_name ||
       "General";
-    const isQuestions = hasQbank;
-    const isFlashcards = hasFlashcards;
-    const status = s.status || "pending";
+
+    // Get started status from the appropriate content type
+    // started is 0 if not started, >0 if started
+    const started = isQuestions
+      ? Number(qbank.started) || 0
+      : isFlashcards
+      ? Number(flashcardsDeck.started) || 0
+      : hasExam
+      ? Number(exams.started) || 0
+      : Number(ebooks.started) || 0;
+
+    // Convert started to status: 0 = "pending", >0 = "in_progress"
+    const status = started > 0 ? "in_progress" : "pending";
     if (status === "completed") completedCount += 1;
 
-    const questionsAttempted = Number(s.questions_attempted) || 0;
-    const questionsCorrect = Number(s.questions_correct) || 0;
-    const flashcardsStudied = Number(s.flashcards_studied) || 0;
     const timeSpent = Number(s.time_spent) || 0;
-
-    totalAttempted += questionsAttempted;
-    totalCorrect += questionsCorrect;
-    totalStudied += flashcardsStudied;
     studyTimeMinutes += Math.round(timeSpent / 60);
 
+    // Calculate progress - use qbank progress from getPlanSessions for questions
+    // This shows progress as (correct answers / total questions in qbank) * 100
     let progress = 0;
-    if (isQuestions) {
-      progress = Math.min(
-        100,
-        Math.round((questionsAttempted / questionsGoalPerSession) * 100)
-      );
+    if (isQuestions && qbank.qbank_id) {
+      // Use progress from qbank (calculated in getPlanSessions as correct/total * 100)
+      progress = Number(qbank.progress) || 0;
+      // Ensure progress doesn't exceed 100
+      progress = Math.min(100, progress);
     } else if (isFlashcards) {
+      // For flashcards, calculate progress based on studied count vs goal
+      const flashcardsStudied = Number(s.flashcards_studied) || 0;
       progress = Math.min(
         100,
         Math.round((flashcardsStudied / flashcardsGoalPerSession) * 100)
       );
     } else {
+      // For other content, use time spent vs goal
       progress = Math.min(
         100,
         Math.round((timeSpent / 60 / minutesPerSession) * 100)
@@ -1670,14 +1887,33 @@ async function getTodayOverview({ studentId }) {
   });
 
   const questionsGoalToday =
-    sessionsToday.filter((s) => s.qbank && s.qbank.qbank_id).length *
-    questionsGoalPerSession;
+    sessionsToday.filter((s) => {
+      const qbanks = Array.isArray(s.qbank)
+        ? s.qbank
+        : s.qbank?.qbank_id
+        ? [s.qbank]
+        : [];
+      return qbanks.length > 0 && qbanks.some((q) => q?.qbank_id);
+    }).length * questionsGoalPerSession;
   const flashcardsGoalToday =
     sessionsToday.filter(
       (s) => s.flashcards_decks && s.flashcards_decks.flashcarddeck_id
     ).length * flashcardsGoalPerSession;
-  const accuracyPercent =
+
+  // Use actual stats from progress tables
+  totalAttempted = questionsStatsToday.attempted;
+  totalCorrect = questionsStatsToday.correct;
+  totalStudied = flashcardsStatsToday.studied;
+  totalFlashCorrect = flashcardsStatsToday.correct;
+
+  // Calculate question accuracy
+  const questionAccuracyPercent =
     totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
+
+  // Calculate flashcard accuracy
+  const flashcardAccuracyPercent =
+    totalStudied > 0 ? Math.round((totalFlashCorrect / totalStudied) * 100) : 0;
+
   const completionPercentage = tasks.length
     ? Math.round((completedCount / tasks.length) * 100)
     : 0;
@@ -1692,27 +1928,68 @@ async function getTodayOverview({ studentId }) {
          WHEN s.exam_id IS NOT NULL THEN 'exams'
          ELSE 'content'
        END AS session_type,
-       'pending' AS status,
-       0 AS questions_attempted,
-       0 AS flashcards_studied,
+       -- Get started status (same as getPlanSessions)
+       COALESCE(
+         (SELECT id FROM new_student_plan_content 
+          WHERE session_id = s.session_id 
+          AND (
+            (content_type = 'qbank' AND content_id = s.qbank_id) OR
+            (content_type = 'flashcard' AND content_id = s.flashcarddeck_id) OR
+            (content_type = 'exam' AND content_id = s.exam_id) OR
+            (content_type = 'ebook' AND content_id = s.ebook_id)
+          )
+          LIMIT 1),
+         0
+       ) AS started,
+       -- Get questions_attempted from solved_questions table
+       -- Only count if session has a qbank_id
+       CASE 
+         WHEN s.qbank_id IS NOT NULL THEN
+           COALESCE(
+             (SELECT COUNT(*) 
+              FROM solved_questions sq
+              WHERE sq.qbank_id = s.qbank_id 
+                AND sq.student_id = ?
+             ),
+             0
+           )
+         ELSE 0
+       END AS questions_attempted,
+       -- Get flashcards_studied from student_flashcard_card_progress table
+       -- Only count if session has a flashcarddeck_id
+       CASE 
+         WHEN s.flashcarddeck_id IS NOT NULL THEN
+           COALESCE(
+             (SELECT COUNT(DISTINCT cp.flashcard_id)
+              FROM student_flashcard_card_progress cp
+              INNER JOIN flashcards f ON cp.flashcard_id = f.flashcard_id
+              WHERE f.library_id = s.flashcarddeck_id
+                AND cp.student_id = ?
+             ),
+             0
+           )
+         ELSE 0
+       END AS flashcards_studied,
+       -- Time spent: can be calculated from activity log or set to 0 for now
        0 AS time_spent
      FROM new_student_plan_sessions s
      WHERE s.plan_id = ?
      ORDER BY s.study_day_date DESC, s.session_id DESC
      LIMIT 5`,
-    [plan.plan_id]
+    [studentId, studentId, plan.plan_id]
   );
   const recent_sessions = recentRows.map((r) => ({
     id: r.session_id,
     date: r.session_date,
     type: r.session_type,
-    status: r.status,
+    status: (Number(r.started) || 0) > 0 ? "in_progress" : "pending",
     questions_attempted: Number(r.questions_attempted) || 0,
     flashcards_studied: Number(r.flashcards_studied) || 0,
     time_spent_minutes: Math.round((Number(r.time_spent) || 0) / 60),
   }));
 
   return {
+    streak,
     plan: { id: plan.plan_id, name: plan.plan_name },
     tasks,
     stats: {
@@ -1725,7 +2002,7 @@ async function getTodayOverview({ studentId }) {
       flashcards_today: {
         studied: totalStudied,
         goal: flashcardsGoalToday,
-        accuracy_percent: accuracyPercent,
+        accuracy_percent: flashcardAccuracyPercent,
       },
       completion_percentage: completionPercentage,
     },
