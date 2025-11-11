@@ -27,7 +27,7 @@ async function createStudyPlan({
   exams_modules,
   qbank_modes,
   exams,
-  question_level = ["easy", "medium", "hard"],
+  question_level = ["easy", "medium", "hard"]
 }) {
   const sql = `INSERT INTO student_study_plans 
                (student_id, plan_name, start_date, end_date, study_days, daily_time_budget, 
@@ -53,7 +53,7 @@ async function createStudyPlan({
     books ? JSON.stringify(books) : null,
     flashcardsDecks ? JSON.stringify(flashcardsDecks) : null,
     flashcardsModules ? JSON.stringify(flashcardsModules) : null,
-    exams ? JSON.stringify(exams) : null,
+    exams ? JSON.stringify(exams) : null
   ];
   const [result] = await client.execute(sql, params);
 
@@ -72,7 +72,7 @@ async function createStudyPlan({
 
   const availableDates = getDatesBetween(startDate, endDate, studyDays, {
     locale: "en-US",
-    timeZone: "Africa/Cairo",
+    timeZone: "Africa/Cairo"
   });
 
   console.log("availableDates", dailyLimits?.max_questions);
@@ -86,7 +86,7 @@ async function createStudyPlan({
     availableDates.length > 0 &&
     questionsPerSession > 0
   ) {
-    // Get daily limit for questions (if set)
+    
     const dailyQuestionLimit = dailyLimits?.max_questions
       ? Number(dailyLimits.max_questions)
       : null;
@@ -97,13 +97,13 @@ async function createStudyPlan({
     for (const date of availableDates) {
       if (remainingQuestions <= 0) break;
 
-      // How many questions can we schedule on this day in total
+      
       const dayCapacity =
         dailyQuestionLimit && dailyQuestionLimit > 0
           ? Math.min(dailyQuestionLimit, remainingQuestions)
           : Math.min(questionsPerSession, remainingQuestions);
 
-      // Allocate multiple sessions for the day until we hit the day's capacity
+      
       let toAllocate = dayCapacity;
       while (toAllocate > 0 && remainingQuestions > 0) {
         const sessionSize = Math.min(
@@ -145,7 +145,7 @@ async function createStudyPlan({
           question_level: question_level,
           numQuestions: numQuestions,
           question_mode: qbank_modes,
-          qbank_modes: qbank_modes,
+          qbank_modes: qbank_modes
         });
       }
       return null;
@@ -179,7 +179,7 @@ async function createStudyPlan({
         examId: getArrayValue(exams, index),
         flashcarddeckId: getArrayValue(flashcardsDecks, index),
         ebookId: safeValue(books),
-        indexId: getArrayValue(booksIndeces, index),
+        indexId: getArrayValue(booksIndeces, index)
       });
 
       await createCalenderSessionScheduling({
@@ -196,7 +196,7 @@ async function createStudyPlan({
             : null,
         taskType: "Session",
         priority: "Medium",
-        notes: "Not Found",
+        notes: "Not Found"
       });
     })
   );
@@ -211,7 +211,7 @@ const createCalenderSessionScheduling = async ({
   timeOfDay,
   taskType,
   priority,
-  notes,
+  notes
 }) => {
   const safeTimeOfDay =
     typeof timeOfDay === "string" && timeOfDay.trim() !== ""
@@ -229,7 +229,7 @@ const createCalenderSessionScheduling = async ({
     safeTimeOfDay,
     taskType,
     priority,
-    notes || null,
+    notes || null
   ];
   const [result] = await client.execute(sql, params);
   const [backlogTask] = await client.execute(
@@ -247,7 +247,7 @@ const createCalenderSessionScheduling = async ({
     studentId,
     result?.insertId,
     safeScheduledDate,
-    backlogTask[0].time_of_day,
+    backlogTask[0].time_of_day
   ];
   const [result2] = await client.execute(sql2, params2);
 };
@@ -262,7 +262,7 @@ const createSession = async ({
   flashcarddeckId,
   ebookId,
   indexId,
-  studyDayDate,
+  studyDayDate
 }) => {
   const cleanValue = (v, isNumericField = false) => {
     if (v === undefined || v === null) return null;
@@ -282,7 +282,7 @@ const createSession = async ({
     cleanValue(flashcarddeckId, true),
     cleanValue(ebookId, true),
     cleanValue(indexId, true),
-    cleanValue(studyDayDate, false),
+    cleanValue(studyDayDate, false)
   ];
 
   const sql = `INSERT INTO new_student_plan_sessions (plan_id, student_id, study_day, study_day_name, qbank_id, exam_id, flashcarddeck_id, ebook_id, index_id, study_day_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
@@ -333,7 +333,7 @@ async function generatePlanSessions({ planId, studentId, studyDaysNumbers }) {
     books: safeParse(plan.books),
     flashcardsDecks: safeParse(plan.flashcardsDecks),
     flashcardsModules: safeParse(plan.flashcardsModules),
-    exams: safeParse(plan.exams),
+    exams: safeParse(plan.exams)
   };
 
   const normalizeToArray = (val) => {
@@ -368,7 +368,7 @@ async function generatePlanSessions({ planId, studentId, studyDaysNumbers }) {
     questionBankModules = null,
     questionBankTopics = null,
     questionBankQuizzes = null,
-    subjects = null,
+    subjects = null
   }) => {
     const sql = `INSERT INTO student_plan_content (
                plan_id, exams_modules, exams_topics, flashcards_modules, flashcards_topics,
@@ -383,7 +383,7 @@ async function generatePlanSessions({ planId, studentId, studyDaysNumbers }) {
       questionBankModules ? JSON.stringify(questionBankModules) : null,
       questionBankTopics ? JSON.stringify(questionBankTopics) : null,
       questionBankQuizzes ? JSON.stringify(questionBankQuizzes) : null,
-      subjects ? JSON.stringify(subjects) : JSON.stringify(["all"]),
+      subjects ? JSON.stringify(subjects) : JSON.stringify(["all"])
     ];
     const [ins] = await client.execute(sql, params);
     return ins.insertId;
@@ -398,7 +398,7 @@ async function generatePlanSessions({ planId, studentId, studyDaysNumbers }) {
       questionBankModules: parsedPlan.questionBankModules,
       questionBankTopics: parsedPlan.questionBankTopics,
       questionBankQuizzes: null,
-      subjects: parsedPlan.questionBankSubject,
+      subjects: parsedPlan.questionBankSubject
     });
     availableTypes.push("question_bank");
   }
@@ -408,27 +408,27 @@ async function generatePlanSessions({ planId, studentId, studyDaysNumbers }) {
   ) {
     contentRowsByType.flashcards = await insertContentRow({
       flashcardsModules: parsedPlan.flashcardsModules,
-      flashcardsTopics: null,
+      flashcardsTopics: null
     });
     availableTypes.push("flashcards");
   }
   if (parsedPlan.books.length > 0 || parsedPlan.booksModule.length > 0) {
     contentRowsByType.ebooks = await insertContentRow({
-      subjects: parsedPlan.booksModule,
+      subjects: parsedPlan.booksModule
     });
     availableTypes.push("ebooks");
   }
   if (parsedPlan.exams.length > 0) {
     contentRowsByType.exams = await insertContentRow({
       examsModules: parsedPlan.exams_modules || [],
-      examsTopics: parsedPlan.exams_topics || [],
+      examsTopics: parsedPlan.exams_topics || []
     });
     availableTypes.push("exams");
   }
 
   const contentItems = availableTypes.map((t) => ({
     content_type: t,
-    content_id: contentRowsByType[t],
+    content_id: contentRowsByType[t]
   }));
 
   let studyDaysNumbersParsed = parsedPlan.study_days;
@@ -447,7 +447,7 @@ async function generatePlanSessions({ planId, studentId, studyDaysNumbers }) {
       Fri: 5,
       Friday: 5,
       Sat: 6,
-      Saturday: 6,
+      Saturday: 6
     };
     studyDaysNumbersParsed = studyDaysNumbersParsed.map((day) => {
       const d = String(day).trim();
@@ -477,7 +477,7 @@ async function generatePlanSessions({ planId, studentId, studyDaysNumbers }) {
     const [exists] = await client.execute(existsSql, [
       planId,
       dateStr,
-      item.content_type,
+      item.content_type
     ]);
     if (exists && exists.length) continue;
 
@@ -486,7 +486,7 @@ async function generatePlanSessions({ planId, studentId, studyDaysNumbers }) {
       planId,
       dateStr,
       item.content_type,
-      contentIdForType,
+      contentIdForType
     ]);
     if (result && result.insertId) {
       createdCount += 1;
@@ -515,7 +515,7 @@ async function getStudyPlans({ studentId, status = null }) {
   return rows.map((row) => ({
     ...row,
     study_days: JSON.parse(row.study_days),
-    daily_limits: row.daily_limits ? JSON.parse(row.daily_limits) : null,
+    daily_limits: row.daily_limits ? JSON.parse(row.daily_limits) : null
   }));
 }
 
@@ -622,7 +622,7 @@ async function getStudyPlanById({ planId, studentId }) {
       plan.start_date,
       plan.end_date,
       plan.start_date,
-      plan.end_date,
+      plan.end_date
     ]
   );
 
@@ -658,7 +658,7 @@ async function getStudyPlanById({ planId, studentId }) {
     flashcardsTotalRow && flashcardsTotalRow[0]
       ? {
           total_studied: Number(flashcardsTotalRow[0].total_studied) || 0,
-          total_solved: Number(flashcardsTotalRow[0].total_solved) || 0,
+          total_solved: Number(flashcardsTotalRow[0].total_solved) || 0
         }
       : { total_studied: 0, total_solved: 0 };
 
@@ -670,8 +670,8 @@ async function getStudyPlanById({ planId, studentId }) {
     exams_in_period: exams,
     flashcards_in_period: {
       totals: flashcardsTotals,
-      by_deck: flashcardsByDeck,
-    },
+      by_deck: flashcardsByDeck
+    }
   };
 }
 
@@ -687,7 +687,7 @@ async function updateStudyPlan({
   questionMode,
   difficultyBalance,
   questionsPerSession,
-  status,
+  status
 }) {
   const existingPlan = await getStudyPlanById({ planId, studentId });
   if (!existingPlan) {
@@ -750,10 +750,10 @@ async function updateStudyPlan({
 }
 
 async function deleteStudyPlan({ planId, studentId }) {
-  // Begin transaction to ensure atomic deletion
+  
   await client.execute("START TRANSACTION");
   try {
-    // Collect qbank ids associated with this plan's sessions
+    
     const [qbankRows] = await client.execute(
       `SELECT qbank_id FROM new_student_plan_sessions WHERE plan_id = ? AND qbank_id IS NOT NULL`,
       [planId]
@@ -764,7 +764,7 @@ async function deleteStudyPlan({ planId, studentId }) {
 
     if (qbankIds.length) {
       const placeholders = qbankIds.map(() => "?").join(",");
-      // Delete qbank questions first, then qbank
+      
       await client.execute(
         `DELETE FROM qbank_questions WHERE qbank_id IN (${placeholders})`,
         qbankIds
@@ -775,28 +775,28 @@ async function deleteStudyPlan({ planId, studentId }) {
       );
     }
 
-    // Delete new plan content relations
-    // await client.execute(
-    //   `DELETE FROM new_student_plan_content WHERE plan_id = ?`,
-    //   [planId]
-    // );
+    
+    
+    
+    
+    
 
-    // Delete new plan sessions
+    
     await client.execute(
       `DELETE FROM new_student_plan_sessions WHERE plan_id = ?`,
       [planId]
     );
 
-    // Legacy tables cleanup (if any rows exist)
-    // await client.execute(
-    //   `DELETE FROM student_plan_sessions WHERE plan_id = ?`,
-    //   [planId]
-    // );
-    // await client.execute(`DELETE FROM student_plan_content WHERE plan_id = ?`, [
-    //   planId,
-    // ]);
+    
+    
+    
+    
+    
+    
+    
+    
 
-    // Finally, delete the plan itself
+    
     const [planDel] = await client.execute(
       `DELETE FROM student_study_plans WHERE plan_id = ? AND student_id = ?`,
       [planId, studentId]
@@ -819,7 +819,7 @@ async function addPlanContent({
   questionBankModules,
   questionBankTopics,
   questionBankQuizzes,
-  subjects,
+  subjects
 }) {
   const sql = `INSERT INTO student_plan_content 
                (plan_id, exams_modules, exams_topics, flashcards_modules, flashcards_topics, 
@@ -835,7 +835,7 @@ async function addPlanContent({
     questionBankModules ? JSON.stringify(questionBankModules) : null,
     questionBankTopics ? JSON.stringify(questionBankTopics) : null,
     questionBankQuizzes ? JSON.stringify(questionBankQuizzes) : null,
-    subjects ? JSON.stringify(subjects) : JSON.stringify(["all"]),
+    subjects ? JSON.stringify(subjects) : JSON.stringify(["all"])
   ];
 
   const [result] = await client.execute(sql, params);
@@ -874,7 +874,7 @@ async function getPlanContent({ planId }) {
       : [],
     subjects: content.subjects
       ? JSON.parse(content.subjects)
-      : JSON.stringify(["all"]),
+      : JSON.stringify(["all"])
   };
 
   const detailedContent = await getDetailedContentInfo(parsedContent);
@@ -894,7 +894,7 @@ async function getPlanSessions({
   planId,
   studentId,
   date = null,
-  status = null,
+  status = null
 }) {
   let sql = `SELECT 
   nsps.*,
@@ -959,30 +959,38 @@ async function getPlanSessions({
     'started', COALESCE((SELECT new_student_plan_content.id FROM new_student_plan_content WHERE content_type = 'ebook' AND content_id = eb.ebook_id AND session_id = nsps.session_id LIMIT 1), 0)
   ) AS ebooks
              FROM new_student_plan_sessions AS nsps
-             LEFT JOIN qbank AS q ON nsps.qbank_id = q.qbank_id
+             LEFT JOIN qbank AS q ON nsps.qbank_id = q.qbank_id AND DATE(q.date_schedule) <= CURDATE()
              LEFT JOIN exams AS e ON nsps.exam_id = e.exam_id
              LEFT JOIN flashcard_libraries AS fl ON nsps.flashcarddeck_id = fl.library_id
              LEFT JOIN ebooks AS eb ON nsps.ebook_id = eb.ebook_id
              LEFT JOIN ebook_indeces AS ei ON nsps.index_id = ei.ebook_index_id
-             WHERE nsps.plan_id = ?`;
+             WHERE 1 = 1 `;
 
-  // Parameter order: studentId (for subquery), planId (for WHERE), then date/status
-  let params = [studentId, planId];
-
-  // Handle date filter - only apply if date is provided
-  // If date is null/undefined, don't filter by date (get all sessions)
+  
+  let params = [studentId];
+  
+  
   if (date !== null && date !== undefined) {
     sql += ` AND DATE(nsps.study_day_date) = DATE(?)`;
     params.push(date);
   }
-  // If date is null/undefined, we don't add any date filter - get all sessions
+
+  if (planId) {
+    sql += ` AND nsps.plan_id = ? AND nsps.student_id = ?`;
+    params.push(planId);
+    params.push(studentId);
+  } else {
+    sql += ` AND nsps.student_id = ?`;
+    params.push(studentId);
+  }
+  
 
   if (status) {
     sql += ` AND nsps.status = ?`;
     params.push(status);
   }
-  // Ensure grouping happens after WHERE filters
-  sql += ` GROUP BY nsps.session_id`;
+  
+  sql += ` GROUP BY nsps.plan_id`;
 
   const [rows] = await client.execute(sql, params);
   rows.map((item) => {
@@ -1004,7 +1012,7 @@ async function getPlanSessions({
   return rows.map((item) => {
     return {
       ...item,
-      ebooks: item.ebooks?.ebook_id ? item.ebooks : {},
+      ebooks: item.ebooks?.ebook_id ? item.ebooks : {}
     };
   });
 }
@@ -1014,7 +1022,7 @@ const startSessionContent = async ({
   studentId,
   sessionId,
   contentType,
-  contentId,
+  contentId
 }) => {
   const sql = `INSERT INTO new_student_plan_content (plan_id, student_id, session_id, content_type, content_id, progress) VALUES (?, ?, ?, ?, ?, ?)`;
   const params = [planId, studentId, sessionId, contentType, contentId, 0];
@@ -1145,7 +1153,7 @@ LIMIT ${questionsGoalPerSession}`;
 
   const [questionRows] = await client.execute(questionsSql, [
     studentId,
-    ...valuesQ,
+    ...valuesQ
   ]);
 
   for (const q of questionRows) {
@@ -1205,7 +1213,7 @@ LIMIT ${questionsGoalPerSession}`;
 
   const [flashcardRows] = await client.execute(flashcardsSql, [
     studentId,
-    ...valuesF,
+    ...valuesF
   ]);
 
   const totalQuestions = limitedQuestions.length;
@@ -1239,28 +1247,28 @@ LIMIT ${questionsGoalPerSession}`;
       session_id: session.session_id,
       session_date: session.session_date,
       session_type: session.session_type,
-      status: session.status,
+      status: session.status
     },
     questions: limitedQuestions,
     flashcards: flashcardRows,
     limits: {
       questions_limit: questionsGoalPerSession,
-      flashcards_limit: flashcardsGoalPerSession,
+      flashcards_limit: flashcardsGoalPerSession
     },
     progress: {
       questions: {
         attempted: questionsAttempted,
         correct: questionsCorrect,
         total: totalQuestions,
-        progress_percent: questionProgress,
+        progress_percent: questionProgress
       },
       flashcards: {
         studied: flashcardsStudied,
         correct: flashcardsCorrect,
         total: totalFlashcards,
-        progress_percent: flashcardsProgress,
-      },
-    },
+        progress_percent: flashcardsProgress
+      }
+    }
   };
 }
 
@@ -1270,45 +1278,32 @@ async function solveSessionQuestion({
   studentId,
   questionId,
   selectedOptionId = null,
-  answerText = null,
+  answerText = null
 }) {
+  
   const [sessions] = await client.execute(
-    `SELECT s.session_id, c.question_bank_modules, c.question_bank_topics
-     FROM student_plan_sessions s
-     JOIN student_plan_content c ON c.content_id = s.content_id
-     WHERE s.session_id = ? AND s.plan_id = ?
+    `SELECT session_id, qbank_id, plan_id
+     FROM new_student_plan_sessions
+     WHERE session_id = ? AND plan_id = ?
      LIMIT 1`,
     [sessionId, planId]
   );
   if (!sessions.length) return { success: false, message: "Session not found" };
   const session = sessions[0];
+  const qbankId = session.qbank_id || null;
 
-  const qbModules = session.question_bank_modules
-    ? JSON.parse(session.question_bank_modules)
-    : [];
-  const qbTopics = session.question_bank_topics
-    ? JSON.parse(session.question_bank_topics)
-    : [];
-
-  let checkSql = `SELECT q.question_id FROM questions q`;
-  const checkWhere = [];
-  const checkVals = [questionId];
-  if (qbTopics.length) {
-    checkWhere.push(`q.topic_id IN (${qbTopics.map(() => "?").join(",")})`);
-    checkVals.push(...qbTopics);
-  } else if (qbModules.length) {
-    checkSql += ` INNER JOIN topics t ON t.topic_id = q.topic_id INNER JOIN units u ON u.unit_id = t.unit_id`;
-    checkWhere.push(`u.module_id IN (${qbModules.map(() => "?").join(",")})`);
-    checkVals.push(...qbModules);
+  
+  if (qbankId) {
+    const [qCheck] = await client.execute(
+      `SELECT qq.question_id 
+       FROM qbank_questions qq
+       WHERE qq.qbank_id = ? AND qq.question_id = ?
+       LIMIT 1`,
+      [qbankId, questionId]
+    );
+    if (!qCheck.length)
+      return { success: false, message: "Question not in session qbank" };
   }
-  const [qCheck] = await client.execute(
-    `${checkSql} WHERE q.question_id = ? ${
-      checkWhere.length ? " AND " + checkWhere.join(" AND ") : ""
-    } LIMIT 1`,
-    checkVals
-  );
-  if (!qCheck.length)
-    return { success: false, message: "Question not in session scope" };
 
   let isCorrect = 0;
   if (selectedOptionId) {
@@ -1333,23 +1328,17 @@ async function solveSessionQuestion({
         : 0;
   }
 
+  
   await client.execute(
-    `INSERT INTO solved_questions (question_id, student_id, answer, is_correct, created_at)
-     VALUES (?, ?, ?, ?, NOW())`,
+    `INSERT INTO solved_questions (question_id, student_id, answer, is_correct, qbank_id, created_at)
+     VALUES (?, ?, ?, ?, ?, NOW())`,
     [
       questionId,
       studentId,
       answerText || String(selectedOptionId || ""),
       isCorrect ? "1" : "0",
+      qbankId
     ]
-  );
-
-  await client.execute(
-    `UPDATE student_plan_sessions 
-     SET questions_attempted = COALESCE(questions_attempted,0) + 1,
-         questions_correct = COALESCE(questions_correct,0) + ?
-     WHERE session_id = ? AND plan_id = ?`,
-    [isCorrect ? 1 : 0, sessionId, planId]
   );
 
   try {
@@ -1380,8 +1369,8 @@ async function solveSessionQuestion({
           is_correct: isCorrect,
           question_type: question.question_type,
           difficulty_level: question.difficulty_level,
-          context: "study_session",
-        },
+          context: "study_session"
+        }
       });
     }
   } catch (activityError) {
@@ -1400,7 +1389,7 @@ async function reviewSessionFlashcard({
   studentId,
   flashcardId,
   correct = false,
-  status = "seen",
+  status = "seen"
 }) {
   const [sessions] = await client.execute(
     `SELECT s.session_id, c.flashcards_modules, c.flashcards_topics
@@ -1485,8 +1474,8 @@ async function reviewSessionFlashcard({
           is_correct: correct,
           status: status,
           difficulty_level: flashcard.difficulty_level,
-          context: "study_session",
-        },
+          context: "study_session"
+        }
       });
     }
   } catch (activityError) {
@@ -1542,23 +1531,23 @@ async function getSessionsWithSchedule({ planId, studentId }) {
       is_study_day: isStudyDay,
       sessions: daySessions,
       total_time: timeFormatted,
-      sessions_count: daySessions.length,
+      sessions_count: daySessions.length
     });
   }
 
   return {
     summary: summary,
     daily_schedule: dailySchedule,
-    total_sessions: sessions.length,
+    total_sessions: sessions.length
   };
 }
 
 async function getTodayOverview({ studentId }) {
   const today = new Date().toISOString().split("T")[0];
 
-  // Calculate streak based on consecutive days with activity
-  // Opening dashboard today counts as activity, so include today
-  // Get distinct dates where student had activity from activity log
+  
+  
+  
   const [activityDatesFromLog] = await client.execute(
     `SELECT DISTINCT DATE(created_at) as activity_date
      FROM student_activity_log 
@@ -1568,7 +1557,7 @@ async function getTodayOverview({ studentId }) {
     [studentId]
   );
 
-  // Also check daily_activity table for additional dates
+  
   let activityDates = [...activityDatesFromLog];
   try {
     const [dailyActivityDates] = await client.execute(
@@ -1579,7 +1568,7 @@ async function getTodayOverview({ studentId }) {
        LIMIT 30`,
       [studentId]
     );
-    // Merge dates, avoiding duplicates
+    
     const existingDates = new Set(
       activityDates.map((d) => String(d.activity_date).split("T")[0])
     );
@@ -1591,10 +1580,10 @@ async function getTodayOverview({ studentId }) {
       }
     });
   } catch (err) {
-    // Table might not exist, continue with activity log only
+    
   }
 
-  // Opening dashboard today counts as activity - ensure today is included
+  
   const todayIncluded = activityDates.some(
     (row) => String(row.activity_date).split("T")[0] === today
   );
@@ -1602,20 +1591,20 @@ async function getTodayOverview({ studentId }) {
     activityDates.unshift({ activity_date: today });
   }
 
-  // Sort dates descending (most recent first)
+  
   activityDates.sort((a, b) => {
     const dateA = new Date(String(a.activity_date).split("T")[0]);
     const dateB = new Date(String(b.activity_date).split("T")[0]);
     return dateB - dateA;
   });
 
-  // Calculate streak from consecutive days
+  
   let streak = 0;
   if (activityDates && activityDates.length > 0) {
     const todayDate = new Date(today);
     todayDate.setHours(0, 0, 0, 0);
 
-    // Check consecutive days from today backwards
+    
     for (let i = 0; i < activityDates.length; i++) {
       const rowDate = activityDates[i].activity_date;
       const activityDate =
@@ -1630,7 +1619,7 @@ async function getTodayOverview({ studentId }) {
       if (activityDate.getTime() === expectedDate.getTime()) {
         streak++;
       } else {
-        break; // Streak broken
+        break; 
       }
     }
   }
@@ -1650,28 +1639,28 @@ async function getTodayOverview({ studentId }) {
         study_time_minutes: 0,
         questions_today: { attempted: 0, correct: 0, goal: 0 },
         flashcards_today: { studied: 0, accuracy_percent: 0 },
-        completion_percentage: 0,
+        completion_percentage: 0
       },
-      recent_sessions: [],
+      recent_sessions: []
     };
   }
   const plan = plans[0];
 
-  // Get all sessions for the plan (without date filter) and filter in JavaScript
-  // This ensures we get all sessions and can properly handle date comparisons
+  
+  
   const sessions = await getPlanSessions({
-    planId: plan.plan_id,
+    
     studentId,
-    date: null, // Get all sessions, we'll filter in JavaScript
-    status: null,
+    date: null, 
+    status: null
   });
-
-  // Filter to today's sessions - handle different date formats
+  console.log("sessions", sessions);
+  
   const sessionsToday = (sessions || []).filter((s) => {
     const sessionDate = s.study_day_date || s.session_date;
     if (!sessionDate) return false;
 
-    // Convert to date string for comparison
+    
     const sessionDateStr =
       sessionDate instanceof Date
         ? sessionDate.toISOString().split("T")[0]
@@ -1679,6 +1668,8 @@ async function getTodayOverview({ studentId }) {
 
     return sessionDateStr === today;
   });
+
+
 
   const dailyLimits = plan.daily_limits ? JSON.parse(plan.daily_limits) : {};
   const questionsGoalPerSession = Number(plan.questions_per_session) || 20;
@@ -1697,7 +1688,7 @@ async function getTodayOverview({ studentId }) {
   let completedCount = 0;
   let studyTimeMinutes = 0;
 
-  // Get all qbank IDs from today's sessions
+  
   const todayQbankIds = [];
   sessionsToday.forEach((s) => {
     const qbanks = Array.isArray(s.qbank)
@@ -1712,77 +1703,106 @@ async function getTodayOverview({ studentId }) {
     });
   });
 
-  // Get actual questions stats from solved_questions table for today
-  // Count total attempts (not just distinct questions) for more accurate stats
+  
+  
+  
   let questionsStatsToday = { attempted: 0, correct: 0 };
-  if (todayQbankIds.length > 0) {
-    try {
-      const placeholders = todayQbankIds.map(() => "?").join(",");
-      const [questionsStats] = await client.execute(
-        `SELECT 
-          COUNT(*) as attempted,
-          SUM(CASE WHEN sq.is_correct = '1' THEN 1 ELSE 0 END) as correct
-         FROM solved_questions sq
-         WHERE sq.qbank_id IN (${placeholders})
-           AND sq.student_id = ?
-           AND DATE(sq.created_at) = ?`,
-        [...todayQbankIds, studentId, today]
-      );
-      if (questionsStats[0]) {
-        questionsStatsToday.attempted =
-          Number(questionsStats[0].attempted) || 0;
-        questionsStatsToday.correct = Number(questionsStats[0].correct) || 0;
-      }
-    } catch (err) {
-      console.error("Failed to get questions stats:", err);
-    }
-  }
 
-  // Get actual flashcards stats - count distinct flashcards studied today
-  // and get correct count from session data or activity log
+  
+ 
+  
+  const todayFlashcardLibraryIds = [];
+  sessionsToday.forEach((s) => {
+    if (s.flashcards_decks && s.flashcards_decks.flashcarddeck_id) {
+      todayFlashcardLibraryIds.push(s.flashcards_decks.flashcarddeck_id);
+    }
+  });
+
+  
+  
   let flashcardsStatsToday = { studied: 0, correct: 0 };
   try {
-    // Count distinct flashcards studied today (where last_seen is today)
-    const [flashcardStudied] = await client.execute(
-      `SELECT COUNT(DISTINCT flashcard_id) as studied
-       FROM student_flashcard_card_progress
-       WHERE student_id = ? 
-         AND DATE(last_seen) = ?`,
-      [studentId, today]
-    );
-    flashcardsStatsToday.studied = Number(flashcardStudied[0]?.studied) || 0;
+ 
 
-    // Get correct count from activity log for today's flashcard reviews
-    const [flashcardCorrect] = await client.execute(
-      `SELECT COUNT(*) as correct
-       FROM student_activity_log
-       WHERE student_id = ?
-         AND activity_type = 'flashcard_studied'
-         AND DATE(created_at) = ?
-         AND JSON_EXTRACT(metadata, '$.is_correct') = true`,
-      [studentId, today]
-    );
-    flashcardsStatsToday.correct = Number(flashcardCorrect[0]?.correct) || 0;
+    if (todayFlashcardLibraryIds.length > 0) {
+      const libraryPlaceholders = todayFlashcardLibraryIds
+        .map(() => "?")
+        .join(",");
+      
+      const [flashcardStudied] = await client.execute(
+        `SELECT COUNT(DISTINCT cp.flashcard_id) as studied
+         FROM student_flashcard_card_progress cp
+         INNER JOIN flashcards f ON cp.flashcard_id = f.flashcard_id
+         WHERE cp.student_id = ? 
+           AND DATE(cp.last_seen) = ?
+           AND f.library_id IN (${libraryPlaceholders})`,
+        [studentId, today, ...todayFlashcardLibraryIds]
+      );
+      console.log(
+        `[getTodayOverview] Flashcards studied (with library filter):`,
+        flashcardStudied[0]
+      );
+      flashcardsStatsToday.studied = Number(flashcardStudied[0]?.studied) || 0;
 
-    // If activity log doesn't have correct count, try to get from progress table
-    // (count flashcards that were studied today and have correct > 0)
-    if (
-      flashcardsStatsToday.correct === 0 &&
-      flashcardsStatsToday.studied > 0
-    ) {
-      const [flashcardProgress] = await client.execute(
-        `SELECT COUNT(DISTINCT flashcard_id) as correct_count
-         FROM student_flashcard_card_progress
-         WHERE student_id = ? 
-           AND DATE(last_seen) = ?
-           AND correct > 0`,
+      
+      
+      const [flashcardCorrect] = await client.execute(
+        `SELECT COUNT(*) as correct
+         FROM student_activity_log sal
+         WHERE sal.student_id = ?
+           AND sal.activity_type = 'flashcard_studied'
+           AND DATE(sal.created_at) = ?
+           AND (
+             JSON_EXTRACT(sal.metadata, '$.is_correct') = true
+             OR JSON_EXTRACT(sal.metadata, '$.is_correct') = 'true'
+             OR JSON_EXTRACT(sal.metadata, '$.is_correct') = 1
+           )
+           AND JSON_EXTRACT(sal.metadata, '$.flashcard_id') IN (
+             SELECT f.flashcard_id 
+             FROM flashcards f 
+             WHERE f.library_id IN (${libraryPlaceholders})
+           )`,
+        [studentId, today, ...todayFlashcardLibraryIds]
+      );
+      flashcardsStatsToday.correct = Number(flashcardCorrect[0]?.correct) || 0;
+
+      
+      
+      if (
+        flashcardsStatsToday.correct === 0 &&
+        flashcardsStatsToday.studied > 0
+      ) {
+        const [flashcardProgress] = await client.execute(
+          `SELECT COUNT(DISTINCT cp.flashcard_id) as correct_count
+           FROM student_flashcard_card_progress cp
+           INNER JOIN flashcards f ON cp.flashcard_id = f.flashcard_id
+           WHERE cp.student_id = ? 
+             AND DATE(cp.last_seen) = ?
+             AND cp.correct > 0
+             AND f.library_id IN (${libraryPlaceholders})`,
+          [studentId, today, ...todayFlashcardLibraryIds]
+        );
+        flashcardsStatsToday.correct =
+          Number(flashcardProgress[0]?.correct_count) || 0;
+      }
+    } else {
+      
+      
+      const [flashcardStudied] = await client.execute(
+        `SELECT COUNT(DISTINCT cp.flashcard_id) as studied
+         FROM student_flashcard_card_progress cp
+         WHERE cp.student_id = ? 
+           AND DATE(cp.last_seen) = ?`,
         [studentId, today]
       );
-      flashcardsStatsToday.correct =
-        Number(flashcardProgress[0]?.correct_count) || 0;
+      console.log(
+        `[getTodayOverview] Flashcards studied (all today):`,
+        flashcardStudied[0]
+      );
+      flashcardsStatsToday.studied = Number(flashcardStudied[0]?.studied) || 0;
     }
 
-    // Fallback: if no progress data, use session-level flashcards_studied
+    
     if (flashcardsStatsToday.studied === 0) {
       flashcardsStatsToday.studied = sessionsToday.reduce(
         (sum, s) => sum + (Number(s.flashcards_studied) || 0),
@@ -1791,7 +1811,7 @@ async function getTodayOverview({ studentId }) {
     }
   } catch (err) {
     console.error("Failed to get flashcards stats:", err);
-    // Fallback to session-level data
+    
     flashcardsStatsToday.studied = sessionsToday.reduce(
       (sum, s) => sum + (Number(s.flashcards_studied) || 0),
       0
@@ -1799,7 +1819,7 @@ async function getTodayOverview({ studentId }) {
   }
 
   const tasks = sessionsToday.map((s, idx) => {
-    // Handle qbank as array (from JSON_ARRAYAGG)
+    
     const qbanks = Array.isArray(s.qbank)
       ? s.qbank
       : s.qbank?.qbank_id
@@ -1820,7 +1840,7 @@ async function getTodayOverview({ studentId }) {
       ? "Study Flashcards"
       : "Study Content";
 
-    const qbank = qbanks[0] || {};
+    const qbank = qbanks;
     const exams = s.exams || {};
     const flashcardsDeck = s.flashcards_decks || {};
     const ebooks = s.ebooks || {};
@@ -1831,8 +1851,6 @@ async function getTodayOverview({ studentId }) {
       ebooks.ebook_name ||
       "General";
 
-    // Get started status from the appropriate content type
-    // started is 0 if not started, >0 if started
     const started = isQuestions
       ? Number(qbank.started) || 0
       : isFlashcards
@@ -1841,30 +1859,28 @@ async function getTodayOverview({ studentId }) {
       ? Number(exams.started) || 0
       : Number(ebooks.started) || 0;
 
-    // Convert started to status: 0 = "pending", >0 = "in_progress"
+    
     const status = started > 0 ? "in_progress" : "pending";
     if (status === "completed") completedCount += 1;
 
     const timeSpent = Number(s.time_spent) || 0;
     studyTimeMinutes += Math.round(timeSpent / 60);
 
-    // Calculate progress - use qbank progress from getPlanSessions for questions
-    // This shows progress as (correct answers / total questions in qbank) * 100
     let progress = 0;
     if (isQuestions && qbank.qbank_id) {
-      // Use progress from qbank (calculated in getPlanSessions as correct/total * 100)
+      
       progress = Number(qbank.progress) || 0;
-      // Ensure progress doesn't exceed 100
+      
       progress = Math.min(100, progress);
     } else if (isFlashcards) {
-      // For flashcards, calculate progress based on studied count vs goal
+      
       const flashcardsStudied = Number(s.flashcards_studied) || 0;
       progress = Math.min(
         100,
         Math.round((flashcardsStudied / flashcardsGoalPerSession) * 100)
       );
     } else {
-      // For other content, use time spent vs goal
+      
       progress = Math.min(
         100,
         Math.round((timeSpent / 60 / minutesPerSession) * 100)
@@ -1882,7 +1898,7 @@ async function getTodayOverview({ studentId }) {
       progress,
       dueTime: null,
       description: null,
-      notes: null,
+      notes: null
     };
   });
 
@@ -1900,17 +1916,17 @@ async function getTodayOverview({ studentId }) {
       (s) => s.flashcards_decks && s.flashcards_decks.flashcarddeck_id
     ).length * flashcardsGoalPerSession;
 
-  // Use actual stats from progress tables
+  
   totalAttempted = questionsStatsToday.attempted;
   totalCorrect = questionsStatsToday.correct;
   totalStudied = flashcardsStatsToday.studied;
   totalFlashCorrect = flashcardsStatsToday.correct;
 
-  // Calculate question accuracy
+  
   const questionAccuracyPercent =
     totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
 
-  // Calculate flashcard accuracy
+  
   const flashcardAccuracyPercent =
     totalStudied > 0 ? Math.round((totalFlashCorrect / totalStudied) * 100) : 0;
 
@@ -1942,7 +1958,7 @@ async function getTodayOverview({ studentId }) {
          0
        ) AS started,
        -- Get questions_attempted from solved_questions table
-       -- Only count if session has a qbank_id
+       -- Count all solved questions for this qbank (total progress)
        CASE 
          WHEN s.qbank_id IS NOT NULL THEN
            COALESCE(
@@ -1950,6 +1966,7 @@ async function getTodayOverview({ studentId }) {
               FROM solved_questions sq
               WHERE sq.qbank_id = s.qbank_id 
                 AND sq.student_id = ?
+                AND sq.qbank_id IS NOT NULL
              ),
              0
            )
@@ -1974,9 +1991,10 @@ async function getTodayOverview({ studentId }) {
        0 AS time_spent
      FROM new_student_plan_sessions s
      WHERE s.plan_id = ?
+       AND DATE(s.study_day_date) = ?
      ORDER BY s.study_day_date DESC, s.session_id DESC
      LIMIT 5`,
-    [studentId, studentId, plan.plan_id]
+    [studentId, studentId, plan.plan_id, today]
   );
   const recent_sessions = recentRows.map((r) => ({
     id: r.session_id,
@@ -1985,8 +2003,9 @@ async function getTodayOverview({ studentId }) {
     status: (Number(r.started) || 0) > 0 ? "in_progress" : "pending",
     questions_attempted: Number(r.questions_attempted) || 0,
     flashcards_studied: Number(r.flashcards_studied) || 0,
-    time_spent_minutes: Math.round((Number(r.time_spent) || 0) / 60),
+    time_spent_minutes: Math.round((Number(r.time_spent) || 0) / 60)
   }));
+
 
   return {
     streak,
@@ -1997,16 +2016,16 @@ async function getTodayOverview({ studentId }) {
       questions_today: {
         attempted: totalAttempted,
         correct: totalCorrect,
-        goal: questionsGoalToday,
+        goal: questionsGoalToday
       },
       flashcards_today: {
         studied: totalStudied,
         goal: flashcardsGoalToday,
-        accuracy_percent: flashcardAccuracyPercent,
+        accuracy_percent: flashcardAccuracyPercent
       },
-      completion_percentage: completionPercentage,
+      completion_percentage: completionPercentage
     },
-    recent_sessions,
+    recent_sessions
   };
 }
 
@@ -2017,7 +2036,7 @@ async function updateSessionProgress({
   questionsCorrect,
   flashcardsStudied,
   timeSpent,
-  status,
+  status
 }) {
   const updates = [];
   const params = [];
@@ -2059,13 +2078,13 @@ async function getDetailedContentInfo(content) {
   const allModuleIds = [
     ...(content.exams_modules || []),
     ...(content.flashcards_modules || []),
-    ...(content.question_bank_modules || []),
+    ...(content.question_bank_modules || [])
   ];
 
   const allTopicIds = [
     ...(content.exams_topics || []),
     ...(content.flashcards_topics || []),
-    ...(content.question_bank_topics || []),
+    ...(content.question_bank_topics || [])
   ];
 
   if (allModuleIds.length > 0) {
@@ -2084,7 +2103,7 @@ async function getDetailedContentInfo(content) {
         name: module.subject_name,
         code: module.subject_code,
         description: module.description,
-        color: module.subject_color,
+        color: module.subject_color
       };
     });
 
@@ -2118,7 +2137,7 @@ async function getDetailedContentInfo(content) {
       subjectsByModule[unit.module_id].push({
         id: unit.unit_id,
         name: unit.unit_name,
-        module_id: unit.module_id,
+        module_id: unit.module_id
       });
     });
 
@@ -2138,7 +2157,7 @@ async function getDetailedContentInfo(content) {
     detailedContent.subjects_detailed = unitsRows.map((u) => ({
       id: u.unit_id,
       name: u.unit_name,
-      module_id: u.module_id,
+      module_id: u.module_id
     }));
   }
 
@@ -2164,13 +2183,13 @@ async function getDetailedContentInfo(content) {
         learning_objectives: topic.learning_objectives,
         unit: {
           id: topic.unit_id,
-          name: topic.unit_name,
+          name: topic.unit_name
         },
         module: {
           id: topic.module_id,
           name: topic.module_name,
-          code: topic.module_code,
-        },
+          code: topic.module_code
+        }
       };
     });
 
@@ -2238,14 +2257,14 @@ async function getPlanSummary({ planId, studentId }) {
   return {
     date_range: {
       start: plan.start_date,
-      end: plan.end_date,
+      end: plan.end_date
     },
     total_days: totalDays,
     study_days: studyDaysCount,
     total_items: totalItems,
     daily_budget: dailyBudget,
     plan_name: plan.plan_name,
-    status: plan.status,
+    status: plan.status
   };
 }
 
@@ -2298,7 +2317,7 @@ async function getModulesWithStats({ studentId = null } = {}) {
         ...module,
         units_count: unitsResult[0].count,
         topics_count: topicsResult[0].count,
-        questions_count: questionsResult[0].count,
+        questions_count: questionsResult[0].count
       };
     })
   );
@@ -2327,7 +2346,7 @@ async function getTopicsByModule({ moduleId }) {
 }
 
 async function getTopicsBySubject({ moduleId, studentId }) {
-  // ---------- 1. Normalise unit ids ----------
+  
   let unitIds = moduleId;
   if (typeof unitIds === "string")
     unitIds = unitIds
@@ -2338,8 +2357,8 @@ async function getTopicsBySubject({ moduleId, studentId }) {
 
   if (!unitIds?.length) return [];
 
-  // ---------- 2. Build a *temporary* table of the unit list ----------
-  // This lets MySQL treat the list as a real table → index-friendly
+  
+  
   const unitTmp = `tmp_units_${Date.now()}_${Math.random()
     .toString(36)
     .substr(2, 5)}`;
@@ -2351,7 +2370,7 @@ async function getTopicsBySubject({ moduleId, studentId }) {
     `INSERT INTO ${unitTmp} VALUES ${insertBatch.join(",")}`
   );
 
-  // ---------- 3. Pre-aggregate *latest* attempt per question ----------
+  
   const latestTmp = studentId ? `tmp_latest_${Date.now()}` : null;
   if (studentId) {
     await client.execute(
@@ -2377,7 +2396,7 @@ async function getTopicsBySubject({ moduleId, studentId }) {
     );
   }
 
-  // ---------- 4. ONE final SELECT ----------
+  
   const sql = `
     SELECT 
       t.topic_id, 
@@ -2523,7 +2542,7 @@ async function getTopicsBySubject({ moduleId, studentId }) {
 
   const [rows] = await client.execute(sql, params);
 
-  // Clean up temp tables (fire-and-forget)
+  
   client.execute(`DROP TEMPORARY TABLE IF EXISTS ${unitTmp}`).catch(() => {});
   if (latestTmp)
     client
@@ -2590,13 +2609,13 @@ async function getMarkedCategoriesAndQuestions(studentId) {
     if (!categoriesMap[row.category_id]) {
       categoriesMap[row.category_id] = {
         categoryId: row.category_id,
-        questions: [],
+        questions: []
       };
     }
 
     categoriesMap[row.category_id].questions.push({
       questionId: row.question_id,
-      isMarked: row.is_marked === 1,
+      isMarked: row.is_marked === 1
     });
   });
 
@@ -2646,7 +2665,7 @@ async function getDashboardOverview({ studentId }) {
   const currentPlanProgress = activePlan
     ? {
         completed: 0,
-        total: 0,
+        total: 0
       }
     : { completed: 0, total: 0 };
 
@@ -2755,7 +2774,7 @@ async function getDashboardOverview({ studentId }) {
     ...recentQuestions,
     ...recentFlashcards,
     ...recentExams,
-    ...recentSessions,
+    ...recentSessions
   ]
     .sort((a, b) => new Date(b.activity_time) - new Date(a.activity_time))
     .slice(0, 5)
@@ -2763,7 +2782,7 @@ async function getDashboardOverview({ studentId }) {
       title: a.title || "",
       details: a.details || "",
       time: a.time || "",
-      points: a.points || "",
+      points: a.points || ""
     }));
 
   const [upcomingDeadlines] = await client.execute(
@@ -2811,7 +2830,7 @@ async function getDashboardOverview({ studentId }) {
     currentPlan: currentPlanProgress,
     healthcareMastered: {
       completed: Number(healthcareStats[0]?.mastered_topics) || 0,
-      total: Number(healthcareStats[0]?.total_topics) || 0,
+      total: Number(healthcareStats[0]?.total_topics) || 0
     },
     studyBreak: null,
     recentActivity: allActivities,
@@ -2819,14 +2838,14 @@ async function getDashboardOverview({ studentId }) {
       title: d.title || "",
       date: d.date || "",
       course: d.course || "",
-      urgent: Boolean(d.urgent),
+      urgent: Boolean(d.urgent)
     })),
     stats: {
       questionsAnswered,
       hoursStudied,
       accuracy,
-      daysUntilExam,
-    },
+      daysUntilExam
+    }
   };
 }
 
@@ -2854,5 +2873,5 @@ module.exports = {
   getTodayOverview,
   getDashboardOverview,
   getMarkedCategoriesAndQuestions,
-  startSessionContent,
+  startSessionContent
 };

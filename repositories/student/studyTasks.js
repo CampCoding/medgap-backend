@@ -70,7 +70,7 @@ async function archiveBacklogTask({ backlogTaskId, studentId }) {
 async function scheduleTask({ studentId, backlogTaskId, scheduledDate }) {
   // First get the task details from backlog
   const [backlogTask] = await client.execute(
-    "SELECT time_of_day FROM student_tasks_backlog WHERE backlog_task_id = ? AND student_id = ?",
+    "SELECT time_of_day FROM student_tasks_backlog WHERE backlog_task_id = ? AND student_id = ? AND status = 'backlog'",
     [backlogTaskId, studentId]
   );
 
@@ -78,6 +78,7 @@ async function scheduleTask({ studentId, backlogTaskId, scheduledDate }) {
     throw new Error("Backlog task not found");
   }
 
+  // Insert into schedule
   const sql = `INSERT INTO student_task_schedule (student_id, backlog_task_id, scheduled_date, start_time)
                VALUES (?, ?, ?, ?)`;
   const params = [
@@ -87,28 +88,47 @@ async function scheduleTask({ studentId, backlogTaskId, scheduledDate }) {
     backlogTask[0].time_of_day,
   ];
   const [result] = await client.execute(sql, params);
+
+  // Remove task from backlog by archiving it
+  await client.execute(
+    `UPDATE student_tasks_backlog SET status = 'archived' WHERE backlog_task_id = ? AND student_id = ?`,
+    [backlogTaskId, studentId]
+  );
+
   return { schedule_id: result.insertId };
 }
 
 async function listDaySchedule({ studentId, scheduledDate }) {
-  if(scheduledDate) {
-    const sql = `SELECT s.*, b.title, b.task_type, b.priority
+  if (scheduledDate) {
+    const sql = `SELECT s.*, b.title, b.task_type, b.priority, b.notes
                FROM student_task_schedule s
                LEFT JOIN student_tasks_backlog b ON b.backlog_task_id = s.backlog_task_id
                WHERE s.student_id = ? AND s.scheduled_date = ?
                ORDER BY s.start_time ASC`;
-  const [rows] = await client.execute(sql, [studentId, scheduledDate]);
-  return rows;
-  }else{
-    const sql = `SELECT s.*, b.title, b.task_type, b.priority
+    const [rows] = await client.execute(sql, [studentId, scheduledDate]);
+    return rows;
+  } else {
+    const sql = `SELECT s.*, b.title, b.task_type, b.priority, b.notes
                FROM student_task_schedule s
                LEFT JOIN student_tasks_backlog b ON b.backlog_task_id = s.backlog_task_id
                WHERE s.student_id = ?
-               ORDER BY s.start_time ASC`;
-  const [rows] = await client.execute(sql, [studentId]);
-  return rows;
+               ORDER BY s.scheduled_date ASC, s.start_time ASC`;
+    const [rows] = await client.execute(sql, [studentId]);
+    return rows;
   }
-  
+}
+
+// Expand calendar - get scheduled tasks for a date range
+async function expandCalendar({ studentId, startDate, endDate }) {
+  const sql = `SELECT s.*, b.title, b.task_type, b.priority, b.notes, b.time_of_day
+               FROM student_task_schedule s
+               LEFT JOIN student_tasks_backlog b ON b.backlog_task_id = s.backlog_task_id
+               WHERE s.student_id = ?
+                 AND s.scheduled_date >= ?
+                 AND s.scheduled_date <= ?
+               ORDER BY s.scheduled_date ASC, s.start_time ASC`;
+  const [rows] = await client.execute(sql, [studentId, startDate, endDate]);
+  return rows;
 }
 
 async function moveScheduledTask({ scheduleId, studentId, scheduledDate }) {
@@ -147,6 +167,7 @@ module.exports = {
   archiveBacklogTask,
   scheduleTask,
   listDaySchedule,
+  expandCalendar,
   moveScheduledTask,
   unscheduleTask,
 };

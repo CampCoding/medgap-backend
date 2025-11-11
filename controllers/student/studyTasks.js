@@ -120,6 +120,26 @@ async function listDay(req, res) {
   });
 }
 
+async function expandCalendar(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId) return;
+  const { start_date, end_date } = req.query;
+  
+  if (!start_date || !end_date) {
+    return responseBuilder.badRequest(res, "start_date and end_date are required");
+  }
+ 
+  const rows = await repo.expandCalendar({ 
+    studentId, 
+    startDate: start_date, 
+    endDate: end_date 
+  });
+  return responseBuilder.success(res, {
+    data: rows,
+    message: "Calendar expanded successfully",
+  });
+}
+
 async function moveSchedule(req, res) {
   const studentId = getStudentId(req, res);
   if (!studentId) return;
@@ -160,6 +180,7 @@ module.exports = {
   archiveBacklog,
   scheduleFromBacklog,
   listDay,
+  expandCalendar,
   moveSchedule,
   unschedule,
 };

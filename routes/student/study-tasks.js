@@ -14,6 +14,7 @@ router.post(
   ctrl.scheduleFromBacklog
 );
 router.get("/calendar/day", ctrl.listDay); // ?date=YYYY-MM-DD
+router.get("/calendar/expand", ctrl.expandCalendar); // ?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD
 router.put("/calendar/:schedule_id/move", ctrl.moveSchedule);
 router.delete("/calendar/:schedule_id", ctrl.unschedule);
 
