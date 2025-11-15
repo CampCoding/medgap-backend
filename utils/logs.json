@@ -1,5 +1,2564 @@
 [
   {
+    "timestamp": "2025-11-15T09:53:08.595Z",
+    "level": "info",
+    "message": "Today's overview retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/today/overview",
+    "additional_data": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 598,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "ebook",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": 34,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 505,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": 864,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 454,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": 836,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    },
+    "error_details": null,
+    "request_response": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 598,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "ebook",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": 34,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 505,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": 864,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 454,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": 836,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-11-15T09:52:47.757Z",
+    "level": "info",
+    "message": "Today's overview retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/today/overview",
+    "additional_data": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        null,
+        {
+          "id": 598,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "ebook",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": 34,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        null,
+        {
+          "id": 505,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": 864,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 454,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": 836,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    },
+    "error_details": null,
+    "request_response": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        null,
+        {
+          "id": 598,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "ebook",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": 34,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        null,
+        {
+          "id": 505,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": 864,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 454,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": 836,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-11-15T09:51:44.727Z",
+    "level": "info",
+    "message": "Today's overview retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/today/overview",
+    "additional_data": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 634,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 598,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "ebook",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": 34,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 586,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 505,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": 864,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 454,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": 836,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    },
+    "error_details": null,
+    "request_response": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 634,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 598,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "ebook",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": 34,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 586,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 505,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": 864,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 454,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "study_day_date": "2025-11-14T22:00:00.000Z",
+          "qbank_id": 836,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-11-15T09:50:58.844Z",
+    "level": "info",
+    "message": "Today's overview retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/today/overview",
+    "additional_data": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 634,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 598,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "ebook",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": 34,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 586,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 505,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": 864,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 454,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": 836,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    },
+    "error_details": null,
+    "request_response": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 634,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 598,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "ebook",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": 34,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 586,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 505,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": 864,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 454,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "question_bank",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": 836,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-11-15T09:50:07.817Z",
+    "level": "info",
+    "message": "Today's overview retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/today/overview",
+    "additional_data": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 357,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 361,
+          "date": "2025-11-10T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 356,
+          "date": "2025-11-09T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 355,
+          "date": "2025-11-08T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 354,
+          "date": "2025-11-07T22:00:00.000Z",
+          "type": "flashcard",
+          "exam_id": null,
+          "flashcarddeck_id": 24,
+          "ebook_id": null,
+          "qbank_id": 731,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 1,
+          "time_spent_minutes": 0
+        }
+      ]
+    },
+    "error_details": null,
+    "request_response": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 357,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 361,
+          "date": "2025-11-10T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 356,
+          "date": "2025-11-09T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 355,
+          "date": "2025-11-08T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 354,
+          "date": "2025-11-07T22:00:00.000Z",
+          "type": "flashcard",
+          "exam_id": null,
+          "flashcarddeck_id": 24,
+          "ebook_id": null,
+          "qbank_id": 731,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 1,
+          "time_spent_minutes": 0
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-11-15T09:49:50.091Z",
+    "level": "error",
+    "message": "Failed to get today's overview",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/today/overview",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-15T09:49:47.248Z",
+    "level": "error",
+    "message": "Failed to get today's overview",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/today/overview",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-15T09:47:19.789Z",
+    "level": "info",
+    "message": "Today's overview retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/today/overview",
+    "additional_data": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 357,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 361,
+          "date": "2025-11-10T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 356,
+          "date": "2025-11-09T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 355,
+          "date": "2025-11-08T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 354,
+          "date": "2025-11-07T22:00:00.000Z",
+          "type": "flashcard",
+          "exam_id": null,
+          "flashcarddeck_id": 24,
+          "ebook_id": null,
+          "qbank_id": 731,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 1,
+          "time_spent_minutes": 0
+        }
+      ]
+    },
+    "error_details": null,
+    "request_response": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 357,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 361,
+          "date": "2025-11-10T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 356,
+          "date": "2025-11-09T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 355,
+          "date": "2025-11-08T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        },
+        {
+          "id": 354,
+          "date": "2025-11-07T22:00:00.000Z",
+          "type": "flashcard",
+          "exam_id": null,
+          "flashcarddeck_id": 24,
+          "ebook_id": null,
+          "qbank_id": 731,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 1,
+          "time_spent_minutes": 0
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-11-15T09:46:24.415Z",
+    "level": "info",
+    "message": "Today's overview retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/today/overview",
+    "additional_data": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 357,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    },
+    "error_details": null,
+    "request_response": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 357,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-11-15T09:46:15.606Z",
+    "level": "info",
+    "message": "Complete study plan created successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/",
+    "additional_data": {
+      "plan_id": 190
+    },
+    "error_details": null,
+    "request_response": {
+      "plan_id": 190
+    }
+  },
+  {
+    "timestamp": "2025-11-15T09:41:49.539Z",
+    "level": "info",
+    "message": "Today's overview retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/today/overview",
+    "additional_data": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 357,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    },
+    "error_details": null,
+    "request_response": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 357,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "exam_id": null,
+          "flashcarddeck_id": null,
+          "ebook_id": null,
+          "qbank_id": null,
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-11-15T09:39:39.184Z",
+    "level": "info",
+    "message": "Today's overview retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/today/overview",
+    "additional_data": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 357,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    },
+    "error_details": null,
+    "request_response": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 357,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-11-15T09:39:20.914Z",
+    "level": "info",
+    "message": "Today's overview retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/today/overview",
+    "additional_data": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 357,
+          "date": "2025-11-14T22:00:00.000Z",
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    },
+    "error_details": null,
+    "request_response": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 357,
+          "date": "2025-11-14T22:00:00.000Z",
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-11-15T09:38:01.023Z",
+    "level": "info",
+    "message": "Today's overview retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/today/overview",
+    "additional_data": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 357,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    },
+    "error_details": null,
+    "request_response": {
+      "streak": 1,
+      "plan": {
+        "id": 152,
+        "name": "I Am Mohammed Reda"
+      },
+      "tasks": [
+        {
+          "id": 261,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 271,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "medium",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 311,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "low",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        },
+        {
+          "id": 346,
+          "title": "Practice Questions",
+          "subtitle": "General",
+          "duration": "38m",
+          "status": "pending",
+          "priority": "high",
+          "progress": 0,
+          "dueTime": null,
+          "description": null,
+          "notes": null
+        }
+      ],
+      "stats": {
+        "study_time_minutes": 0,
+        "questions_today": {
+          "attempted": 0,
+          "correct": 0,
+          "goal": 80
+        },
+        "flashcards_today": {
+          "studied": 0,
+          "goal": 0,
+          "accuracy_percent": 0
+        },
+        "completion_percentage": 0
+      },
+      "recent_sessions": [
+        {
+          "id": 357,
+          "date": "2025-11-14T22:00:00.000Z",
+          "type": "content",
+          "status": "pending",
+          "questions_attempted": 0,
+          "flashcards_studied": 0,
+          "time_spent_minutes": 0
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-11-15T09:36:20.706Z",
+    "level": "error",
+    "message": "Failed to get today's overview",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/today/overview",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
     "timestamp": "2025-11-10T14:44:21.224Z",
     "level": "error",
     "message": "Failed to get today's overview",
