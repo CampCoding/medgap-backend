@@ -2076,7 +2076,7 @@ async function getTodayOverview({ studentId }) {
   }) : null).filter(Boolean);
 
 
-  const recent_tasks = recentRows.map((r) => r.exam_id || r.flashcarddeck_id || r.ebook_id || r.qbank_id ? ({
+  const recent_tasks = recentTasks.map((r) => r.exam_id || r.flashcarddeck_id || r.ebook_id || r.qbank_id ? ({
     id: r.session_id,
     date: r.session_date,
     type: r.exam_id ? "exam" : r.flashcarddeck_id ? "flashcard" : r.ebook_id ? "ebook" : r.qbank_id ? "question_bank" : "content",
