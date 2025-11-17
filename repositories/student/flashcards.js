@@ -50,9 +50,12 @@ async function listLibrariesByModule({
     LIMIT ? OFFSET ?
   `;
   const countSql = `
-    SELECT COUNT(*) AS total
+    SELECT COUNT(DISTINCT fl.library_id) AS total
     FROM flashcard_libraries fl
-    WHERE ${where.join(" AND ")}
+    LEFT JOIN topics t ON t.topic_id = fl.topic_id
+    LEFT JOIN units u ON u.unit_id = t.unit_id
+    LEFT JOIN modules m ON m.module_id = u.module_id
+    WHERE m.module_id = ? AND ${where.join(" AND ")}
   `;
   const [rows] = await client.execute(sql, [
     studentId,
@@ -98,14 +101,11 @@ async function listLibrariesByBulkModules({
   limit = 1200,
   search = "",
 }) {
-  // Normalize moduleId to an array
+  // Normalize moduleId to array
   let moduleIds = moduleId;
   if (!Array.isArray(moduleIds)) {
     if (typeof moduleIds === "string") {
-      moduleIds = moduleIds
-        .split(",")
-        .map((x) => x.trim())
-        .filter(Boolean);
+      moduleIds = moduleIds.split(",").map((x) => x.trim()).filter(Boolean);
     } else if (moduleIds != null) {
       moduleIds = [moduleIds];
     } else {
@@ -113,31 +113,22 @@ async function listLibrariesByBulkModules({
     }
   }
 
-  // Base WHERE conditions
-  const whereClauses = ["fl.status = 'active'"];
+  const whereClauses = [];
   const paramsForWhere = [];
 
-  // Filter by module(s) if provided
+  // Add module filter only if moduleIds is not empty
   if (moduleIds.length > 0) {
     const placeholders = moduleIds.map(() => "?").join(",");
-    // Using modules table like listLibrariesByModule (m.module_id)
-    whereClauses.push(`m.module_id IN (${placeholders})`);
+    whereClauses.push(`fl.module_id IN (${placeholders})`);
     paramsForWhere.push(...moduleIds);
   }
 
-  // Search filter
   if (search && search.trim()) {
-    const s = `%${search.trim()}%`;
     whereClauses.push("(fl.library_name LIKE ? OR fl.description LIKE ?)");
-    paramsForWhere.push(s, s);
+    paramsForWhere.push(`%${search.trim()}%`, `%${search.trim()}%`);
   }
 
-  // Final WHERE SQL (always valid)
-  const whereSql = whereClauses.length ? whereClauses.join(" AND ") : "1=1";
-
-  const safePage = Math.max(1, page);
-  const safeLimit = Math.max(1, limit);
-  const offset = (safePage - 1) * safeLimit;
+  const offset = (Math.max(1, page) - 1) * Math.max(1, limit);
 
   const sql = `
     SELECT 
@@ -145,7 +136,7 @@ async function listLibrariesByBulkModules({
       fl.library_name, 
       fl.description, 
       fl.difficulty_level,
-      sd.old_deck_id AS imported,
+           sd.old_deck_id AS imported,
       fl.estimated_time, 
       fl.created_at,
       COUNT(f.flashcard_id) AS total_cards,
@@ -165,66 +156,43 @@ async function listLibrariesByBulkModules({
         ELSE 0 
       END AS subscribed
     FROM flashcard_libraries fl
-    LEFT JOIN flashcards f 
-      ON f.library_id = fl.library_id
-    LEFT JOIN student_deck sd 
-      ON sd.old_deck_id = fl.library_id
-      AND sd.student_id = ?
-    LEFT JOIN topics t 
-      ON t.topic_id = fl.topic_id
-    LEFT JOIN units u
-      ON u.unit_id = t.unit_id
-    LEFT JOIN modules m
-      ON m.module_id = u.module_id
+    LEFT JOIN flashcards f ON f.library_id = fl.library_id
+    LEFT JOIN student_deck sd ON sd.old_deck_id = fl.library_id
+    LEFT JOIN topics t ON t.topic_id = fl.topic_id
     LEFT JOIN student_flashcard_library_progress slp
-      ON slp.library_id = fl.library_id 
-      AND slp.student_id = ?
-    WHERE ${whereSql}
+      ON slp.library_id = fl.library_id AND slp.student_id = ?
+    WHERE ${whereClauses.join(" AND ")}
     GROUP BY fl.library_id
     ORDER BY fl.created_at DESC
     LIMIT ? OFFSET ?;
   `;
 
-  // Params must match the '?' positions:
-  // 1) studentId for subscribed check
-  // 2) studentId for student_deck join (imported)
-  // 3) studentId for progress join
-  // then moduleIds/search params
-  // then limit, offset
-  const sqlParams = [
-    studentId,
-    studentId,
-    studentId,
-    ...paramsForWhere,
-    safeLimit,
-    offset,
-  ];
 
-  // Optional debug
-  // console.log("listLibrariesByBulkModules SQL:", sql);
-  // console.log("listLibrariesByBulkModules params:", sqlParams);
+  // Parameters must match the '?' positions in SQL:
+  // 1st param = studentId (for subscribed check)
+  // 2nd param = studentId (for the progress JOIN)
+  // then moduleIds and optional search
+  // then limit, offset
+  const sqlParams = [studentId, studentId, ...paramsForWhere, limit, offset];
+
+  // Debug log: to inspect final SQL and params
+  console.log("listLibrariesByBulkModules: SQL:", sql);
+  console.log("listLibrariesByBulkModules: params:", sqlParams);
 
   const [rows] = await client.execute(sql, sqlParams);
 
-  // Count query (same filters as main query, but no student-specific stuff)
+  // Count query
   const countSql = `
-    SELECT COUNT(DISTINCT fl.library_id) AS total
+    SELECT COUNT(*) AS total
     FROM flashcard_libraries fl
-    LEFT JOIN topics t 
-      ON t.topic_id = fl.topic_id
-    LEFT JOIN units u
-      ON u.unit_id = t.unit_id
-    LEFT JOIN modules m
-      ON m.module_id = u.module_id
-    WHERE ${whereSql};
+    WHERE ${whereClauses.join(" AND ")};
   `;
   const [countRows] = await client.execute(countSql, paramsForWhere);
   const total = countRows?.[0]?.total ?? 0;
 
   const data = rows.map((r) => {
-    const totalCards = Number(r.total_cards) || 0;
-    const studiedCount = Number(r.studied_count) || 0;
-
+    const tc = Number(r.total_cards) || 0;
+    const sc = Number(r.studied_count) || 0;
     return {
       library_id: r.library_id,
       name: r.library_name,
@@ -233,13 +201,12 @@ async function listLibrariesByBulkModules({
       difficulty: r.difficulty_level,
       estimated_time: r.estimated_time,
       created_at: r.created_at,
-      total_cards: totalCards,
-      studied_count: studiedCount,
+      total_cards: tc,
+      studied_count: sc,
       correct_count: Number(r.correct_count) || 0,
       time_spent: Number(r.time_spent) || 0,
       progress_status: r.progress_status,
-      progress_percent:
-        totalCards > 0 ? Math.round((studiedCount / totalCards) * 100) : 0,
+      progress_percent: tc > 0 ? Math.round((sc / tc) * 100) : 0,
       free: Number(r.free) || 0,
       subscribed: Number(r.subscribed) || 0,
     };
@@ -247,10 +214,10 @@ async function listLibrariesByBulkModules({
 
   return {
     data,
-    page: safePage,
-    limit: safeLimit,
+    page,
+    limit,
     total,
-    totalPages: Math.ceil(total / safeLimit),
+    totalPages: Math.ceil(total / limit),
   };
 }
 
@@ -289,7 +256,6 @@ async function getLibraryWithCards({ libraryId, studentId }) {
 
   return {
     library: {
-      ...lib,
       library_id: lib.library_id,
       name: lib.library_name,
       desc: lib.description,

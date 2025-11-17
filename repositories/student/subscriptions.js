@@ -56,6 +56,7 @@ const resourceIdFromSource = (type, source) => {
       book: ["book", "books"],
       topic: ["topic", "topics"],
       exam: ["exam", "exams"],
+      module: ["module", "modules"],
     };
     const keys = keyMap[type] || [];
     for (const key of keys) {
@@ -120,6 +121,40 @@ const insertStudentSubscription = async ({
   };
 };
 
+const getModuleResources = async ({ moduleId }) => {
+  // Get all topics for the module
+  const [topics] = await client.execute(
+    `SELECT DISTINCT t.topic_id
+     FROM topics t
+     INNER JOIN units u ON u.unit_id = t.unit_id
+     WHERE u.module_id = ? AND t.status = 'active' AND u.status = 'active'`,
+    [moduleId]
+  );
+
+  // Get all exams for the module
+  const [exams] = await client.execute(
+    `SELECT DISTINCT e.exam_id
+     FROM exams e
+     WHERE e.subject_id = ? AND e.status IN ('published', 'scheduled')`,
+    [moduleId]
+  );
+
+  // Get all books for the module
+  const [books] = await client.execute(
+    `SELECT DISTINCT e.ebook_id
+     FROM ebooks e
+     INNER JOIN units u ON u.unit_id = e.subject_id
+     WHERE u.module_id = ? AND e.is_deleted = 0 AND e.status = 'active'`,
+    [moduleId]
+  );
+
+  return {
+    topics: topics.map((t) => t.topic_id),
+    exams: exams.map((e) => e.exam_id),
+    books: books.map((b) => b.ebook_id),
+  };
+};
+
 const redeemCardForStudent = async ({ studentId, code }) => {
   const card = await findActiveCardByCode({ code });
   if (!card) {
@@ -134,30 +169,69 @@ const redeemCardForStudent = async ({ studentId, code }) => {
     return { card, subscriptions: [], error: "card-expired" };
   }
 
-  const resourceIds = resourceIdFromSource(card.type, card.source);
-  if (!resourceIds.length) {
-    return { card, subscriptions: [], error: "no-resources" };
-  }
-
   const createdSubscriptions = [];
-  for (const resourceId of resourceIds) {
-    const existing = await existingActiveSubscription({ studentId, resourceId });
-    if (existing) {
-      createdSubscriptions.push({
-        subscription_id: existing.subscription_id,
-        resource_id: resourceId,
-        status: "already_active",
-      });
-      continue;
+
+  // Handle module type - get all resources linked to the module
+  if (card.type === "module") {
+    const moduleIds = resourceIdFromSource(card.type, card.source);
+    if (!moduleIds.length) {
+      return { card, subscriptions: [], error: "no-resources" };
     }
 
-    const inserted = await insertStudentSubscription({
-      studentId,
-      resourceId,
-      cardId: card.card_id,
-      endDate: card.end_date,
-    });
-    createdSubscriptions.push({ ...inserted, status: "created" });
+    for (const moduleId of moduleIds) {
+      const resources = await getModuleResources({ moduleId });
+      const allResourceIds = [
+        ...resources.topics,
+        ...resources.exams,
+        ...resources.books,
+      ];
+
+      for (const resourceId of allResourceIds) {
+        const existing = await existingActiveSubscription({ studentId, resourceId });
+        if (existing) {
+          createdSubscriptions.push({
+            subscription_id: existing.subscription_id,
+            resource_id: resourceId,
+            status: "already_active",
+          });
+          continue;
+        }
+
+        const inserted = await insertStudentSubscription({
+          studentId,
+          resourceId,
+          cardId: card.card_id,
+          endDate: card.end_date,
+        });
+        createdSubscriptions.push({ ...inserted, status: "created" });
+      }
+    }
+  } else {
+    // Handle book, topic, exam types (existing logic)
+    const resourceIds = resourceIdFromSource(card.type, card.source);
+    if (!resourceIds.length) {
+      return { card, subscriptions: [], error: "no-resources" };
+    }
+
+    for (const resourceId of resourceIds) {
+      const existing = await existingActiveSubscription({ studentId, resourceId });
+      if (existing) {
+        createdSubscriptions.push({
+          subscription_id: existing.subscription_id,
+          resource_id: resourceId,
+          status: "already_active",
+        });
+        continue;
+      }
+
+      const inserted = await insertStudentSubscription({
+        studentId,
+        resourceId,
+        cardId: card.card_id,
+        endDate: card.end_date,
+      });
+      createdSubscriptions.push({ ...inserted, status: "created" });
+    }
   }
 
   return { card, subscriptions: createdSubscriptions };

@@ -1,7 +1,7 @@
 const responseBuilder = require("../../../utils/responsebuilder");
 const { createSubscriptionCards } = require("../../../repositories/admin/subscription-cards/create");
 
-const ALLOWED_TYPES = ["book", "topic", "exam"];
+const ALLOWED_TYPES = ["book", "topic", "exam", "module"];
 const ALLOWED_STATUS = ["active", "inactive"];
 const CODE_LENGTH = 14;
 
