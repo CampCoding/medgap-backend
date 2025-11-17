@@ -10,6 +10,7 @@ const ALLOWED_UPDATE_FIELDS = new Set([
   "pages",
   "thumbnail",
   "status",
+  "free",
   "size",
   "type"
 ]);
@@ -28,6 +29,13 @@ function buildUpdateSet(data = {}) {
       params.push(num);
       continue;
     }
+    if (k === "free") {
+      const freeValue =
+        v === true || v === 1 || v === "1" || v === "true" ? 1 : 0;
+      sets.push("free = ?");
+      params.push(freeValue);
+      continue;
+    }
     sets.push(`${k} = ?`);
     params.push(v);
   }
@@ -41,9 +49,9 @@ async function createRepo(data) {
   const date = new Date();
   const insertSql = `
     INSERT INTO ebooks
-      (subject_id, book_title, book_description, author, file, pages, thumbnail, status, is_deleted, created_by, created_at, updated_at, size, type)
+      (subject_id, book_title, book_description, author, file, pages, thumbnail, status, free, is_deleted, created_by, created_at, updated_at, size, type)
     VALUES
-      (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)
+      (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)
   `;
   const [result] = await client.execute(insertSql, [
     data?.subject_id,
@@ -54,6 +62,7 @@ async function createRepo(data) {
     parseInt(data?.pages),
     data?.thumbnail,
     data?.status || "active",
+    data?.free ? 1 : 0,
     0,
     date,
     data?.size,

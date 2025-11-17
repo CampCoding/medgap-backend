@@ -123,6 +123,10 @@ const adminAuth = require("./routes/admin-copy/admins/auth/index");
 app.use("/api/admin/auth", adminAuth);
 const adminSubscriptionCards = require("./routes/admin-copy/admins/subscription-cards");
 app.use("/api/admin/subscription-cards", adminSubscriptionCards);
+const adminExamsRoute = require("./routes/admin/exams");
+app.use("/api/admin/exams", adminExamsRoute);
+const adminFreeAccess = require("./routes/admin/free-access");
+app.use("/api/admin/free-access", adminFreeAccess);
 
 const teachers = require("./routes/teacher/index");
 app.use("/api/admin/teachers", teachers);
@@ -150,6 +154,8 @@ app.use("/api/teacher/auth", teacherAuth);
 
 const teacherModules = require("./routes/teacher-panel/teacher-modules");
 app.use("/api/teacher/my-modules", teacherModules); 
+const teacherFreeAccess = require("./routes/teacher/free-access");
+app.use("/api/teacher/free-access", teacherFreeAccess);
 
 // -------------------- Student Routes ---------------------------
 const studentAuth = require("./routes/student/auth");

@@ -22,12 +22,19 @@ class TopicsController {
         topic_order
       } = req.body;
 
+      const freeFlag =
+        req.body?.free === true ||
+        req.body?.free === 1 ||
+        req.body?.free === "1" ||
+        req.body?.free === "true";
+
       const topicData = {
         topic_name,
         short_description,
         learning_objectives,
         unit_id,
         status: status || "active",
+        free: freeFlag ? 1 : 0,
         tags,
         topic_order,
         teacher_id: req.user?.user?.teacher_id
@@ -173,6 +180,7 @@ class TopicsController {
         "learning_objectives",
         "unit_id",
         "status",
+        "free",
         "tags",
         "topic_order"
       ];
@@ -206,6 +214,16 @@ class TopicsController {
           );
         }
         patch.topic_order = o;
+      }
+
+      if (Object.prototype.hasOwnProperty.call(patch, "free")) {
+        patch.free =
+          patch.free === true ||
+          patch.free === 1 ||
+          patch.free === "1" ||
+          patch.free === "true"
+            ? 1
+            : 0;
       }
 
       // تطبيع الوسوم tags

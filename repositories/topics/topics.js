@@ -11,14 +11,15 @@ class TopicsRepository {
       topic_order,
       status,
       tags,
-      teacher_id
+      teacher_id,
+      free
     } = topicData;
     console.log(topicData);
     const query = `
       INSERT INTO topics (
-        unit_id, topic_name, short_description, learning_objectives, topic_order, status, tags, created_by, teacher_id
+        unit_id, topic_name, short_description, learning_objectives, topic_order, status, free, tags, created_by, teacher_id
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -28,6 +29,7 @@ class TopicsRepository {
       learning_objectives || null,
       topic_order || 1,
       status || "active",
+      free ? 1 : 0,
       tags ? JSON.stringify(tags) : null,
       createdBy,
       teacher_id
@@ -234,6 +236,7 @@ class TopicsRepository {
       learning_objectives: "learning_objectives",
       unit_id: "unit_id",
       status: "status",
+      free: "free",
       tags: "tags",
       topic_order: "topic_order"
     };
@@ -250,6 +253,16 @@ class TopicsRepository {
             setParts.push(`${column} = ?`);
             values.push(JSON.stringify(updates[key]));
           }
+        } else if (key === "free") {
+          const freeValue =
+            updates[key] === true ||
+            updates[key] === 1 ||
+            updates[key] === "1" ||
+            updates[key] === "true"
+              ? 1
+              : 0;
+          setParts.push(`${column} = ?`);
+          values.push(freeValue);
         } else {
           setParts.push(`${column} = ?`);
           values.push(updates[key]);
@@ -302,10 +315,10 @@ class TopicsRepository {
     const oldTopic = await this.getTopicById(id);
     const query = `
     INSERT INTO topics (
-      unit_id, topic_name, short_description, learning_objectives, topic_order, status, tags, created_by
+      unit_id, topic_name, short_description, learning_objectives, topic_order, status, free, tags, created_by
     )
     SELECT 
-      ?, ?, short_description, learning_objectives, topic_order, status, tags, created_by
+      ?, ?, short_description, learning_objectives, topic_order, status, free, tags, created_by
     FROM topics
     WHERE topic_id = ?
   `;
