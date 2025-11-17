@@ -213,6 +213,8 @@ const enrollStudentInModule = async ({ studentId, moduleId }) => {
 };
 
 const getModuleResources = async ({ moduleId }) => {
+  console.log(`[getModuleResources] Fetching resources for module ${moduleId}`);
+  
   // Get all topics for the module
   const [topics] = await client.execute(
     `SELECT DISTINCT t.topic_id
@@ -221,6 +223,7 @@ const getModuleResources = async ({ moduleId }) => {
      WHERE u.module_id = ? AND t.status = 'active' AND u.status = 'active'`,
     [moduleId]
   );
+  console.log(`[getModuleResources] Found ${topics.length} topics:`, topics.map(t => t.topic_id));
 
   // Get all exams for the module
   const [exams] = await client.execute(
@@ -229,6 +232,7 @@ const getModuleResources = async ({ moduleId }) => {
      WHERE e.subject_id = ? AND e.status IN ('published', 'scheduled')`,
     [moduleId]
   );
+  console.log(`[getModuleResources] Found ${exams.length} exams:`, exams.map(e => e.exam_id));
 
   // Get all books for the module
   const [books] = await client.execute(
@@ -238,12 +242,16 @@ const getModuleResources = async ({ moduleId }) => {
      WHERE u.module_id = ? AND e.is_deleted = 0 AND e.status = 'active'`,
     [moduleId]
   );
+  console.log(`[getModuleResources] Found ${books.length} books:`, books.map(b => b.ebook_id));
 
-  return {
+  const result = {
     topics: topics.map((t) => t.topic_id),
     exams: exams.map((e) => e.exam_id),
     books: books.map((b) => b.ebook_id),
   };
+  
+  console.log(`[getModuleResources] Returning resources:`, result);
+  return result;
 };
 
 const redeemCardForStudent = async ({ studentId, code }) => {
@@ -314,32 +322,58 @@ const redeemCardForStudent = async ({ studentId, code }) => {
       enrollments.push({ module_id: moduleId, ...enrollment });
 
       // Get all resources for the module
+      console.log(`[redeemCardForStudent] Getting resources for module ${moduleId}`);
       const resources = await getModuleResources({ moduleId });
+      console.log(`[redeemCardForStudent] Resources found:`, {
+        topics: resources.topics.length,
+        exams: resources.exams.length,
+        books: resources.books.length,
+        topics_list: resources.topics,
+        exams_list: resources.exams,
+        books_list: resources.books
+      });
+      
       const allResourceIds = [
         ...resources.topics,
         ...resources.exams,
         ...resources.books,
       ];
+      
+      console.log(`[redeemCardForStudent] Total resource IDs to process:`, allResourceIds.length);
 
       for (const resourceId of allResourceIds) {
-        const existing = await existingActiveSubscription({ studentId, resourceId });
-        if (existing) {
-          createdSubscriptions.push({
-            subscription_id: existing.subscription_id,
-            resource_id: resourceId,
-            status: "already_active",
-          });
-          continue;
-        }
+        try {
+          const existing = await existingActiveSubscription({ studentId, resourceId });
+          if (existing) {
+            console.log(`[redeemCardForStudent] Resource ${resourceId} already has active subscription`);
+            createdSubscriptions.push({
+              subscription_id: existing.subscription_id,
+              resource_id: resourceId,
+              status: "already_active",
+            });
+            continue;
+          }
 
-        const inserted = await insertStudentSubscription({
-          studentId,
-          resourceId,
-          cardId: card.card_id,
-          endDate: card.end_date,
-        });
-        createdSubscriptions.push({ ...inserted, status: "created" });
+          console.log(`[redeemCardForStudent] Creating subscription for resource ${resourceId}`);
+          const inserted = await insertStudentSubscription({
+            studentId,
+            resourceId,
+            cardId: card.card_id,
+            endDate: card.end_date,
+          });
+          console.log(`[redeemCardForStudent] Subscription created:`, inserted);
+          createdSubscriptions.push({ ...inserted, status: "created" });
+        } catch (error) {
+          console.error(`[redeemCardForStudent] Error creating subscription for resource ${resourceId}:`, error);
+          createdSubscriptions.push({
+            resource_id: resourceId,
+            status: "error",
+            error: error.message,
+          });
+        }
       }
+      
+      console.log(`[redeemCardForStudent] Total subscriptions processed:`, createdSubscriptions.length);
     }
 
     return { card, subscriptions: createdSubscriptions, enrollments };
