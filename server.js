@@ -121,6 +121,8 @@ const adminRoles = require("./routes/admin-copy/admins/roles/index");
 app.use("/api/admin/users/roles/", adminRoles);
 const adminAuth = require("./routes/admin-copy/admins/auth/index");
 app.use("/api/admin/auth", adminAuth);
+const adminSubscriptionCards = require("./routes/admin-copy/admins/subscription-cards");
+app.use("/api/admin/subscription-cards", adminSubscriptionCards);
 
 const teachers = require("./routes/teacher/index");
 app.use("/api/admin/teachers", teachers);
@@ -167,6 +169,8 @@ app.use("/api/student/flashcards", studentFlashcards);
 
 const studentQbank = require("./routes/student/qbank");
 app.use("/api/student/qbank", studentQbank);
+const studentSubscriptions = require("./routes/student/subscriptions");
+app.use("/api/student/subscriptions", studentSubscriptions);
 const studentHomePage = require("./routes/student/home-page");
 app.use("/api/student/home", studentHomePage);
 
