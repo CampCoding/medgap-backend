@@ -121,6 +121,39 @@ const insertStudentSubscription = async ({
   };
 };
 
+const enrollStudentInModule = async ({ studentId, moduleId }) => {
+  // Check if already enrolled
+  const [existing] = await client.execute(
+    `SELECT enrollment_id, status
+     FROM student_enrollments
+     WHERE student_id = ? AND module_id = ?`,
+    [studentId, moduleId]
+  );
+
+  if (existing.length > 0) {
+    // If enrolled but inactive, reactivate it
+    if (existing[0].status !== 'active') {
+      await client.execute(
+        `UPDATE student_enrollments
+         SET status = 'active', enrolled_at = CURDATE()
+         WHERE student_id = ? AND module_id = ?`,
+        [studentId, moduleId]
+      );
+      return { enrolled: true, status: 'reactivated' };
+    }
+    return { enrolled: true, status: 'already_active' };
+  }
+
+  // Create new enrollment
+  await client.execute(
+    `INSERT INTO student_enrollments (student_id, module_id, enrolled_at, status)
+     VALUES (?, ?, CURDATE(), 'active')`,
+    [studentId, moduleId]
+  );
+
+  return { enrolled: true, status: 'created' };
+};
+
 const getModuleResources = async ({ moduleId }) => {
   // Get all topics for the module
   const [topics] = await client.execute(
@@ -178,7 +211,13 @@ const redeemCardForStudent = async ({ studentId, code }) => {
       return { card, subscriptions: [], error: "no-resources" };
     }
 
+    const enrollments = [];
     for (const moduleId of moduleIds) {
+      // Enroll student in the module
+      const enrollment = await enrollStudentInModule({ studentId, moduleId });
+      enrollments.push({ module_id: moduleId, ...enrollment });
+
+      // Get all resources for the module
       const resources = await getModuleResources({ moduleId });
       const allResourceIds = [
         ...resources.topics,
@@ -206,6 +245,8 @@ const redeemCardForStudent = async ({ studentId, code }) => {
         createdSubscriptions.push({ ...inserted, status: "created" });
       }
     }
+
+    return { card, subscriptions: createdSubscriptions, enrollments };
   } else {
     // Handle book, topic, exam types (existing logic)
     const resourceIds = resourceIdFromSource(card.type, card.source);

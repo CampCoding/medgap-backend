@@ -26,7 +26,7 @@ const subscribeUsingCard = async (req, res) => {
       );
     }
 
-    const { card, subscriptions, error } = await redeemCardForStudent({
+    const { card, subscriptions, error, enrollments } = await redeemCardForStudent({
       studentId,
       code,
     });
@@ -50,17 +50,24 @@ const subscribeUsingCard = async (req, res) => {
       );
     }
 
+    const responseData = {
+      card_id: card.card_id,
+      code: card.code,
+      type: card.type,
+      end_date: card.end_date,
+      resources: subscriptions,
+    };
+
+    // Include enrollments if it's a module type card
+    if (card.type === "module" && enrollments) {
+      responseData.enrollments = enrollments;
+    }
+
     return responseBuilder.success(
       res,
       {
         message: "Subscription activated",
-        data: {
-          card_id: card.card_id,
-          code: card.code,
-          type: card.type,
-          end_date: card.end_date,
-          resources: subscriptions,
-        },
+        data: responseData,
       },
       201
     );
