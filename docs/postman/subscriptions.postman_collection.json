@@ -35,7 +35,7 @@
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"code\": \"12345678901234\",\n  \"type\": \"book\",\n  \"end_date\": \"2025-12-31\",\n  \"status\": \"active\",\n  \"source\": { \"books\": [101, 102] },\n  \"number_of_cards\": 1\n}"
+          "raw": "{\n  \"type\": \"book\",\n  \"end_date\": \"2025-12-31\",\n  \"status\": \"active\",\n  \"source\": { \"books\": [101, 102] },\n  \"number_of_cards\": 3\n}"
         },
         "description": "Creates one or more subscription cards. Requires admin token."
       }

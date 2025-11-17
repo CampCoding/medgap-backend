@@ -4,41 +4,20 @@ const { createSubscriptionCards } = require("../../../repositories/admin/subscri
 const ALLOWED_TYPES = ["book", "topic", "exam"];
 const ALLOWED_STATUS = ["active", "inactive"];
 const CODE_LENGTH = 14;
-const AUTO_SUFFIX_LENGTH = 3;
 
-const normalizeCode = (code = "") =>
-  (code ?? "").toString().replace(/\D/g, "");
+const generateRandomCode = () => {
+  const min = 10 ** (CODE_LENGTH - 1);
+  const max = 10 ** CODE_LENGTH - 1;
+  const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+  return String(randomNumber);
+};
 
-const isValidCode = (code) =>
-  typeof code === "string" && code.length === CODE_LENGTH;
-
-const buildCodes = (baseCode, quantity) => {
-  const numericBase = normalizeCode(baseCode);
-  if (!numericBase) {
-    throw new Error("code must contain at least one digit");
+const generateCodes = (quantity) => {
+  const codes = new Set();
+  while (codes.size < quantity) {
+    codes.add(generateRandomCode());
   }
-
-  if (quantity === 1) {
-    if (!isValidCode(numericBase)) {
-      throw new Error(`code must be exactly ${CODE_LENGTH} digits`);
-    }
-    return [numericBase];
-  }
-
-  if (quantity > 999) {
-    throw new Error("Cannot create more than 999 cards per request");
-  }
-
-  const prefixLength = CODE_LENGTH - AUTO_SUFFIX_LENGTH;
-  const prefix =
-    numericBase.length >= prefixLength
-      ? numericBase.slice(0, prefixLength)
-      : numericBase.padEnd(prefixLength, "0");
-
-  return Array.from({ length: quantity }, (_, idx) => {
-    const suffix = String(idx + 1).padStart(AUTO_SUFFIX_LENGTH, "0");
-    return `${prefix}${suffix}`;
-  });
+  return Array.from(codes);
 };
 
 const parseSource = (source) => {
@@ -51,7 +30,6 @@ const parseSource = (source) => {
 const createSubscriptionCardsController = async (req, res) => {
   try {
     const {
-      code,
       type,
       end_date,
       status = "active",
@@ -60,10 +38,10 @@ const createSubscriptionCardsController = async (req, res) => {
       quantity,
     } = req.body || {};
 
-    if (!code || !type || !end_date || source === undefined) {
+    if (!type || !end_date || source === undefined) {
       return responseBuilder.badRequest(
         res,
-        "code, type, end_date, source are required"
+        "type, end_date, source are required"
       );
     }
 
@@ -75,11 +53,17 @@ const createSubscriptionCardsController = async (req, res) => {
       return responseBuilder.badRequest(res, "Invalid status value");
     }
 
-    const cardsCount = Number(
-      Number.isInteger(number_of_cards)
-        ? number_of_cards
-        : number_of_cards ?? quantity ?? 1
-    );
+    const rawCount =
+      number_of_cards !== undefined ? number_of_cards : quantity;
+
+    if (rawCount === undefined) {
+      return responseBuilder.badRequest(
+        res,
+        "number_of_cards (or quantity) is required"
+      );
+    }
+
+    const cardsCount = Number(rawCount);
 
     if (!Number.isInteger(cardsCount) || cardsCount < 1 || cardsCount > 500) {
       return responseBuilder.badRequest(
@@ -106,15 +90,7 @@ const createSubscriptionCardsController = async (req, res) => {
       );
     }
 
-    let codes;
-    try {
-      codes = buildCodes(code, cardsCount);
-    } catch (err) {
-      return responseBuilder.badRequest(
-        res,
-        err?.message || "Invalid card code format"
-      );
-    }
+    const codes = generateCodes(cardsCount);
 
     const createdCards = await createSubscriptionCards({
       codes,
