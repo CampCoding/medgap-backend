@@ -128,8 +128,8 @@ class TopicsRepository {
   }
 
   // موضوع بواسطة ID مع التفاصيل الكاملة
-  async getTopicById(topicId, teacherId) {
-    const query = `
+  async getTopicById(topicId, teacherId = null) {
+    let query = `
       SELECT
         t.*,
         u.unit_name,
@@ -148,12 +148,19 @@ class TopicsRepository {
       LEFT JOIN questions q ON t.topic_id = q.topic_id
       LEFT JOIN flashcards f ON t.topic_id = f.topic_id
       LEFT JOIN digital_library dl ON t.topic_id = dl.topic_id
-      WHERE t.topic_id = ? AND t.teacher_id = '${teacherId}'
-      GROUP BY t.topic_id, u.unit_name, m.subject_name, a1.full_name
+      WHERE t.topic_id = ?
     `;
+    const params = [topicId];
+
+    if (teacherId) {
+      query += ` AND t.teacher_id = ?`;
+      params.push(teacherId);
+    }
+
+    query += ` GROUP BY t.topic_id, u.unit_name, m.subject_name, a1.full_name`;
 
     try {
-      const [result] = await client.execute(query, [topicId]);
+      const [result] = await client.execute(query, params);
       if (result.length === 0) return null;
       const topic = result[0];
       return {

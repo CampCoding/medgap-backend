@@ -1,0 +1,200 @@
+{
+  "info": {
+    "name": "Medgap Free Access & Exams",
+    "_postman_id": "f0f00000-0000-4000-8000-000000000002",
+    "description": "Admin & teacher endpoints for listing exams and toggling free status.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Admin - List All Exams",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/admin/exams?free=1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "exams"
+          ],
+          "query": [
+            {
+              "key": "free",
+              "value": "1"
+            }
+          ]
+        },
+        "description": "Lists all exams for admins with optional filters."
+      }
+    },
+    {
+      "name": "Admin - Set Book Free",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/admin/free-access/books/1/free",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "free-access",
+            "books",
+            "1",
+            "free"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"free\": true\n}"
+        },
+        "description": "Toggle a book's free flag (admin only)."
+      }
+    },
+    {
+      "name": "Admin - Set Topic Free",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/admin/free-access/topics/1/free",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "free-access",
+            "topics",
+            "1",
+            "free"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"free\": false\n}"
+        },
+        "description": "Toggle a topic's free flag (admin only)."
+      }
+    },
+    {
+      "name": "Admin - Set Exam Free",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/admin/free-access/exams/1/free",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "free-access",
+            "exams",
+            "1",
+            "free"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"free\": true\n}"
+        },
+        "description": "Toggle an exam's free flag (admin only)."
+      }
+    },
+    {
+      "name": "Teacher - Set Exam Free",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{teacher_token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/teacher/free-access/exams/1/free",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "teacher",
+            "free-access",
+            "exams",
+            "1",
+            "free"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"free\": false\n}"
+        },
+        "description": "Teacher toggles their own exam free flag."
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3120"
+    },
+    {
+      "key": "admin_token",
+      "value": "REPLACE_WITH_ADMIN_JWT"
+    },
+    {
+      "key": "teacher_token",
+      "value": "REPLACE_WITH_TEACHER_JWT"
+    }
+  ]
+}
+
