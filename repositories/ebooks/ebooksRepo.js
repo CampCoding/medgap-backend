@@ -138,7 +138,7 @@ async function updateRepo(id, data = {}) {
     if (optionsToUpdate.length > 0) {
       const updateIndexSql = `
         UPDATE ebook_indeces
-        SET index_title = ?, page_number = ?, order_index = ?, updated_at = NOW()
+        SET index_title = ?, page_number = ?, order_index = ?
         WHERE ebook_index_id = ?
       `;
       for (const idx of optionsToUpdate) {
