@@ -2491,6 +2491,17 @@ async function getTopicsBySubject({ moduleId, studentId }) {
       t.short_description,
       u.unit_id, 
       u.unit_name,
+      COALESCE(t.free, 0) AS free,
+      ${studentId ? `CASE 
+        WHEN EXISTS (
+          SELECT 1 FROM student_subscription ss
+          WHERE ss.student_id = ? 
+            AND ss.resource_id = t.topic_id
+            AND ss.status = 'active'
+            AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
+        ) THEN 1 
+        ELSE 0 
+      END AS subscribed` : '0 AS subscribed'},
 
       COALESCE(q_cnt.questions,0)                AS questions_count,
       COALESCE(f_cnt.flashcards,0)               AS flashcards_count,
@@ -2623,7 +2634,7 @@ async function getTopicsBySubject({ moduleId, studentId }) {
     ORDER BY t.topic_id ASC;
   `;
 
-  const params = studentId ? [studentId, studentId, studentId, studentId] : [];
+  const params = studentId ? [studentId, studentId, studentId, studentId, studentId] : [];
 
   const [rows] = await client.execute(sql, params);
 

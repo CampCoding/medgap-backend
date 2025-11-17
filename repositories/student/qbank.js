@@ -1728,6 +1728,17 @@ const getUpcomingExams = async ({
             m.subject_name as subject_name,
             COUNT(eq.question_id) as questions,
             CASE WHEN er.student_id IS NULL THEN 0 ELSE 1 END AS is_registered,
+            COALESCE(e.free, 0) AS free,
+            CASE 
+              WHEN EXISTS (
+                SELECT 1 FROM student_subscription ss
+                WHERE ss.student_id = ? 
+                  AND ss.resource_id = e.exam_id
+                  AND ss.status = 'active'
+                  AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
+              ) THEN 1 
+              ELSE 0 
+            END AS subscribed,
             e.created_at
         FROM exams e
         LEFT JOIN modules m ON e.subject_id = m.module_id
@@ -1744,7 +1755,7 @@ const getUpcomingExams = async ({
         )
     `;
 
-  let params = [studentId, studentId];
+  let params = [studentId, studentId, studentId];
 
   if (search) {
     sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;
@@ -1808,6 +1819,17 @@ const getOnDemandExams = async ({
             e.instructions,
             m.subject_name as subject_name,
             COUNT(eq.question_id) as questions,
+            COALESCE(e.free, 0) AS free,
+            CASE 
+              WHEN EXISTS (
+                SELECT 1 FROM student_subscription ss
+                WHERE ss.student_id = ? 
+                  AND ss.resource_id = e.exam_id
+                  AND ss.status = 'active'
+                  AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
+              ) THEN 1 
+              ELSE 0 
+            END AS subscribed,
             e.created_at
         FROM exams e
         LEFT JOIN modules m ON e.subject_id = m.module_id
@@ -1822,7 +1844,7 @@ AND (e.start_date IS NOT NULL AND e.start_date <= NOW())
         )
     `;
 
-  let params = [studentId];
+  let params = [studentId, studentId];
 
   if (search) {
     sql += ` AND (e.title LIKE ? OR e.instructions LIKE ?)`;

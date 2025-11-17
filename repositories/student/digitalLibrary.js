@@ -70,7 +70,17 @@ async function listBooksByModule({
         )
       ) AS indeces,
       CONCAT('', e.thumbnail) AS thumbnail_url,
-      CONCAT('', e.file) AS file_url
+      CONCAT('', e.file) AS file_url,
+      CASE WHEN e.free = 1 THEN 1 ELSE 0 END AS free_flag,
+      CASE 
+        WHEN EXISTS (
+          SELECT 1 FROM student_subscription ss
+          WHERE ss.student_id = ?
+            AND ss.resource_id = e.ebook_id
+            AND ss.status = 'active'
+            AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
+        ) THEN 1 ELSE 0
+      END AS subscribed
     FROM ebooks e
     INNER JOIN units u ON u.unit_id = e.subject_id
     INNER JOIN modules m ON m.module_id = u.module_id
@@ -90,7 +100,8 @@ async function listBooksByModule({
     WHERE ${where.join(" AND ")}
   `;
 
-  const [rows] = await client.execute(listSql, [...params, limit, offset]);
+  const listParams = [studentId, ...params, limit, offset];
+  const [rows] = await client.execute(listSql, listParams);
   const [countRows] = await client.execute(countSql, params);
   const total = countRows?.[0]?.total || 0;
   
@@ -109,7 +120,11 @@ async function listBooksByModule({
       file: r.file_url || r.file,
       thumbnail: r.thumbnail_url || r.thumbnail,
       ann_value: r.ann_value,
-      indeces: r.indeces && r.indeces !== 'null' ? JSON.parse(r.indeces) : []
+      indeces: r.indeces && r.indeces !== 'null' ? JSON.parse(r.indeces) : [],
+      free: Number(
+        r.free_flag !== undefined ? r.free_flag : r.free || 0
+      ),
+      subscribed: Number(r.subscribed_flag || 0)
     })),
     page,
     limit,
@@ -162,7 +177,17 @@ async function listBooksByModuleByBulk({
         )
       ) AS indeces,
       CONCAT('', e.thumbnail) AS thumbnail_url,
-      CONCAT('', e.file) AS file_url
+      CONCAT('', e.file) AS file_url,
+      CASE WHEN e.free = 1 THEN 1 ELSE 0 END AS free_flag,
+      CASE 
+        WHEN EXISTS (
+          SELECT 1 FROM student_subscription ss
+          WHERE ss.student_id = ?
+            AND ss.resource_id = e.ebook_id
+            AND ss.status = 'active'
+            AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
+        ) THEN 1 ELSE 0
+      END AS subscribed_flag
     FROM ebooks e
     INNER JOIN units u ON u.unit_id = e.subject_id
     INNER JOIN modules m ON m.module_id = u.module_id
@@ -182,7 +207,8 @@ async function listBooksByModuleByBulk({
     WHERE ${where.join(" AND ")}
   `;
 
-  const [rows] = await client.execute(listSql, [...params, limit, offset]);
+  const listParams = [studentId, ...params, limit, offset];
+  const [rows] = await client.execute(listSql, listParams);
   const [countRows] = await client.execute(countSql, params);
   const total = countRows?.[0]?.total || 0;
   
@@ -201,7 +227,11 @@ async function listBooksByModuleByBulk({
       file: r.file_url || r.file,
       thumbnail: r.thumbnail_url || r.thumbnail,
       ann_value: r.ann_value,
-      indeces: r.indeces && r.indeces !== 'null' ? JSON.parse(r.indeces) : []
+      indeces: r.indeces && r.indeces !== 'null' ? JSON.parse(r.indeces) : [],
+      free: Number(
+        r.free_flag !== undefined ? r.free_flag : r.free || 0
+      ),
+      subscribed: Number(r.subscribed_flag || 0)
     })),
     page,
     limit,
