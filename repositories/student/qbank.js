@@ -1715,6 +1715,7 @@ const getUpcomingExams = async ({
 
   let sql = `
         SELECT 
+        e.*,
             e.exam_id as id,
             e.title as name,
             e.scheduled_date,
@@ -1795,6 +1796,7 @@ const getOnDemandExams = async ({
 
   let sql = `
         SELECT 
+        e.*,
             e.exam_id as id,
             e.title as name,
             e.scheduled_date,
@@ -1872,6 +1874,7 @@ const getExamResults = async ({
 
   let sql = `
         SELECT 
+        e.*,
             e.exam_id as id,
             e.title as name,
             e.difficulty,
