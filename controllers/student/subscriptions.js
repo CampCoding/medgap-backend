@@ -1,6 +1,11 @@
 const responseBuilder = require("../../utils/responsebuilder");
 const { redeemCardForStudent } = require("../../repositories/student/subscriptions");
 
+const CODE_LENGTH = 14;
+
+const isValidCode = (code = "") =>
+  /^\d+$/.test(code) && code.length === CODE_LENGTH;
+
 const subscribeUsingCard = async (req, res) => {
   try {
     const { code } = req.body || {};
@@ -12,6 +17,13 @@ const subscribeUsingCard = async (req, res) => {
 
     if (!code) {
       return responseBuilder.badRequest(res, "code is required");
+    }
+
+    if (!isValidCode(String(code).trim())) {
+      return responseBuilder.badRequest(
+        res,
+        `code must be exactly ${CODE_LENGTH} digits`
+      );
     }
 
     const { card, subscriptions, error } = await redeemCardForStudent({

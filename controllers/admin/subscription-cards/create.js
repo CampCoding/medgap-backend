@@ -3,17 +3,41 @@ const { createSubscriptionCards } = require("../../../repositories/admin/subscri
 
 const ALLOWED_TYPES = ["book", "topic", "exam"];
 const ALLOWED_STATUS = ["active", "inactive"];
+const CODE_LENGTH = 14;
+const AUTO_SUFFIX_LENGTH = 3;
 
-const normalizeCode = (code) => {
-  return code.trim().replace(/\s+/g, "-").toUpperCase();
-};
+const normalizeCode = (code = "") =>
+  (code ?? "").toString().replace(/\D/g, "");
+
+const isValidCode = (code) =>
+  typeof code === "string" && code.length === CODE_LENGTH;
 
 const buildCodes = (baseCode, quantity) => {
-  if (quantity === 1) return [baseCode];
+  const numericBase = normalizeCode(baseCode);
+  if (!numericBase) {
+    throw new Error("code must contain at least one digit");
+  }
+
+  if (quantity === 1) {
+    if (!isValidCode(numericBase)) {
+      throw new Error(`code must be exactly ${CODE_LENGTH} digits`);
+    }
+    return [numericBase];
+  }
+
+  if (quantity > 999) {
+    throw new Error("Cannot create more than 999 cards per request");
+  }
+
+  const prefixLength = CODE_LENGTH - AUTO_SUFFIX_LENGTH;
+  const prefix =
+    numericBase.length >= prefixLength
+      ? numericBase.slice(0, prefixLength)
+      : numericBase.padEnd(prefixLength, "0");
 
   return Array.from({ length: quantity }, (_, idx) => {
-    const suffix = String(idx + 1).padStart(3, "0");
-    return `${baseCode}-${suffix}`;
+    const suffix = String(idx + 1).padStart(AUTO_SUFFIX_LENGTH, "0");
+    return `${prefix}${suffix}`;
   });
 };
 
@@ -82,8 +106,15 @@ const createSubscriptionCardsController = async (req, res) => {
       );
     }
 
-    const normalizedCode = normalizeCode(code);
-    const codes = buildCodes(normalizedCode, cardsCount);
+    let codes;
+    try {
+      codes = buildCodes(code, cardsCount);
+    } catch (err) {
+      return responseBuilder.badRequest(
+        res,
+        err?.message || "Invalid card code format"
+      );
+    }
 
     const createdCards = await createSubscriptionCards({
       codes,

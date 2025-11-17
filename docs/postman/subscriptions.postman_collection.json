@@ -1,0 +1,124 @@
+{
+  "info": {
+    "name": "Medgap Subscriptions",
+    "_postman_id": "f0f00000-0000-4000-8000-000000000001",
+    "description": "Collection covering admin subscription card management and student subscription redemption.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Admin - Create Subscription Cards",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/admin/subscription-cards/create",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "subscription-cards",
+            "create"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"12345678901234\",\n  \"type\": \"book\",\n  \"end_date\": \"2025-12-31\",\n  \"status\": \"active\",\n  \"source\": { \"books\": [101, 102] },\n  \"number_of_cards\": 1\n}"
+        },
+        "description": "Creates one or more subscription cards. Requires admin token."
+      }
+    },
+    {
+      "name": "Admin - List Subscription Cards",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/admin/subscription-cards?status=active",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "subscription-cards"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "active"
+            }
+          ]
+        },
+        "description": "Lists subscription cards, with optional filters (status, type, resource_id). Requires admin token."
+      }
+    },
+    {
+      "name": "Student - Redeem Subscription Card",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{student_token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/student/subscriptions/redeem",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "student",
+            "subscriptions",
+            "redeem"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"12345678901234\"\n}"
+        },
+        "description": "Redeems a subscription card for the authenticated student. Only the card code is required."
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3120"
+    },
+    {
+      "key": "admin_token",
+      "value": "REPLACE_WITH_ADMIN_JWT"
+    },
+    {
+      "key": "student_token",
+      "value": "REPLACE_WITH_STUDENT_JWT"
+    }
+  ]
+}
+

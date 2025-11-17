@@ -3,6 +3,8 @@ const { client } = require("../../config/db-connect");
 const CARD_TABLE = "subscription_cards";
 const STUDENT_TABLE = "student_subscription";
 
+const CODE_LENGTH = 14;
+
 const parseJSON = (value) => {
   if (value === null || value === undefined) return null;
   if (typeof value === "object") return value;
@@ -13,10 +15,19 @@ const parseJSON = (value) => {
   }
 };
 
-const normalizeCode = (code = "") => code.trim().replace(/\s+/g, "-").toUpperCase();
+const normalizeCode = (code = "") =>
+  (code ?? "").toString().replace(/\D/g, "");
+
+const formatCode = (code = "") => {
+  const digits = normalizeCode(code);
+  if (digits.length !== CODE_LENGTH) return null;
+  return digits;
+};
 
 const findActiveCardByCode = async ({ code }) => {
-  const normalizedCode = normalizeCode(code);
+  const normalizedCode = formatCode(code);
+  if (!normalizedCode) return null;
+
   const [rows] = await client.execute(
     `SELECT *
      FROM ${CARD_TABLE}
