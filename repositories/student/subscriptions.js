@@ -46,40 +46,74 @@ const findActiveCardByCode = async ({ code }) => {
 };
 
 const resourceIdFromSource = (type, source) => {
-  if (source === null || source === undefined) return [];
-  if (Array.isArray(source)) {
-    return source.map((item) => Number(item)).filter((id) => Number.isFinite(id));
+  if (source === null || source === undefined) {
+    console.log(`[resourceIdFromSource] Source is null/undefined for type: ${type}`);
+    return [];
   }
 
+  // Handle array directly
+  if (Array.isArray(source)) {
+    const ids = source.map((item) => Number(item)).filter((id) => Number.isFinite(id));
+    console.log(`[resourceIdFromSource] Array source for type ${type}:`, ids);
+    return ids;
+  }
+
+  // Handle object
   if (typeof source === "object") {
     const keyMap = {
-      book: ["book", "books"],
+      book: ["book", "books", "ebook", "ebooks"],
       topic: ["topic", "topics"],
       exam: ["exam", "exams"],
       module: ["module", "modules"],
     };
     const keys = keyMap[type] || [];
+    
+    console.log(`[resourceIdFromSource] Object source for type ${type}:`, JSON.stringify(source));
+    console.log(`[resourceIdFromSource] Looking for keys:`, keys);
+    
     for (const key of keys) {
       const value = source[key];
-      if (Array.isArray(value)) {
-        return value.map((item) => Number(item)).filter((id) => Number.isFinite(id));
-      }
-      if (Number.isFinite(Number(value))) {
-        return [Number(value)];
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          const ids = value.map((item) => Number(item)).filter((id) => Number.isFinite(id));
+          console.log(`[resourceIdFromSource] Found array in key "${key}":`, ids);
+          if (ids.length > 0) return ids;
+        }
+        if (Number.isFinite(Number(value))) {
+          const id = Number(value);
+          console.log(`[resourceIdFromSource] Found number in key "${key}":`, id);
+          return [id];
+        }
       }
     }
 
+    // Fallback: check for "ids" key
     if (Array.isArray(source.ids)) {
-      return source.ids
+      const ids = source.ids
         .map((item) => Number(item))
         .filter((id) => Number.isFinite(id));
+      console.log(`[resourceIdFromSource] Found ids array:`, ids);
+      if (ids.length > 0) return ids;
+    }
+
+    // Fallback: check all numeric values in the object
+    const numericValues = Object.values(source)
+      .map((item) => Number(item))
+      .filter((id) => Number.isFinite(id) && id > 0);
+    if (numericValues.length > 0) {
+      console.log(`[resourceIdFromSource] Found numeric values in object:`, numericValues);
+      return numericValues;
     }
   }
 
+  // Handle direct number/string
   if (Number.isFinite(Number(source))) {
-    return [Number(source)];
+    const id = Number(source);
+    console.log(`[resourceIdFromSource] Direct number:`, id);
+    return [id];
   }
 
+  console.log(`[resourceIdFromSource] No valid IDs found for type ${type}, source:`, JSON.stringify(source));
   return [];
 };
 
@@ -206,8 +240,15 @@ const redeemCardForStudent = async ({ studentId, code }) => {
 
   // Handle module type - get all resources linked to the module
   if (card.type === "module") {
+    console.log(`[redeemCardForStudent] Module card found. Card:`, JSON.stringify(card, null, 2));
+    console.log(`[redeemCardForStudent] Source type:`, typeof card.source);
+    console.log(`[redeemCardForStudent] Source value:`, card.source);
+    
     const moduleIds = resourceIdFromSource(card.type, card.source);
+    console.log(`[redeemCardForStudent] Extracted module IDs:`, moduleIds);
+    
     if (!moduleIds.length) {
+      console.log(`[redeemCardForStudent] No module IDs found. Source was:`, JSON.stringify(card.source));
       return { card, subscriptions: [], error: "no-resources" };
     }
 
