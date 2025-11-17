@@ -1854,7 +1854,7 @@ async function getTodayOverview({ studentId }) {
       ? Number(qbank.started) || 0
       : isFlashcards
         ? Number(flashcardsDeck.started) || 0
-        : hasExam
+        : hasExam 
           ? Number(exams.started) || 0
           : Number(ebooks.started) || 0;
 
@@ -1992,7 +1992,7 @@ async function getTodayOverview({ studentId }) {
      FROM new_student_plan_sessions s
      WHERE  DATE(s.study_day_date) <= CURDATE()
      ORDER BY s.study_day_date DESC, s.session_id DESC
-     LIMIT 5`,
+    `,
     [studentId, studentId]
   );
 
@@ -2008,6 +2008,7 @@ async function getTodayOverview({ studentId }) {
          WHEN s.exam_id IS NOT NULL THEN 'exams'
          ELSE 'content'
        END AS session_type,
+       
        -- Get started status (same as getPlanSessions)
        COALESCE(
          (SELECT id FROM new_student_plan_content 
@@ -2056,12 +2057,13 @@ async function getTodayOverview({ studentId }) {
      FROM new_student_plan_sessions s
      WHERE  DATE(s.study_day_date) = CURDATE()
      ORDER BY s.study_day_date DESC, s.session_id DESC
-     LIMIT 5`,
+     `,
     [studentId, studentId]
   );
-  const recent_sessions = recentRows.map((r) => r.exam_id || r.flashcarddeck_id || r.ebook_id || r.qbank_id ? ({
+  const recent_sessions = recentRows.map((r, i) => r.exam_id || r.flashcarddeck_id || r.ebook_id || r.qbank_id ? ({
     id: r.session_id,
     date: r.session_date,
+    title: r.exam_id ? "exam#"+i : r.flashcarddeck_id ? "flashcard#"+i : r.ebook_id ? "ebook#"+i : r.qbank_id ? "question_bank#"+i : "content#"+i,
     type: r.exam_id ? "exam" : r.flashcarddeck_id ? "flashcard" : r.ebook_id ? "ebook" : r.qbank_id ? "question_bank" : "content",
     exam_id: r.exam_id,
     index_id: r.index_id,
@@ -2070,15 +2072,15 @@ async function getTodayOverview({ studentId }) {
     study_day_date: r.study_day_date,
     qbank_id: r.qbank_id,
     status: (Number(r.started) || 0) > 0 ? "in_progress" : "pending",
-    questions_attempted: Number(r.questions_attempted) || 0,
-    flashcards_studied: Number(r.flashcards_studied) || 0,
+    progress: r.flashcarddeck_id ? Number(r.flashcards_studied) :  r.qbank_id ? Number(r.questions_attempted) : 0,
     time_spent_minutes: Math.round((Number(r.time_spent) || 0) / 60)
   }) : null).filter(Boolean);
 
 
-  const recent_tasks = recentTasks.map((r) => r.exam_id || r.flashcarddeck_id || r.ebook_id || r.qbank_id ? ({
+  const recent_tasks = recentTasks.map((r, i) => r.exam_id || r.flashcarddeck_id || r.ebook_id || r.qbank_id ? ({
     id: r.session_id,
     date: r.session_date,
+    title: r.exam_id ? "exam#"+i : r.flashcarddeck_id ? "flashcard#"+i : r.ebook_id ? "ebook#"+i : r.qbank_id ? "question_bank#"+i : "content#"+i,
     type: r.exam_id ? "exam" : r.flashcarddeck_id ? "flashcard" : r.ebook_id ? "ebook" : r.qbank_id ? "question_bank" : "content",
     exam_id: r.exam_id,
     index_id: r.index_id,
@@ -2087,8 +2089,7 @@ async function getTodayOverview({ studentId }) {
     study_day_date: r.study_day_date,
     qbank_id: r.qbank_id,
     status: (Number(r.started) || 0) > 0 ? "in_progress" : "pending",
-    questions_attempted: Number(r.questions_attempted) || 0,
-    flashcards_studied: Number(r.flashcards_studied) || 0,
+    progress: r.flashcarddeck_id ? Number(r.flashcards_studied) :  r.qbank_id ? Number(r.questions_attempted) : 0,
     time_spent_minutes: Math.round((Number(r.time_spent) || 0) / 60)
   }) : null).filter(Boolean);
 
@@ -2484,6 +2485,7 @@ async function getTopicsBySubject({ moduleId, studentId }) {
 
   const sql = `
     SELECT 
+    t.*,
       t.topic_id, 
       t.topic_name, 
       t.short_description,
