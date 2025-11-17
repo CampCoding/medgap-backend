@@ -79,6 +79,12 @@ async function listBooksByModule({
             AND ss.resource_id = e.ebook_id
             AND ss.status = 'active'
             AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
+        ) OR EXISTS (
+          SELECT 1 FROM student_enrollments se
+          INNER JOIN student_subscription ss ON ss.resource_id = se.module_id AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
+          WHERE se.student_id = ?
+              AND se.module_id = m.module_id 
+            AND se.status = 'active'
         ) THEN 1 ELSE 0
       END AS subscribed
     FROM ebooks e
@@ -100,7 +106,7 @@ async function listBooksByModule({
     WHERE ${where.join(" AND ")}
   `;
 
-  const listParams = [studentId, ...params, limit, offset];
+  const listParams = [studentId, studentId, ...params, limit, offset];
   const [rows] = await client.execute(listSql, listParams);
   const [countRows] = await client.execute(countSql, params);
   const total = countRows?.[0]?.total || 0;
@@ -186,6 +192,11 @@ async function listBooksByModuleByBulk({
             AND ss.resource_id = e.ebook_id
             AND ss.status = 'active'
             AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
+        ) OR EXISTS (
+          SELECT 1 FROM student_enrollments se
+          WHERE se.student_id = ?
+            AND se.module_id = m.module_id
+            AND se.status = 'active'
         ) THEN 1 ELSE 0
       END AS subscribed_flag
     FROM ebooks e
@@ -207,7 +218,7 @@ async function listBooksByModuleByBulk({
     WHERE ${where.join(" AND ")}
   `;
 
-  const listParams = [studentId, ...params, limit, offset];
+  const listParams = [studentId, studentId, ...params, limit, offset];
   const [rows] = await client.execute(listSql, listParams);
   const [countRows] = await client.execute(countSql, params);
   const total = countRows?.[0]?.total || 0;
