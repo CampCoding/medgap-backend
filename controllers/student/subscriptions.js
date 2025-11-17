@@ -44,9 +44,17 @@ const subscribeUsingCard = async (req, res) => {
     }
 
     if (error === "no-resources") {
+      // Include card details in error for debugging
+      const debugInfo = card ? {
+        card_type: card.type,
+        source_type: typeof card.source,
+        source_value: card.source,
+        source_stringified: JSON.stringify(card.source)
+      } : null;
+      
       return responseBuilder.badRequest(
         res,
-        "Card does not contain any resource IDs to activate"
+        `Card does not contain any resource IDs to activate. Card type: ${card?.type || 'unknown'}, Source: ${JSON.stringify(card?.source || {})}`
       );
     }
 

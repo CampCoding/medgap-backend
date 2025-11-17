@@ -39,9 +39,33 @@ const findActiveCardByCode = async ({ code }) => {
   if (!rows.length) return null;
 
   const card = rows[0];
+  
+  // Enhanced parsing - handle multiple formats
+  let parsedSource = card.source;
+  
+  // If it's a string, try to parse it
+  if (typeof card.source === 'string') {
+    try {
+      parsedSource = JSON.parse(card.source);
+    } catch (e) {
+      // If parsing fails, keep as string
+      parsedSource = card.source;
+    }
+  }
+  
+  // If it's already an object, use it directly
+  if (typeof card.source === 'object' && card.source !== null) {
+    parsedSource = card.source;
+  }
+  
+  console.log(`[findActiveCardByCode] Raw source from DB:`, card.source);
+  console.log(`[findActiveCardByCode] Raw source type:`, typeof card.source);
+  console.log(`[findActiveCardByCode] Parsed source:`, parsedSource);
+  console.log(`[findActiveCardByCode] Parsed source type:`, typeof parsedSource);
+  
   return {
     ...card,
-    source: parseJSON(card.source),
+    source: parsedSource,
   };
 };
 
@@ -240,15 +264,46 @@ const redeemCardForStudent = async ({ studentId, code }) => {
 
   // Handle module type - get all resources linked to the module
   if (card.type === "module") {
-    console.log(`[redeemCardForStudent] Module card found. Card:`, JSON.stringify(card, null, 2));
+    console.log(`[redeemCardForStudent] Module card found. Card type:`, card.type);
     console.log(`[redeemCardForStudent] Source type:`, typeof card.source);
     console.log(`[redeemCardForStudent] Source value:`, card.source);
+    console.log(`[redeemCardForStudent] Source stringified:`, JSON.stringify(card.source));
     
-    const moduleIds = resourceIdFromSource(card.type, card.source);
-    console.log(`[redeemCardForStudent] Extracted module IDs:`, moduleIds);
+    // Try to extract module IDs with enhanced logic
+    let moduleIds = resourceIdFromSource(card.type, card.source);
+    
+    // If no IDs found, try alternative parsing
+    if (!moduleIds.length && card.source) {
+      // Try parsing as string if it's a string
+      if (typeof card.source === 'string') {
+        try {
+          const parsed = JSON.parse(card.source);
+          console.log(`[redeemCardForStudent] Re-parsed source string:`, parsed);
+          moduleIds = resourceIdFromSource(card.type, parsed);
+        } catch (e) {
+          console.log(`[redeemCardForStudent] Failed to re-parse source string:`, e.message);
+        }
+      }
+      
+      // If still no IDs, try extracting from any numeric values
+      if (!moduleIds.length && typeof card.source === 'object' && card.source !== null) {
+        const allValues = Object.values(card.source);
+        const numericValues = allValues
+          .flatMap(v => Array.isArray(v) ? v : [v])
+          .map(v => Number(v))
+          .filter(v => Number.isFinite(v) && v > 0);
+        if (numericValues.length > 0) {
+          console.log(`[redeemCardForStudent] Using fallback numeric extraction:`, numericValues);
+          moduleIds = numericValues;
+        }
+      }
+    }
+    
+    console.log(`[redeemCardForStudent] Final extracted module IDs:`, moduleIds);
     
     if (!moduleIds.length) {
-      console.log(`[redeemCardForStudent] No module IDs found. Source was:`, JSON.stringify(card.source));
+      console.log(`[redeemCardForStudent] ERROR: No module IDs found. Source was:`, JSON.stringify(card.source));
+      console.log(`[redeemCardForStudent] Card full object:`, JSON.stringify(card, null, 2));
       return { card, subscriptions: [], error: "no-resources" };
     }
 
