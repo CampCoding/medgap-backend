@@ -44,14 +44,18 @@ function requireAuth(step) {
           roles: decoded?.user?.roles || []
         };
       } else if (step === "student") {
+        // Handle nested user structure from student tokens
+        const studentId = decoded.student_id || decoded.user?.student_id || decoded.id;
+        const userData = decoded.user || decoded;
+        
         req.user = {
-          id: decoded.student_id,
+          id: studentId,
           type: "student",
-          student_id: decoded.student_id,
-          email: decoded.email,
-          role_id: decoded.role_id,
-          student_name: decoded.student_name,
-          roles: decoded.roles || []
+          student_id: studentId,
+          email: userData.email || decoded.email,
+          role_id: userData.role_id || decoded.role_id,
+          student_name: userData.full_name || userData.student_name || decoded.student_name,
+          roles: userData.roles || decoded.roles || []
         };
       }
 
@@ -91,14 +95,18 @@ function attachUserIfPresent(step) {
           roles: decoded.roles || [],
         };
       } else if (step === "student") {
+        // Handle nested user structure from student tokens
+        const studentId = decoded.student_id || decoded.user?.student_id || decoded.id;
+        const userData = decoded.user || decoded;
+        
         req.user = {
-          id: decoded.student_id,
+          id: studentId,
           type: "student",
-          student_id: decoded.student_id,
-          email: decoded.email,
-          role_id: decoded.role_id,
-          student_name: decoded.student_name,
-          roles: decoded.roles || [],
+          student_id: studentId,
+          email: userData.email || decoded.email,
+          role_id: userData.role_id || decoded.role_id,
+          student_name: userData.full_name || userData.student_name || decoded.student_name,
+          roles: userData.roles || decoded.roles || [],
         };
       }
     } catch (_) {}
