@@ -3,7 +3,7 @@ const {
   listSubscriptionCards,
 } = require("../../../repositories/admin/subscription-cards/create");
 
-const ALLOWED_TYPES = ["book", "topic", "exam"];
+const ALLOWED_TYPES = ["book", "topic", "exam", "module"];
 const ALLOWED_STATUS = ["active", "inactive"];
 
 const listSubscriptionCardsController = async (req, res) => {
