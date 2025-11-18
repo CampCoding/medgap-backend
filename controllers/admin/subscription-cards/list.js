@@ -8,7 +8,13 @@ const ALLOWED_STATUS = ["active", "inactive"];
 
 const listSubscriptionCardsController = async (req, res) => {
   try {
-    const { type, status, resource_id: resourceIdParam } = req.query;
+    const {
+      type,
+      status,
+      resource_id: resourceIdParam,
+      page = 1,
+      limit = 1000,
+    } = req.query;
 
     if (type && !ALLOWED_TYPES.includes(type)) {
       return responseBuilder.badRequest(res, "Invalid subscription type");
@@ -30,10 +36,12 @@ const listSubscriptionCardsController = async (req, res) => {
       resourceId = parsedId;
     }
 
-    const cards = await listSubscriptionCards({
+    const { cards, pagination } = await listSubscriptionCards({
       type,
       status,
       resourceId,
+      page,
+      limit,
     });
 
     return responseBuilder.success(
@@ -41,6 +49,7 @@ const listSubscriptionCardsController = async (req, res) => {
       {
         message: "Subscription cards fetched successfully",
         data: cards,
+        pagination,
       },
       200
     );
