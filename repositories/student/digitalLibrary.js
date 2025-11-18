@@ -190,7 +190,7 @@ async function listBooksByModuleByBulk({
           WHERE ss.student_id = ?
             AND ss.resource_id = e.ebook_id
             AND ss.status = 'active'
-            AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
+            AND (ss.end_date IS NOT NULL AND ss.end_date >= CURDATE())
         ) OR EXISTS (
           SELECT 1 FROM student_enrollments se
           WHERE se.student_id = ?
@@ -238,10 +238,7 @@ async function listBooksByModuleByBulk({
       thumbnail: r.thumbnail_url || r.thumbnail,
       ann_value: r.ann_value,
       indeces: r.indeces && r.indeces !== 'null' ? JSON.parse(r.indeces) : [],
-      free: Number(
-        r.free_flag !== undefined ? r.free_flag : r.free || 0
-      ),
-      subscribed: Number(r.subscribed_flag || 0)
+    
     })),
     page,
     limit,
