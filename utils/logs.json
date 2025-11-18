@@ -1,5 +1,119 @@
 [
   {
+    "timestamp": "2025-11-18T06:53:32.410Z",
+    "level": "info",
+    "message": "Subscription activated",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/redeem",
+    "additional_data": {
+      "card_id": 41,
+      "code": "18978599715777",
+      "type": "book",
+      "end_date": "2025-11-27T22:00:00.000Z",
+      "resources": [
+        {
+          "subscription_id": 34,
+          "resource_id": 49,
+          "status": "already_active"
+        }
+      ]
+    },
+    "error_details": null,
+    "request_response": {
+      "card_id": 41,
+      "code": "18978599715777",
+      "type": "book",
+      "end_date": "2025-11-27T22:00:00.000Z",
+      "resources": [
+        {
+          "subscription_id": 34,
+          "resource_id": 49,
+          "status": "already_active"
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-11-18T06:53:18.647Z",
+    "level": "error",
+    "message": "Failed to subscribe using card",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/redeem",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-18T06:53:13.115Z",
+    "level": "error",
+    "message": "Failed to subscribe using card",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/redeem",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-18T06:42:08.680Z",
+    "level": "info",
+    "message": "Subscription activated",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/redeem",
+    "additional_data": {
+      "card_id": 41,
+      "code": "18978599715777",
+      "type": "book",
+      "end_date": "2025-11-27T22:00:00.000Z",
+      "resources": [
+        {
+          "subscription_id": 34,
+          "resource_id": 49,
+          "status": "already_active"
+        }
+      ]
+    },
+    "error_details": null,
+    "request_response": {
+      "card_id": 41,
+      "code": "18978599715777",
+      "type": "book",
+      "end_date": "2025-11-27T22:00:00.000Z",
+      "resources": [
+        {
+          "subscription_id": 34,
+          "resource_id": 49,
+          "status": "already_active"
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-11-18T06:41:41.565Z",
+    "level": "error",
+    "message": "Failed to subscribe using card",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/redeem",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
+    "timestamp": "2025-11-18T06:40:50.932Z",
+    "level": "error",
+    "message": "Failed to subscribe using card",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/redeem",
+    "additional_data": null,
+    "error_details": null,
+    "request_response": null
+  },
+  {
     "timestamp": "2025-11-17T14:23:43.198Z",
     "level": "warn",
     "message": "Invalid or expired token",
