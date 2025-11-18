@@ -79,6 +79,11 @@ async function listBooksByModule({
             AND ss.resource_id = e.ebook_id
             AND ss.status = 'active'
             AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
+        ) OR EXISTS (
+          SELECT 1 FROM student_enrollments se
+          WHERE se.student_id = ?
+            AND se.module_id = m.module_id
+            AND se.status = 'active'
         ) THEN 1 ELSE 0
       END AS subscribed
     FROM ebooks e
@@ -187,11 +192,10 @@ async function listBooksByModuleByBulk({
             AND ss.status = 'active'
             AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
         ) OR EXISTS (
-          SELECT 1 FROM student_subscription ss_module
-          WHERE ss_module.student_id = ?
-            AND ss_module.resource_id = m.module_id
-            AND ss_module.status = 'active'
-            AND (ss_module.end_date IS NULL OR ss_module.end_date >= CURDATE())
+          SELECT 1 FROM student_enrollments se
+          WHERE se.student_id = ?
+            AND se.module_id = m.module_id
+            AND se.status = 'active'
         ) THEN 1 ELSE 0
       END AS subscribed_flag
     FROM ebooks e

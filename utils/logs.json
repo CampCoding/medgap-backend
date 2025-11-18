@@ -1,5 +1,1116 @@
 [
   {
+    "timestamp": "2025-11-18T07:01:52.489Z",
+    "level": "info",
+    "message": "Module books retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/modules/24/books",
+    "additional_data": {
+      "list": {
+        "data": [
+          {
+            "ebook_id": 79,
+            "subject_id": 20,
+            "book_title": "week5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/bio-1762792817547.pdf",
+            "pages": 17,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792817553.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.54,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 173,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792817553.png",
+            "file_url": "/uploads/ebooks/bio-1762792817547.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week5",
+            "description": "mindmap",
+            "size_bytes": 1.54,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 78,
+            "subject_id": 20,
+            "book_title": "week4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/4-citric_cycle-1762792763799.pdf",
+            "pages": 4,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792763800.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.13,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 172,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792763800.png",
+            "file_url": "/uploads/ebooks/4-citric_cycle-1762792763799.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week4",
+            "description": "mindmap",
+            "size_bytes": 0.13,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 77,
+            "subject_id": 20,
+            "book_title": "week3",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/bio-1762792731019.pdf",
+            "pages": 14,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792731021.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.26,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 171,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792731021.png",
+            "file_url": "/uploads/ebooks/bio-1762792731019.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week3",
+            "description": "mindmap",
+            "size_bytes": 0.26,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 76,
+            "subject_id": 20,
+            "book_title": "week2",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/bio-1762792667573.pdf",
+            "pages": 13,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792667576.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.62,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 170,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792667576.png",
+            "file_url": "/uploads/ebooks/bio-1762792667573.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week2",
+            "description": "mindmap",
+            "size_bytes": 0.62,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 74,
+            "subject_id": 20,
+            "book_title": "week1",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/protein-1762792567093.pdf",
+            "pages": 3,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792567095.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.26,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 169,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792567095.png",
+            "file_url": "/uploads/ebooks/protein-1762792567093.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week1",
+            "description": "mindmap",
+            "size_bytes": 0.26,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          }
+        ],
+        "page": 1,
+        "limit": 1200,
+        "total": 5,
+        "totalPages": 1
+      },
+      "selected_book": null
+    },
+    "error_details": null,
+    "request_response": {
+      "list": {
+        "data": [
+          {
+            "ebook_id": 79,
+            "subject_id": 20,
+            "book_title": "week5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/bio-1762792817547.pdf",
+            "pages": 17,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792817553.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.54,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 173,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792817553.png",
+            "file_url": "/uploads/ebooks/bio-1762792817547.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week5",
+            "description": "mindmap",
+            "size_bytes": 1.54,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 78,
+            "subject_id": 20,
+            "book_title": "week4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/4-citric_cycle-1762792763799.pdf",
+            "pages": 4,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792763800.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.13,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 172,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792763800.png",
+            "file_url": "/uploads/ebooks/4-citric_cycle-1762792763799.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week4",
+            "description": "mindmap",
+            "size_bytes": 0.13,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 77,
+            "subject_id": 20,
+            "book_title": "week3",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/bio-1762792731019.pdf",
+            "pages": 14,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792731021.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.26,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 171,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792731021.png",
+            "file_url": "/uploads/ebooks/bio-1762792731019.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week3",
+            "description": "mindmap",
+            "size_bytes": 0.26,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 76,
+            "subject_id": 20,
+            "book_title": "week2",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/bio-1762792667573.pdf",
+            "pages": 13,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792667576.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.62,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 170,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792667576.png",
+            "file_url": "/uploads/ebooks/bio-1762792667573.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week2",
+            "description": "mindmap",
+            "size_bytes": 0.62,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 74,
+            "subject_id": 20,
+            "book_title": "week1",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/protein-1762792567093.pdf",
+            "pages": 3,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792567095.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.26,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 169,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792567095.png",
+            "file_url": "/uploads/ebooks/protein-1762792567093.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week1",
+            "description": "mindmap",
+            "size_bytes": 0.26,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          }
+        ],
+        "page": 1,
+        "limit": 1200,
+        "total": 5,
+        "totalPages": 1
+      },
+      "selected_book": null
+    }
+  },
+  {
+    "timestamp": "2025-11-18T07:00:12.483Z",
+    "level": "info",
+    "message": "Module books retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/modules/24/books",
+    "additional_data": {
+      "list": {
+        "data": [
+          {
+            "ebook_id": 79,
+            "subject_id": 20,
+            "book_title": "week5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/bio-1762792817547.pdf",
+            "pages": 17,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792817553.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.54,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 173,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792817553.png",
+            "file_url": "/uploads/ebooks/bio-1762792817547.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week5",
+            "description": "mindmap",
+            "size_bytes": 1.54,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 78,
+            "subject_id": 20,
+            "book_title": "week4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/4-citric_cycle-1762792763799.pdf",
+            "pages": 4,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792763800.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.13,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 172,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792763800.png",
+            "file_url": "/uploads/ebooks/4-citric_cycle-1762792763799.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week4",
+            "description": "mindmap",
+            "size_bytes": 0.13,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 77,
+            "subject_id": 20,
+            "book_title": "week3",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/bio-1762792731019.pdf",
+            "pages": 14,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792731021.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.26,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 171,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792731021.png",
+            "file_url": "/uploads/ebooks/bio-1762792731019.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week3",
+            "description": "mindmap",
+            "size_bytes": 0.26,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 76,
+            "subject_id": 20,
+            "book_title": "week2",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/bio-1762792667573.pdf",
+            "pages": 13,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792667576.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.62,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 170,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792667576.png",
+            "file_url": "/uploads/ebooks/bio-1762792667573.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week2",
+            "description": "mindmap",
+            "size_bytes": 0.62,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 74,
+            "subject_id": 20,
+            "book_title": "week1",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/protein-1762792567093.pdf",
+            "pages": 3,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792567095.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.26,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 169,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792567095.png",
+            "file_url": "/uploads/ebooks/protein-1762792567093.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week1",
+            "description": "mindmap",
+            "size_bytes": 0.26,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          }
+        ],
+        "page": 1,
+        "limit": 1200,
+        "total": 5,
+        "totalPages": 1
+      },
+      "selected_book": null
+    },
+    "error_details": null,
+    "request_response": {
+      "list": {
+        "data": [
+          {
+            "ebook_id": 79,
+            "subject_id": 20,
+            "book_title": "week5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/bio-1762792817547.pdf",
+            "pages": 17,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792817553.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.54,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 173,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792817553.png",
+            "file_url": "/uploads/ebooks/bio-1762792817547.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week5",
+            "description": "mindmap",
+            "size_bytes": 1.54,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 78,
+            "subject_id": 20,
+            "book_title": "week4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/4-citric_cycle-1762792763799.pdf",
+            "pages": 4,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792763800.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.13,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 172,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792763800.png",
+            "file_url": "/uploads/ebooks/4-citric_cycle-1762792763799.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week4",
+            "description": "mindmap",
+            "size_bytes": 0.13,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 77,
+            "subject_id": 20,
+            "book_title": "week3",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/bio-1762792731019.pdf",
+            "pages": 14,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792731021.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.26,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 171,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792731021.png",
+            "file_url": "/uploads/ebooks/bio-1762792731019.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week3",
+            "description": "mindmap",
+            "size_bytes": 0.26,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 76,
+            "subject_id": 20,
+            "book_title": "week2",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/bio-1762792667573.pdf",
+            "pages": 13,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792667576.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.62,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 170,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792667576.png",
+            "file_url": "/uploads/ebooks/bio-1762792667573.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week2",
+            "description": "mindmap",
+            "size_bytes": 0.62,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          },
+          {
+            "ebook_id": 74,
+            "subject_id": 20,
+            "book_title": "week1",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/protein-1762792567093.pdf",
+            "pages": 3,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792567095.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 0.26,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 20,
+            "unit_name": "Biochemistry",
+            "module_id": 24,
+            "module_name": "Biochemistry and Physiology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 169,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792567095.png",
+            "file_url": "/uploads/ebooks/protein-1762792567093.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week1",
+            "description": "mindmap",
+            "size_bytes": 0.26,
+            "unit": {
+              "id": 20,
+              "name": "Biochemistry"
+            },
+            "module": {
+              "id": 24,
+              "name": "Biochemistry and Physiology Med 66"
+            }
+          }
+        ],
+        "page": 1,
+        "limit": 1200,
+        "total": 5,
+        "totalPages": 1
+      },
+      "selected_book": null
+    }
+  },
+  {
+    "timestamp": "2025-11-18T06:59:16.933Z",
+    "level": "info",
+    "message": "Module books retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/modules/24/books",
+    "additional_data": {
+      "list": {
+        "data": [],
+        "page": 1,
+        "limit": 1200,
+        "total": 5,
+        "totalPages": 1
+      },
+      "selected_book": null
+    },
+    "error_details": null,
+    "request_response": {
+      "list": {
+        "data": [],
+        "page": 1,
+        "limit": 1200,
+        "total": 5,
+        "totalPages": 1
+      },
+      "selected_book": null
+    }
+  },
+  {
     "timestamp": "2025-11-18T06:53:32.410Z",
     "level": "info",
     "message": "Subscription activated",
