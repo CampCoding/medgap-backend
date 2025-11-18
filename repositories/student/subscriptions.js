@@ -194,6 +194,19 @@ const existingActiveSubscription = async ({ studentId, resourceId }) => {
   return rows[0] || null;
 };
 
+// Check if a card has already been used to create any student subscription
+const isCardAlreadyUsed = async ({ cardId }) => {
+  const [rows] = await client.execute(
+    `SELECT 1
+     FROM ${STUDENT_TABLE}
+     WHERE card_id = ?
+     LIMIT 1`,
+    [cardId]
+  );
+
+  return rows.length > 0;
+};
+
 const insertStudentSubscription = async ({
   studentId,
   resourceId,
@@ -296,6 +309,13 @@ const redeemCardForStudent = async ({ studentId, code }) => {
   const card = await findActiveCardByCode({ code });
   if (!card) {
     return { card: null, subscriptions: [] };
+  }
+
+  // Prevent reusing a card that has already been used for any subscription
+  const cardUsed = await isCardAlreadyUsed({ cardId: card.card_id });
+  if (cardUsed) {
+    console.log(`[redeemCardForStudent] Card ${card.card_id} has already been used`);
+    return { card, subscriptions: [], error: "card-used" };
   }
 
   if (card.status !== "active") {

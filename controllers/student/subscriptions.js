@@ -39,6 +39,10 @@ const subscribeUsingCard = async (req, res) => {
       return responseBuilder.badRequest(res, "Card is inactive");
     }
 
+    if (error === "card-used") {
+      return responseBuilder.badRequest(res, "Card has already been used");
+    }
+
     if (error === "card-expired") {
       return responseBuilder.badRequest(res, "Card has expired");
     }
