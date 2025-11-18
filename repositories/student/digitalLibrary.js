@@ -197,7 +197,7 @@ async function listBooksByModuleByBulk({
             AND se.module_id = m.module_id
             AND se.status = 'active'
         ) THEN 1 ELSE 0
-      END AS subscribed_flag
+      END AS subscribed
     FROM ebooks e
     INNER JOIN units u ON u.unit_id = e.subject_id
     INNER JOIN modules m ON m.module_id = u.module_id
