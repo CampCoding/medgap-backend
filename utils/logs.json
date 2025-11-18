@@ -1,5 +1,4497 @@
 [
   {
+    "timestamp": "2025-11-18T07:24:38.085Z",
+    "level": "info",
+    "message": "Module books retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/modules/23/books",
+    "additional_data": {
+      "list": {
+        "data": [
+          {
+            "ebook_id": 73,
+            "subject_id": 18,
+            "book_title": "week6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "pages": 5,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 6.53,
+            "type": "summary",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 168,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "file_url": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "free_flag": 0,
+            "subscribed": 1,
+            "title": "week6",
+            "description": "mindmap",
+            "size_bytes": 6.53,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 72,
+            "subject_id": 18,
+            "book_title": "Week5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "pages": 7,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 7.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 167,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "file_url": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "Week5",
+            "description": "mindmap",
+            "size_bytes": 7.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 71,
+            "subject_id": 18,
+            "book_title": "Week4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "pages": 24,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 8.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 166,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "file_url": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "Week4",
+            "description": "mindmap",
+            "size_bytes": 8.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 70,
+            "subject_id": 18,
+            "book_title": "Week 2",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.43,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 165,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "file_url": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "Week 2",
+            "description": "mindmap",
+            "size_bytes": 1.43,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 69,
+            "subject_id": 18,
+            "book_title": "week 1",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.64,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 164,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "file_url": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "week 1",
+            "description": "mindmap",
+            "size_bytes": 1.64,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 67,
+            "subject_id": 18,
+            "book_title": "Week 3",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762791612280.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture ",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 1,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 162,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762791612280.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "Week 3",
+            "description": "All lecture ",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 66,
+            "subject_id": 18,
+            "book_title": "Week 4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "pages": 61,
+            "thumbnail": "/uploads/ebooks/4-1762791253915.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture",
+            "size": 6.16,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 161,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/4-1762791253915.jpg",
+            "file_url": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "Week 4",
+            "description": "All lecture",
+            "size_bytes": 6.16,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 65,
+            "subject_id": 18,
+            "book_title": "week 5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "pages": 72,
+            "thumbnail": "/uploads/ebooks/5-1762791114544.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and hsitology",
+            "size": 6.21,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 160,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/5-1762791114544.jpg",
+            "file_url": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "week 5",
+            "description": "Anatomy and hsitology",
+            "size_bytes": 6.21,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 64,
+            "subject_id": 18,
+            "book_title": "Week 6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "pages": 60,
+            "thumbnail": "/uploads/ebooks/6-1762791004726.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and histology",
+            "size": 4.82,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 159,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/6-1762791004726.jpg",
+            "file_url": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "Week 6",
+            "description": "Anatomy and histology",
+            "size_bytes": 4.82,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 49,
+            "subject_id": 18,
+            "book_title": "Week 3 Lecture",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762351310388.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "contains all lecture materials from Week 3",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 7,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 126,
+                "title": "Cardiovascular system",
+                "page": 1,
+                "order": 1
+              },
+              {
+                "index_id": 127,
+                "title": "Respiratory system",
+                "page": 10,
+                "order": 2
+              },
+              {
+                "index_id": 128,
+                "title": "Bio of Dietry",
+                "page": 18,
+                "order": 3
+              },
+              {
+                "index_id": 129,
+                "title": "Transport through the cell membrane",
+                "page": 30,
+                "order": 5
+              },
+              {
+                "index_id": 130,
+                "title": "Glycolysis",
+                "page": 26,
+                "order": 4
+              },
+              {
+                "index_id": 131,
+                "title": "Membrane potential",
+                "page": 7,
+                "order": 6
+              },
+              {
+                "index_id": 132,
+                "title": "Histology lecture",
+                "page": 32,
+                "order": 7
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762351310388.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "free_flag": 0,
+            "subscribed": 1,
+            "title": "Week 3 Lecture",
+            "description": "contains all lecture materials from Week 3",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          }
+        ],
+        "page": 1,
+        "limit": 1200,
+        "total": 10,
+        "totalPages": 1
+      },
+      "selected_book": null
+    },
+    "error_details": null,
+    "request_response": {
+      "list": {
+        "data": [
+          {
+            "ebook_id": 73,
+            "subject_id": 18,
+            "book_title": "week6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "pages": 5,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 6.53,
+            "type": "summary",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 168,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "file_url": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "free_flag": 0,
+            "subscribed": 1,
+            "title": "week6",
+            "description": "mindmap",
+            "size_bytes": 6.53,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 72,
+            "subject_id": 18,
+            "book_title": "Week5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "pages": 7,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 7.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 167,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "file_url": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "Week5",
+            "description": "mindmap",
+            "size_bytes": 7.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 71,
+            "subject_id": 18,
+            "book_title": "Week4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "pages": 24,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 8.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 166,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "file_url": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "Week4",
+            "description": "mindmap",
+            "size_bytes": 8.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 70,
+            "subject_id": 18,
+            "book_title": "Week 2",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.43,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 165,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "file_url": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "Week 2",
+            "description": "mindmap",
+            "size_bytes": 1.43,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 69,
+            "subject_id": 18,
+            "book_title": "week 1",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.64,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 164,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "file_url": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "week 1",
+            "description": "mindmap",
+            "size_bytes": 1.64,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 67,
+            "subject_id": 18,
+            "book_title": "Week 3",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762791612280.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture ",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 1,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 162,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762791612280.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "Week 3",
+            "description": "All lecture ",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 66,
+            "subject_id": 18,
+            "book_title": "Week 4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "pages": 61,
+            "thumbnail": "/uploads/ebooks/4-1762791253915.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture",
+            "size": 6.16,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 161,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/4-1762791253915.jpg",
+            "file_url": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "Week 4",
+            "description": "All lecture",
+            "size_bytes": 6.16,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 65,
+            "subject_id": 18,
+            "book_title": "week 5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "pages": 72,
+            "thumbnail": "/uploads/ebooks/5-1762791114544.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and hsitology",
+            "size": 6.21,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 160,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/5-1762791114544.jpg",
+            "file_url": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "week 5",
+            "description": "Anatomy and hsitology",
+            "size_bytes": 6.21,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 64,
+            "subject_id": 18,
+            "book_title": "Week 6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "pages": 60,
+            "thumbnail": "/uploads/ebooks/6-1762791004726.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and histology",
+            "size": 4.82,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 159,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/6-1762791004726.jpg",
+            "file_url": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "free_flag": 1,
+            "subscribed": 1,
+            "title": "Week 6",
+            "description": "Anatomy and histology",
+            "size_bytes": 4.82,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 49,
+            "subject_id": 18,
+            "book_title": "Week 3 Lecture",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762351310388.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "contains all lecture materials from Week 3",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 7,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 126,
+                "title": "Cardiovascular system",
+                "page": 1,
+                "order": 1
+              },
+              {
+                "index_id": 127,
+                "title": "Respiratory system",
+                "page": 10,
+                "order": 2
+              },
+              {
+                "index_id": 128,
+                "title": "Bio of Dietry",
+                "page": 18,
+                "order": 3
+              },
+              {
+                "index_id": 129,
+                "title": "Transport through the cell membrane",
+                "page": 30,
+                "order": 5
+              },
+              {
+                "index_id": 130,
+                "title": "Glycolysis",
+                "page": 26,
+                "order": 4
+              },
+              {
+                "index_id": 131,
+                "title": "Membrane potential",
+                "page": 7,
+                "order": 6
+              },
+              {
+                "index_id": 132,
+                "title": "Histology lecture",
+                "page": 32,
+                "order": 7
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762351310388.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "free_flag": 0,
+            "subscribed": 1,
+            "title": "Week 3 Lecture",
+            "description": "contains all lecture materials from Week 3",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          }
+        ],
+        "page": 1,
+        "limit": 1200,
+        "total": 10,
+        "totalPages": 1
+      },
+      "selected_book": null
+    }
+  },
+  {
+    "timestamp": "2025-11-18T07:23:41.303Z",
+    "level": "info",
+    "message": "Module books retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/modules/23/books",
+    "additional_data": {
+      "list": {
+        "data": [
+          {
+            "ebook_id": 73,
+            "subject_id": 18,
+            "book_title": "week6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "pages": 5,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 6.53,
+            "type": "summary",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 168,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "file_url": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "free_flag": 0,
+            "subscribed": 0,
+            "title": "week6",
+            "description": "mindmap",
+            "size_bytes": 6.53,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 72,
+            "subject_id": 18,
+            "book_title": "Week5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "pages": 7,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 7.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 167,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "file_url": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week5",
+            "description": "mindmap",
+            "size_bytes": 7.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 71,
+            "subject_id": 18,
+            "book_title": "Week4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "pages": 24,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 8.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 166,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "file_url": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week4",
+            "description": "mindmap",
+            "size_bytes": 8.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 70,
+            "subject_id": 18,
+            "book_title": "Week 2",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.43,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 165,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "file_url": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 2",
+            "description": "mindmap",
+            "size_bytes": 1.43,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 69,
+            "subject_id": 18,
+            "book_title": "week 1",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.64,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 164,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "file_url": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week 1",
+            "description": "mindmap",
+            "size_bytes": 1.64,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 67,
+            "subject_id": 18,
+            "book_title": "Week 3",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762791612280.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture ",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 1,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 162,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762791612280.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 3",
+            "description": "All lecture ",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 66,
+            "subject_id": 18,
+            "book_title": "Week 4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "pages": 61,
+            "thumbnail": "/uploads/ebooks/4-1762791253915.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture",
+            "size": 6.16,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 161,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/4-1762791253915.jpg",
+            "file_url": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 4",
+            "description": "All lecture",
+            "size_bytes": 6.16,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 65,
+            "subject_id": 18,
+            "book_title": "week 5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "pages": 72,
+            "thumbnail": "/uploads/ebooks/5-1762791114544.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and hsitology",
+            "size": 6.21,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 160,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/5-1762791114544.jpg",
+            "file_url": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week 5",
+            "description": "Anatomy and hsitology",
+            "size_bytes": 6.21,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 64,
+            "subject_id": 18,
+            "book_title": "Week 6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "pages": 60,
+            "thumbnail": "/uploads/ebooks/6-1762791004726.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and histology",
+            "size": 4.82,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 159,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/6-1762791004726.jpg",
+            "file_url": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 6",
+            "description": "Anatomy and histology",
+            "size_bytes": 4.82,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 49,
+            "subject_id": 18,
+            "book_title": "Week 3 Lecture",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762351310388.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "contains all lecture materials from Week 3",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 7,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 126,
+                "title": "Cardiovascular system",
+                "page": 1,
+                "order": 1
+              },
+              {
+                "index_id": 127,
+                "title": "Respiratory system",
+                "page": 10,
+                "order": 2
+              },
+              {
+                "index_id": 128,
+                "title": "Bio of Dietry",
+                "page": 18,
+                "order": 3
+              },
+              {
+                "index_id": 129,
+                "title": "Transport through the cell membrane",
+                "page": 30,
+                "order": 5
+              },
+              {
+                "index_id": 130,
+                "title": "Glycolysis",
+                "page": 26,
+                "order": 4
+              },
+              {
+                "index_id": 131,
+                "title": "Membrane potential",
+                "page": 7,
+                "order": 6
+              },
+              {
+                "index_id": 132,
+                "title": "Histology lecture",
+                "page": 32,
+                "order": 7
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762351310388.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "free_flag": 0,
+            "subscribed": 0,
+            "title": "Week 3 Lecture",
+            "description": "contains all lecture materials from Week 3",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          }
+        ],
+        "page": 1,
+        "limit": 1200,
+        "total": 10,
+        "totalPages": 1
+      },
+      "selected_book": null
+    },
+    "error_details": null,
+    "request_response": {
+      "list": {
+        "data": [
+          {
+            "ebook_id": 73,
+            "subject_id": 18,
+            "book_title": "week6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "pages": 5,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 6.53,
+            "type": "summary",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 168,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "file_url": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "free_flag": 0,
+            "subscribed": 0,
+            "title": "week6",
+            "description": "mindmap",
+            "size_bytes": 6.53,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 72,
+            "subject_id": 18,
+            "book_title": "Week5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "pages": 7,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 7.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 167,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "file_url": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week5",
+            "description": "mindmap",
+            "size_bytes": 7.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 71,
+            "subject_id": 18,
+            "book_title": "Week4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "pages": 24,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 8.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 166,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "file_url": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week4",
+            "description": "mindmap",
+            "size_bytes": 8.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 70,
+            "subject_id": 18,
+            "book_title": "Week 2",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.43,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 165,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "file_url": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 2",
+            "description": "mindmap",
+            "size_bytes": 1.43,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 69,
+            "subject_id": 18,
+            "book_title": "week 1",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.64,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 164,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "file_url": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week 1",
+            "description": "mindmap",
+            "size_bytes": 1.64,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 67,
+            "subject_id": 18,
+            "book_title": "Week 3",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762791612280.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture ",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 1,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 162,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762791612280.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 3",
+            "description": "All lecture ",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 66,
+            "subject_id": 18,
+            "book_title": "Week 4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "pages": 61,
+            "thumbnail": "/uploads/ebooks/4-1762791253915.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture",
+            "size": 6.16,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 161,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/4-1762791253915.jpg",
+            "file_url": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 4",
+            "description": "All lecture",
+            "size_bytes": 6.16,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 65,
+            "subject_id": 18,
+            "book_title": "week 5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "pages": 72,
+            "thumbnail": "/uploads/ebooks/5-1762791114544.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and hsitology",
+            "size": 6.21,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 160,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/5-1762791114544.jpg",
+            "file_url": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week 5",
+            "description": "Anatomy and hsitology",
+            "size_bytes": 6.21,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 64,
+            "subject_id": 18,
+            "book_title": "Week 6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "pages": 60,
+            "thumbnail": "/uploads/ebooks/6-1762791004726.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and histology",
+            "size": 4.82,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 159,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/6-1762791004726.jpg",
+            "file_url": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 6",
+            "description": "Anatomy and histology",
+            "size_bytes": 4.82,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 49,
+            "subject_id": 18,
+            "book_title": "Week 3 Lecture",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762351310388.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "contains all lecture materials from Week 3",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 7,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 126,
+                "title": "Cardiovascular system",
+                "page": 1,
+                "order": 1
+              },
+              {
+                "index_id": 127,
+                "title": "Respiratory system",
+                "page": 10,
+                "order": 2
+              },
+              {
+                "index_id": 128,
+                "title": "Bio of Dietry",
+                "page": 18,
+                "order": 3
+              },
+              {
+                "index_id": 129,
+                "title": "Transport through the cell membrane",
+                "page": 30,
+                "order": 5
+              },
+              {
+                "index_id": 130,
+                "title": "Glycolysis",
+                "page": 26,
+                "order": 4
+              },
+              {
+                "index_id": 131,
+                "title": "Membrane potential",
+                "page": 7,
+                "order": 6
+              },
+              {
+                "index_id": 132,
+                "title": "Histology lecture",
+                "page": 32,
+                "order": 7
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762351310388.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "free_flag": 0,
+            "subscribed": 0,
+            "title": "Week 3 Lecture",
+            "description": "contains all lecture materials from Week 3",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          }
+        ],
+        "page": 1,
+        "limit": 1200,
+        "total": 10,
+        "totalPages": 1
+      },
+      "selected_book": null
+    }
+  },
+  {
+    "timestamp": "2025-11-18T07:21:40.931Z",
+    "level": "info",
+    "message": "Module books retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/modules/23/books",
+    "additional_data": {
+      "list": {
+        "data": [
+          {
+            "ebook_id": 73,
+            "subject_id": 18,
+            "book_title": "week6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "pages": 5,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 6.53,
+            "type": "summary",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 168,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "file_url": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "free_flag": 0,
+            "subscribed": 0,
+            "title": "week6",
+            "description": "mindmap",
+            "size_bytes": 6.53,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 72,
+            "subject_id": 18,
+            "book_title": "Week5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "pages": 7,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 7.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 167,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "file_url": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week5",
+            "description": "mindmap",
+            "size_bytes": 7.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 71,
+            "subject_id": 18,
+            "book_title": "Week4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "pages": 24,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 8.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 166,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "file_url": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week4",
+            "description": "mindmap",
+            "size_bytes": 8.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 70,
+            "subject_id": 18,
+            "book_title": "Week 2",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.43,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 165,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "file_url": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 2",
+            "description": "mindmap",
+            "size_bytes": 1.43,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 69,
+            "subject_id": 18,
+            "book_title": "week 1",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.64,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 164,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "file_url": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week 1",
+            "description": "mindmap",
+            "size_bytes": 1.64,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 67,
+            "subject_id": 18,
+            "book_title": "Week 3",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762791612280.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture ",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 1,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 162,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762791612280.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 3",
+            "description": "All lecture ",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 66,
+            "subject_id": 18,
+            "book_title": "Week 4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "pages": 61,
+            "thumbnail": "/uploads/ebooks/4-1762791253915.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture",
+            "size": 6.16,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 161,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/4-1762791253915.jpg",
+            "file_url": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 4",
+            "description": "All lecture",
+            "size_bytes": 6.16,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 65,
+            "subject_id": 18,
+            "book_title": "week 5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "pages": 72,
+            "thumbnail": "/uploads/ebooks/5-1762791114544.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and hsitology",
+            "size": 6.21,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 160,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/5-1762791114544.jpg",
+            "file_url": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week 5",
+            "description": "Anatomy and hsitology",
+            "size_bytes": 6.21,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 64,
+            "subject_id": 18,
+            "book_title": "Week 6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "pages": 60,
+            "thumbnail": "/uploads/ebooks/6-1762791004726.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and histology",
+            "size": 4.82,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 159,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/6-1762791004726.jpg",
+            "file_url": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 6",
+            "description": "Anatomy and histology",
+            "size_bytes": 4.82,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 49,
+            "subject_id": 18,
+            "book_title": "Week 3 Lecture",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762351310388.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "contains all lecture materials from Week 3",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 7,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 126,
+                "title": "Cardiovascular system",
+                "page": 1,
+                "order": 1
+              },
+              {
+                "index_id": 127,
+                "title": "Respiratory system",
+                "page": 10,
+                "order": 2
+              },
+              {
+                "index_id": 128,
+                "title": "Bio of Dietry",
+                "page": 18,
+                "order": 3
+              },
+              {
+                "index_id": 129,
+                "title": "Transport through the cell membrane",
+                "page": 30,
+                "order": 5
+              },
+              {
+                "index_id": 130,
+                "title": "Glycolysis",
+                "page": 26,
+                "order": 4
+              },
+              {
+                "index_id": 131,
+                "title": "Membrane potential",
+                "page": 7,
+                "order": 6
+              },
+              {
+                "index_id": 132,
+                "title": "Histology lecture",
+                "page": 32,
+                "order": 7
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762351310388.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "free_flag": 0,
+            "subscribed": 0,
+            "title": "Week 3 Lecture",
+            "description": "contains all lecture materials from Week 3",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          }
+        ],
+        "page": 1,
+        "limit": 1200,
+        "total": 10,
+        "totalPages": 1
+      },
+      "selected_book": null
+    },
+    "error_details": null,
+    "request_response": {
+      "list": {
+        "data": [
+          {
+            "ebook_id": 73,
+            "subject_id": 18,
+            "book_title": "week6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "pages": 5,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 6.53,
+            "type": "summary",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 168,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "file_url": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "free_flag": 0,
+            "subscribed": 0,
+            "title": "week6",
+            "description": "mindmap",
+            "size_bytes": 6.53,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 72,
+            "subject_id": 18,
+            "book_title": "Week5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "pages": 7,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 7.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 167,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "file_url": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week5",
+            "description": "mindmap",
+            "size_bytes": 7.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 71,
+            "subject_id": 18,
+            "book_title": "Week4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "pages": 24,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 8.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 166,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "file_url": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week4",
+            "description": "mindmap",
+            "size_bytes": 8.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 70,
+            "subject_id": 18,
+            "book_title": "Week 2",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.43,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 165,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "file_url": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 2",
+            "description": "mindmap",
+            "size_bytes": 1.43,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 69,
+            "subject_id": 18,
+            "book_title": "week 1",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.64,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 164,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "file_url": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week 1",
+            "description": "mindmap",
+            "size_bytes": 1.64,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 67,
+            "subject_id": 18,
+            "book_title": "Week 3",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762791612280.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture ",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 1,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 162,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762791612280.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 3",
+            "description": "All lecture ",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 66,
+            "subject_id": 18,
+            "book_title": "Week 4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "pages": 61,
+            "thumbnail": "/uploads/ebooks/4-1762791253915.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture",
+            "size": 6.16,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 161,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/4-1762791253915.jpg",
+            "file_url": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 4",
+            "description": "All lecture",
+            "size_bytes": 6.16,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 65,
+            "subject_id": 18,
+            "book_title": "week 5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "pages": 72,
+            "thumbnail": "/uploads/ebooks/5-1762791114544.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and hsitology",
+            "size": 6.21,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 160,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/5-1762791114544.jpg",
+            "file_url": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week 5",
+            "description": "Anatomy and hsitology",
+            "size_bytes": 6.21,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 64,
+            "subject_id": 18,
+            "book_title": "Week 6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "pages": 60,
+            "thumbnail": "/uploads/ebooks/6-1762791004726.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and histology",
+            "size": 4.82,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 159,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/6-1762791004726.jpg",
+            "file_url": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 6",
+            "description": "Anatomy and histology",
+            "size_bytes": 4.82,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 49,
+            "subject_id": 18,
+            "book_title": "Week 3 Lecture",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762351310388.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "contains all lecture materials from Week 3",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 7,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 126,
+                "title": "Cardiovascular system",
+                "page": 1,
+                "order": 1
+              },
+              {
+                "index_id": 127,
+                "title": "Respiratory system",
+                "page": 10,
+                "order": 2
+              },
+              {
+                "index_id": 128,
+                "title": "Bio of Dietry",
+                "page": 18,
+                "order": 3
+              },
+              {
+                "index_id": 129,
+                "title": "Transport through the cell membrane",
+                "page": 30,
+                "order": 5
+              },
+              {
+                "index_id": 130,
+                "title": "Glycolysis",
+                "page": 26,
+                "order": 4
+              },
+              {
+                "index_id": 131,
+                "title": "Membrane potential",
+                "page": 7,
+                "order": 6
+              },
+              {
+                "index_id": 132,
+                "title": "Histology lecture",
+                "page": 32,
+                "order": 7
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762351310388.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "free_flag": 0,
+            "subscribed": 0,
+            "title": "Week 3 Lecture",
+            "description": "contains all lecture materials from Week 3",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          }
+        ],
+        "page": 1,
+        "limit": 1200,
+        "total": 10,
+        "totalPages": 1
+      },
+      "selected_book": null
+    }
+  },
+  {
+    "timestamp": "2025-11-18T07:21:00.685Z",
+    "level": "info",
+    "message": "Module books retrieved successfully",
+    "user_id": null,
+    "request_method": "N/A",
+    "request_url": "/modules/23/books",
+    "additional_data": {
+      "list": {
+        "data": [
+          {
+            "ebook_id": 73,
+            "subject_id": 18,
+            "book_title": "week6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "pages": 5,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 6.53,
+            "type": "summary",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 168,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "file_url": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "free_flag": 0,
+            "subscribed": 0,
+            "title": "week6",
+            "description": "mindmap",
+            "size_bytes": 6.53,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 72,
+            "subject_id": 18,
+            "book_title": "Week5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "pages": 7,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 7.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 167,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "file_url": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week5",
+            "description": "mindmap",
+            "size_bytes": 7.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 71,
+            "subject_id": 18,
+            "book_title": "Week4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "pages": 24,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 8.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 166,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "file_url": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week4",
+            "description": "mindmap",
+            "size_bytes": 8.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 70,
+            "subject_id": 18,
+            "book_title": "Week 2",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.43,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 165,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "file_url": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 2",
+            "description": "mindmap",
+            "size_bytes": 1.43,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 69,
+            "subject_id": 18,
+            "book_title": "week 1",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.64,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 164,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "file_url": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week 1",
+            "description": "mindmap",
+            "size_bytes": 1.64,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 67,
+            "subject_id": 18,
+            "book_title": "Week 3",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762791612280.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture ",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 1,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 162,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762791612280.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 3",
+            "description": "All lecture ",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 66,
+            "subject_id": 18,
+            "book_title": "Week 4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "pages": 61,
+            "thumbnail": "/uploads/ebooks/4-1762791253915.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture",
+            "size": 6.16,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 161,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/4-1762791253915.jpg",
+            "file_url": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 4",
+            "description": "All lecture",
+            "size_bytes": 6.16,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 65,
+            "subject_id": 18,
+            "book_title": "week 5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "pages": 72,
+            "thumbnail": "/uploads/ebooks/5-1762791114544.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and hsitology",
+            "size": 6.21,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 160,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/5-1762791114544.jpg",
+            "file_url": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week 5",
+            "description": "Anatomy and hsitology",
+            "size_bytes": 6.21,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 64,
+            "subject_id": 18,
+            "book_title": "Week 6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "pages": 60,
+            "thumbnail": "/uploads/ebooks/6-1762791004726.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and histology",
+            "size": 4.82,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 159,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/6-1762791004726.jpg",
+            "file_url": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 6",
+            "description": "Anatomy and histology",
+            "size_bytes": 4.82,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 49,
+            "subject_id": 18,
+            "book_title": "Week 3 Lecture",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762351310388.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "contains all lecture materials from Week 3",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 7,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 126,
+                "title": "Cardiovascular system",
+                "page": 1,
+                "order": 1
+              },
+              {
+                "index_id": 127,
+                "title": "Respiratory system",
+                "page": 10,
+                "order": 2
+              },
+              {
+                "index_id": 128,
+                "title": "Bio of Dietry",
+                "page": 18,
+                "order": 3
+              },
+              {
+                "index_id": 129,
+                "title": "Transport through the cell membrane",
+                "page": 30,
+                "order": 5
+              },
+              {
+                "index_id": 130,
+                "title": "Glycolysis",
+                "page": 26,
+                "order": 4
+              },
+              {
+                "index_id": 131,
+                "title": "Membrane potential",
+                "page": 7,
+                "order": 6
+              },
+              {
+                "index_id": 132,
+                "title": "Histology lecture",
+                "page": 32,
+                "order": 7
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762351310388.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "free_flag": 0,
+            "subscribed": 0,
+            "title": "Week 3 Lecture",
+            "description": "contains all lecture materials from Week 3",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          }
+        ],
+        "page": 1,
+        "limit": 1200,
+        "total": 10,
+        "totalPages": 1
+      },
+      "selected_book": null
+    },
+    "error_details": null,
+    "request_response": {
+      "list": {
+        "data": [
+          {
+            "ebook_id": 73,
+            "subject_id": 18,
+            "book_title": "week6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "pages": 5,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 6.53,
+            "type": "summary",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 168,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792444541.png",
+            "file_url": "/uploads/ebooks/anatomy_and_histo-1762792444520.pdf",
+            "free_flag": 0,
+            "subscribed": 0,
+            "title": "week6",
+            "description": "mindmap",
+            "size_bytes": 6.53,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 72,
+            "subject_id": 18,
+            "book_title": "Week5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "pages": 7,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 7.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 167,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792297414.png",
+            "file_url": "/uploads/ebooks/anatomy_no_histo_this_week-1762792297391.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week5",
+            "description": "mindmap",
+            "size_bytes": 7.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 71,
+            "subject_id": 18,
+            "book_title": "Week4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "pages": 24,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 8.22,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 166,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762792184596.png",
+            "file_url": "/uploads/ebooks/anatomy_and_hitso-1762792184569.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week4",
+            "description": "mindmap",
+            "size_bytes": 8.22,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 70,
+            "subject_id": 18,
+            "book_title": "Week 2",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.43,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 2,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 165,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791982138.png",
+            "file_url": "/uploads/ebooks/anatomy-1762791982133.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 2",
+            "description": "mindmap",
+            "size_bytes": 1.43,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 69,
+            "subject_id": 18,
+            "book_title": "week 1",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "pages": 2,
+            "thumbnail": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "mindmap",
+            "size": 1.64,
+            "type": "summary",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 164,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/untitled_logo_-1762791924377.png",
+            "file_url": "/uploads/ebooks/mind_map-1762791924370.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week 1",
+            "description": "mindmap",
+            "size_bytes": 1.64,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 67,
+            "subject_id": 18,
+            "book_title": "Week 3",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762791612280.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture ",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 1,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 162,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762791612280.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2_2_-1762791612274.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 3",
+            "description": "All lecture ",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 66,
+            "subject_id": 18,
+            "book_title": "Week 4",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "pages": 61,
+            "thumbnail": "/uploads/ebooks/4-1762791253915.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "All lecture",
+            "size": 6.16,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 161,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/4-1762791253915.jpg",
+            "file_url": "/uploads/ebooks/4th_week_combined-1762791253894.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 4",
+            "description": "All lecture",
+            "size_bytes": 6.16,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 65,
+            "subject_id": 18,
+            "book_title": "week 5",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "pages": 72,
+            "thumbnail": "/uploads/ebooks/5-1762791114544.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and hsitology",
+            "size": 6.21,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 0,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 160,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/5-1762791114544.jpg",
+            "file_url": "/uploads/ebooks/5th_week_combined-1762791114524.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "week 5",
+            "description": "Anatomy and hsitology",
+            "size_bytes": 6.21,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 64,
+            "subject_id": 18,
+            "book_title": "Week 6",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "pages": 60,
+            "thumbnail": "/uploads/ebooks/6-1762791004726.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "Anatomy and histology",
+            "size": 4.82,
+            "type": "ebook",
+            "free": 1,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 4,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 159,
+                "title": "1",
+                "page": 1,
+                "order": 1
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/6-1762791004726.jpg",
+            "file_url": "/uploads/ebooks/6th_week-1762791004709.pdf",
+            "free_flag": 1,
+            "subscribed": 0,
+            "title": "Week 6",
+            "description": "Anatomy and histology",
+            "size_bytes": 4.82,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          },
+          {
+            "ebook_id": 49,
+            "subject_id": 18,
+            "book_title": "Week 3 Lecture",
+            "author": "MedGap",
+            "language": "ar",
+            "file": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "pages": 37,
+            "thumbnail": "/uploads/ebooks/3-1762351310388.jpg",
+            "status": "active",
+            "is_deleted": 0,
+            "created_by": 2147483647,
+            "created_at": null,
+            "updated_at": null,
+            "book_description": "contains all lecture materials from Week 3",
+            "size": 1.37,
+            "type": "ebook",
+            "free": 0,
+            "unit_id": 18,
+            "unit_name": "Anatomy",
+            "module_id": 23,
+            "module_name": "Anatomy and Histology Med 66",
+            "views": 7,
+            "ann_id": null,
+            "ann_value": null,
+            "book_id": null,
+            "student_id": null,
+            "indeces": [
+              {
+                "index_id": 126,
+                "title": "Cardiovascular system",
+                "page": 1,
+                "order": 1
+              },
+              {
+                "index_id": 127,
+                "title": "Respiratory system",
+                "page": 10,
+                "order": 2
+              },
+              {
+                "index_id": 128,
+                "title": "Bio of Dietry",
+                "page": 18,
+                "order": 3
+              },
+              {
+                "index_id": 129,
+                "title": "Transport through the cell membrane",
+                "page": 30,
+                "order": 5
+              },
+              {
+                "index_id": 130,
+                "title": "Glycolysis",
+                "page": 26,
+                "order": 4
+              },
+              {
+                "index_id": 131,
+                "title": "Membrane potential",
+                "page": 7,
+                "order": 6
+              },
+              {
+                "index_id": 132,
+                "title": "Histology lecture",
+                "page": 32,
+                "order": 7
+              }
+            ],
+            "thumbnail_url": "/uploads/ebooks/3-1762351310388.jpg",
+            "file_url": "/uploads/ebooks/week_3_part_2-1762351310382.pdf",
+            "free_flag": 0,
+            "subscribed": 0,
+            "title": "Week 3 Lecture",
+            "description": "contains all lecture materials from Week 3",
+            "size_bytes": 1.37,
+            "unit": {
+              "id": 18,
+              "name": "Anatomy"
+            },
+            "module": {
+              "id": 23,
+              "name": "Anatomy and Histology Med 66"
+            }
+          }
+        ],
+        "page": 1,
+        "limit": 1200,
+        "total": 10,
+        "totalPages": 1
+      },
+      "selected_book": null
+    }
+  },
+  {
     "timestamp": "2025-11-18T07:17:55.706Z",
     "level": "info",
     "message": "Module books retrieved successfully",

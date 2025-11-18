@@ -129,7 +129,7 @@ async function listBooksByModule({
       free: Number(
         r.free_flag !== undefined ? r.free_flag : r.free || 0
       ),
-      subscribed: Number(r.subscribed_flag || 0)
+      subscribed: Number(r.subscribed || 0)
     })),
     page,
     limit,
@@ -163,7 +163,7 @@ async function listBooksByModuleByBulk({
   const whereSql = `WHERE ${where.join(" AND ")}`;
   const orderBy = "e.created_at";
   const orderDir = "DESC";
-  
+  console.log("studentId", studentId)
   const listSql = `
     SELECT 
       e.*,
@@ -190,7 +190,7 @@ async function listBooksByModuleByBulk({
           WHERE ss.student_id = ?
             AND ss.resource_id = e.ebook_id
             AND ss.status = 'active'
-            AND (ss.end_date IS NOT NULL AND ss.end_date >= CURDATE())
+            AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
         ) OR EXISTS (
           SELECT 1 FROM student_enrollments se
           WHERE se.student_id = ?
