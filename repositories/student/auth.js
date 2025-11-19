@@ -90,7 +90,7 @@ const registerRepo = async ({ data }) => {
     } else if (grade == 2) {
       modulesToEnroll = [25];
     } else if (grade == 3) {
-      modulesToEnroll = [25];
+      modulesToEnroll = [29];
     }
     
     // Add any additional modules from the request
