@@ -85,9 +85,11 @@ const registerRepo = async ({ data }) => {
     // Determine modules to enroll based on grade
     let modulesToEnroll = [];
     console.log(grade)
-    if (grade == "1") {
+    if (grade == 1) {
       modulesToEnroll = [23, 24];
-    } else if (grade == "2") {
+    } else if (grade == 2) {
+      modulesToEnroll = [25];
+    } else if (grade == 3) {
       modulesToEnroll = [25];
     }
     
