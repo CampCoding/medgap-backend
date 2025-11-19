@@ -105,7 +105,10 @@ async function listLibrariesByBulkModules({
   let moduleIds = moduleId;
   if (!Array.isArray(moduleIds)) {
     if (typeof moduleIds === "string") {
-      moduleIds = moduleIds.split(",").map((x) => x.trim()).filter(Boolean);
+      moduleIds = moduleIds
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean);
     } else if (moduleIds != null) {
       moduleIds = [moduleIds];
     } else {
@@ -116,17 +119,22 @@ async function listLibrariesByBulkModules({
   const whereClauses = [];
   const paramsForWhere = [];
 
-  // Add module filter only if moduleIds is not empty
+  // Optional module filter
   if (moduleIds.length > 0) {
     const placeholders = moduleIds.map(() => "?").join(",");
     whereClauses.push(`fl.module_id IN (${placeholders})`);
     paramsForWhere.push(...moduleIds);
   }
 
+  // Optional search filter
   if (search && search.trim()) {
     whereClauses.push("(fl.library_name LIKE ? OR fl.description LIKE ?)");
     paramsForWhere.push(`%${search.trim()}%`, `%${search.trim()}%`);
   }
+
+  // If no filters, use a neutral condition
+  const whereSql =
+    whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
 
   const offset = (Math.max(1, page) - 1) * Math.max(1, limit);
 
@@ -136,7 +144,7 @@ async function listLibrariesByBulkModules({
       fl.library_name, 
       fl.description, 
       fl.difficulty_level,
-           sd.old_deck_id AS imported,
+      sd.old_deck_id AS imported,
       fl.estimated_time, 
       fl.created_at,
       COUNT(f.flashcard_id) AS total_cards,
@@ -147,7 +155,8 @@ async function listLibrariesByBulkModules({
       COALESCE(t.free, 0) AS free,
       CASE 
         WHEN EXISTS (
-          SELECT 1 FROM student_subscription ss
+          SELECT 1 
+          FROM student_subscription ss
           WHERE ss.student_id = ? 
             AND ss.resource_id = t.topic_id
             AND ss.status = 'active'
@@ -161,31 +170,25 @@ async function listLibrariesByBulkModules({
     LEFT JOIN topics t ON t.topic_id = fl.topic_id
     LEFT JOIN student_flashcard_library_progress slp
       ON slp.library_id = fl.library_id AND slp.student_id = ?
-    WHERE ${whereClauses.join(" AND ")}
+    ${whereSql}
     GROUP BY fl.library_id
     ORDER BY fl.created_at DESC
     LIMIT ? OFFSET ?;
   `;
 
-
-  // Parameters must match the '?' positions in SQL:
-  // 1st param = studentId (for subscribed check)
-  // 2nd param = studentId (for the progress JOIN)
-  // then moduleIds and optional search
-  // then limit, offset
+  // Params must follow the order of '?' in SQL
   const sqlParams = [studentId, studentId, ...paramsForWhere, limit, offset];
 
-  // Debug log: to inspect final SQL and params
   console.log("listLibrariesByBulkModules: SQL:", sql);
   console.log("listLibrariesByBulkModules: params:", sqlParams);
 
   const [rows] = await client.execute(sql, sqlParams);
 
-  // Count query
+  // Count query (reuse same WHERE)
   const countSql = `
     SELECT COUNT(*) AS total
     FROM flashcard_libraries fl
-    WHERE ${whereClauses.join(" AND ")};
+    ${whereSql};
   `;
   const [countRows] = await client.execute(countSql, paramsForWhere);
   const total = countRows?.[0]?.total ?? 0;
