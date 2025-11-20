@@ -2499,6 +2499,13 @@ async function getTopicsBySubject({ moduleId, studentId }) {
             AND ss.resource_id = t.topic_id
             AND ss.status = 'active'
             AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
+        )
+        OR EXISTS (
+          SELECT 1 FROM student_subscription ss_module
+          WHERE ss_module.student_id = ?
+            AND ss_module.resource_id = u.module_id
+            AND ss_module.status = 'active'
+            AND (ss_module.end_date IS NULL OR ss_module.end_date >= CURDATE())
         ) THEN 1 
         ELSE 0 
       END AS subscribed` : '0 AS subscribed'},
@@ -2548,6 +2555,7 @@ async function getTopicsBySubject({ moduleId, studentId }) {
     }
     FROM topics t
     INNER JOIN units u       ON u.unit_id = t.unit_id AND u.status = 'active'
+    INNER JOIN modules m     ON m.module_id = u.module_id
     INNER JOIN ${unitTmp} tu ON tu.unit_id = u.unit_id
     /* ---- pre-aggregated counts (all use indexes) ---- */
     LEFT JOIN (SELECT topic_id, COUNT(*) AS questions FROM questions GROUP BY topic_id) q_cnt
@@ -2634,7 +2642,7 @@ async function getTopicsBySubject({ moduleId, studentId }) {
     ORDER BY t.topic_id ASC;
   `;
 
-  const params = studentId ? [studentId, studentId, studentId, studentId, studentId] : [];
+  const params = studentId ? [studentId, studentId, studentId, studentId, studentId, studentId] : [];
 
   const [rows] = await client.execute(sql, params);
 

@@ -33,7 +33,14 @@ async function listLibrariesByModule({
                  AND ss.resource_id = t.topic_id
                  AND ss.status = 'active'
                  AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
-             ) THEN 1 
+            )
+            OR EXISTS (
+              SELECT 1 FROM student_subscription ss_module
+              WHERE ss_module.student_id = ?
+                AND ss_module.resource_id = m.module_id
+                AND ss_module.status = 'active'
+                AND (ss_module.end_date IS NULL OR ss_module.end_date >= CURDATE())
+            ) THEN 1 
              ELSE 0 
            END AS subscribed
     FROM flashcard_libraries fl
@@ -58,6 +65,7 @@ async function listLibrariesByModule({
     WHERE m.module_id = ? AND ${where.join(" AND ")}
   `;
   const [rows] = await client.execute(sql, [
+    studentId,
     studentId,
     studentId,
     studentId,
@@ -161,6 +169,14 @@ async function listLibrariesByBulkModules({
             AND ss.resource_id = t.topic_id
             AND ss.status = 'active'
             AND (ss.end_date IS NULL OR ss.end_date >= CURDATE())
+        )
+        OR EXISTS (
+          SELECT 1
+          FROM student_subscription ss_module
+          WHERE ss_module.student_id = ?
+            AND ss_module.resource_id = fl.module_id
+            AND ss_module.status = 'active'
+            AND (ss_module.end_date IS NULL OR ss_module.end_date >= CURDATE())
         ) THEN 1 
         ELSE 0 
       END AS subscribed
@@ -177,7 +193,7 @@ async function listLibrariesByBulkModules({
   `;
 
   // Params must follow the order of '?' in SQL
-  const sqlParams = [studentId, studentId, ...paramsForWhere, limit, offset];
+  const sqlParams = [studentId, studentId, studentId, ...paramsForWhere, limit, offset];
 
   console.log("listLibrariesByBulkModules: SQL:", sql);
   console.log("listLibrariesByBulkModules: params:", sqlParams);
