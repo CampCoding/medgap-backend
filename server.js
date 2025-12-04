@@ -194,8 +194,8 @@ const teacherDashboard = require("./routes/teacher/dashboard");
 app.use("/api/teacher/dashboard", teacherDashboard);
 app.get("/testss", async (req, res) => {
   const getData = await client.query("SELECT NOW() FROM students LIMIT 1");
-  console.log("Database Time:", getData.rows[0]);
-  res.send("Welcome to the MedGap API Server");
+  console.log("Database Time:", getData);
+  res.send(getData);
 });
 app.use((err, req, res, next) => {
   console.error("❌ Unhandled Error:", err.message);
