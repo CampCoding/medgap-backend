@@ -193,7 +193,7 @@ app.use("/api/teacher/exams", teacherExams);
 const teacherDashboard = require("./routes/teacher/dashboard");
 app.use("/api/teacher/dashboard", teacherDashboard);
 app.get("/testss", async (req, res) => {
-  const getData = await client.query("SELECT NOW() FROM students LIMIT 1");
+  const getData = await client.query("SELECT * FROM questions LIMIT 200");
   console.log("Database Time:", getData);
   res.send(getData);
 });
