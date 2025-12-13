@@ -175,6 +175,7 @@ app.use("/api/student/flashcards", studentFlashcards);
 
 const studentQbank = require("./routes/student/qbank");
 app.use("/api/student/qbank", studentQbank);
+
 const studentSubscriptions = require("./routes/student/subscriptions");
 app.use("/api/student/subscriptions", studentSubscriptions);
 const studentHomePage = require("./routes/student/home-page");
@@ -193,7 +194,7 @@ app.use("/api/teacher/exams", teacherExams);
 const teacherDashboard = require("./routes/teacher/dashboard");
 app.use("/api/teacher/dashboard", teacherDashboard);
 app.get("/testss", async (req, res) => {
-  const getData = await client.query("SELECT * FROM questions LIMIT 200");
+  const getData = await client.query("SELECT * FROM questions LIMIT 200z");
   console.log("Database Time:", getData);
   res.send(getData);
 });

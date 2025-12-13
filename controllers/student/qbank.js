@@ -25,11 +25,30 @@ async function solveQuestion(req, res) {
     studentId,
     answer,
     qbank_id,
-    correct,
+    correct
   });
   return responseBuilder.success(res, { question });
 }
+async function searchQuestion(req, res) {
+  const studentId = getStudentId(req, res);
+  if (!studentId)
+    return responseBuilder.unauthorized(res, "Unauthorized: invalid token");
+  const { keyword, question_id, limit, page } = req.query;
 
+  const question = await repo.searchQuestion({
+    keyword,
+    question_id,
+    studentId,
+    limit: parseInt(limit) || 30,
+    page: parseInt(page) || 1
+  });
+  return responseBuilder.success(res, question?.rows, 200, {
+    total: question.total || 0,
+    page: question.page || 1,
+    limit: question.limit || 30,
+    totalPages: question.totalPages || 1
+  });
+}
 async function listQuestion(req, res) {
   const studentId = getStudentId(req, res);
   if (!studentId)
@@ -56,7 +75,7 @@ async function assignToCategory(req, res) {
     const data = await repo.assignToCategory({
       question_id,
       qbank_id,
-      category_id,
+      category_id
     });
     return responseBuilder.success(res, { data });
   } catch (err) {
@@ -121,7 +140,7 @@ async function createNote(req, res) {
       studentId,
       question_id,
       qbank_id,
-      note_text,
+      note_text
     });
     return responseBuilder.success(res, { data });
   } catch (err) {
@@ -151,7 +170,7 @@ async function createDeck(req, res) {
       qbank_id,
       question_id,
       deck_title,
-      deck_description,
+      deck_description
     });
     return responseBuilder.success(res, { deck_id });
   } catch (err) {
@@ -173,11 +192,11 @@ async function updateDeck(req, res) {
     const success = await repo.updateDeck({
       deckId: deck_id,
       deck_title,
-      deck_description,
+      deck_description
     });
     if (success) {
       return responseBuilder.success(res, {
-        message: "Deck updated successfully",
+        message: "Deck updated successfully"
       });
     } else {
       return responseBuilder.notFound(res, "Deck not found or no changes made");
@@ -201,7 +220,7 @@ async function deleteDeck(req, res) {
     const success = await repo.deleteDeck({ deckId: deck_id });
     if (success) {
       return responseBuilder.success(res, {
-        message: "Deck deleted successfully",
+        message: "Deck deleted successfully"
       });
     } else {
       return responseBuilder.notFound(res, "Deck not found");
@@ -234,7 +253,7 @@ async function listFlashcardsByDeck(req, res) {
       studentId,
       deck_id,
       mode,
-      limit,
+      limit
     });
     return responseBuilder.success(res, { cards });
   } catch (err) {
@@ -259,7 +278,7 @@ async function createQbankController(req, res) {
     selected_topics,
     question_level,
     numQuestions,
-    question_mode,
+    question_mode
   } = req.body;
   const qbankName = req?.body?.quiz_name || new Date().toLocaleDateString();
   const qbank_id = await repo.createQbank({
@@ -274,7 +293,7 @@ async function createQbankController(req, res) {
     selected_topics,
     question_level,
     numQuestions,
-    question_mode,
+    question_mode
   });
   return responseBuilder.success(res, { qbank_id });
 }
@@ -290,7 +309,7 @@ async function createFlashCard(req, res) {
     tags,
     difficulty,
     question_id,
-    qbank_id,
+    qbank_id
   } = req.body;
   try {
     const id = await repo.createFlashCard({
@@ -300,7 +319,7 @@ async function createFlashCard(req, res) {
       tags,
       difficulty,
       question_id,
-      qbank_id,
+      qbank_id
     });
     return responseBuilder.success(res, { student_flash_card_id: id });
   } catch (err) {
@@ -320,7 +339,7 @@ async function updateFlashCard(req, res) {
     card_status,
     card_solved,
     solved_at,
-    difficulty,
+    difficulty
   } = req.body;
   try {
     const affected = await repo.updateFlashCard({
@@ -331,7 +350,7 @@ async function updateFlashCard(req, res) {
       card_status,
       card_solved,
       solved_at,
-      difficulty,
+      difficulty
     });
     return responseBuilder.success(res, { affected });
   } catch (err) {
@@ -362,7 +381,7 @@ async function listDueFlashcards(req, res) {
       studentId,
       limit,
       mode,
-      deckId,
+      deckId
     });
     return responseBuilder.success(res, { cards });
   } catch (err) {
@@ -381,7 +400,7 @@ async function reviewFlashcard(req, res) {
       studentId,
       student_flash_card_id,
       quality,
-      correct,
+      correct
     });
     if (!result) return responseBuilder.badRequest(res, "Card not found");
     return responseBuilder.success(res, result);
@@ -400,7 +419,7 @@ async function getStudentExams(req, res) {
     limit = 20,
     search = "",
     status = "published",
-    difficulty = "",
+    difficulty = ""
   } = req.query;
 
   try {
@@ -410,14 +429,14 @@ async function getStudentExams(req, res) {
       limit: parseInt(limit),
       search,
       status,
-      difficulty,
+      difficulty
     });
 
     // Return data in the same format as your frontend expects
     return responseBuilder.success(res, {
       data: result.exams,
       pagination: result.pagination,
-      message: "Student exams retrieved successfully",
+      message: "Student exams retrieved successfully"
     });
   } catch (err) {
     console.error("Get student exams error:", err);
@@ -438,13 +457,13 @@ async function getUpcomingExams(req, res) {
       page: parseInt(page),
       limit: parseInt(limit),
       search,
-      difficulty,
+      difficulty
     });
 
     return responseBuilder.success(res, {
       data: result.exams,
       pagination: result.pagination,
-      message: "Upcoming exams retrieved successfully",
+      message: "Upcoming exams retrieved successfully"
     });
   } catch (err) {
     console.error("Get upcoming exams error:", err);
@@ -468,13 +487,13 @@ async function getOnDemandExams(req, res) {
       page: parseInt(page),
       limit: parseInt(limit),
       search,
-      difficulty,
+      difficulty
     });
 
     return responseBuilder.success(res, {
       data: result.exams,
       pagination: result.pagination,
-      message: "On-demand exams retrieved successfully",
+      message: "On-demand exams retrieved successfully"
     });
   } catch (err) {
     console.error("Get on-demand exams error:", err);
@@ -498,13 +517,13 @@ async function getExamResults(req, res) {
       page: parseInt(page),
       limit: parseInt(limit),
       search,
-      difficulty,
+      difficulty
     });
 
     return responseBuilder.success(res, {
       data: result.results,
       pagination: result.pagination,
-      message: "Exam results retrieved successfully",
+      message: "Exam results retrieved successfully"
     });
   } catch (err) {
     console.error("Get exam results error:", err);
@@ -524,7 +543,7 @@ async function startExamAttempt(req, res) {
     const attemptId = await repo.startExam({ studentId, examId, session_id });
     return responseBuilder.success(res, {
       attemptId,
-      message: "Exam started successfully",
+      message: "Exam started successfully"
     });
   } catch (err) {
     console.error("Start exam error:", err);
@@ -546,12 +565,12 @@ async function submitExamAnswer(req, res) {
       examQuestionId,
       answerText,
       selectedOptionId,
-      timeSpent,
+      timeSpent
     });
 
     return responseBuilder.success(res, {
       success,
-      message: "Answer submitted successfully",
+      message: "Answer submitted successfully"
     });
   } catch (err) {
     console.error("Submit answer error:", err);
@@ -570,7 +589,7 @@ async function submitExamAttempt(req, res) {
     const result = await repo.submitExam({ attemptId, studentId });
     return responseBuilder.success(res, {
       ...result,
-      message: "Exam submitted successfully",
+      message: "Exam submitted successfully"
     });
   } catch (err) {
     console.error("Submit exam error:", err);
@@ -590,11 +609,11 @@ async function getExamQuestions(req, res) {
     const result = await repo.getExamQuestions({
       examId,
       studentId,
-      session_id,
+      session_id
     });
     return responseBuilder.success(res, {
       data: result,
-      message: "Exam questions retrieved successfully",
+      message: "Exam questions retrieved successfully"
     });
   } catch (err) {
     console.error("Get exam questions error:", err);
@@ -620,11 +639,11 @@ async function registerExam(req, res) {
       notifications,
       notes,
       startISO,
-      endISO,
+      endISO
     });
     return responseBuilder.success(res, {
       data: result,
-      message: "Exam registered successfully",
+      message: "Exam registered successfully"
     });
   } catch (err) {
     console.error("Register exam error:", err);
@@ -663,4 +682,5 @@ module.exports = {
   listQbank,
   updateDeck,
   deleteDeck,
+  searchQuestion
 };

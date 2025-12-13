@@ -6,7 +6,7 @@ const solveQuestion = async ({
   studentId,
   answer,
   qbank_id,
-  correct,
+  correct
 }) => {
   let [question] = await client.execute(
     `SELECT 
@@ -48,7 +48,7 @@ const solveQuestion = async ({
       studentId,
       answer,
       correct ? (correct ? "1" : "0") : isCorrect ? "1" : "0",
-      qbank_id ? qbank_id : 0,
+      qbank_id ? qbank_id : 0
     ]
   );
 
@@ -61,17 +61,17 @@ const solveQuestion = async ({
         0,
         50
       )}...`,
-      moduleName: null, // Could be enhanced to get module info
-      topicName: null, // Could be enhanced to get topic info
+      moduleName: null,
+      topicName: null,
       scorePercentage: isCorrect ? 100 : 0,
-      pointsEarned: isCorrect ? 10 : 0, // 10 points for correct, 0 for incorrect
+      pointsEarned: isCorrect ? 10 : 0,
       metadata: {
         question_id,
         answer,
         is_correct: isCorrect,
         question_type: question.question_type,
-        difficulty_level: question.difficulty_level,
-      },
+        difficulty_level: question.difficulty_level
+      }
     });
   } catch (activityError) {
     console.error("Failed to log activity for question solve:", activityError);
@@ -79,6 +79,127 @@ const solveQuestion = async ({
   }
 
   return insertQuestionAnswer.insertId;
+};
+
+const searchQuestion = async ({
+  keyword,
+  question_id = null,
+  studentId,
+  limit = 30,
+  page = 1
+}) => {
+  console.log("keyword", keyword);
+  if (keyword) {
+    const [rows] = await client.execute(
+      `SELECT 
+      -- qs selection
+      qs.question_id, qs.question_text, qs.topic_id,
+    
+      -- subject selection
+      ts.topic_id, ts.topic_name, ts.teacher_id,
+
+      -- subject selection
+      us.unit_name as subject_name, us.unit_id as subject_id,
+      
+      -- module selection
+      ms.module_id, ms.subject_name as module_name, ms.subject_code as module_code,
+      
+      -- Teacher Selection
+      tchs.full_name, tchs.email, tchs.phone, tchs.teacher_id,
+
+      -- Correct Number
+      SUM(CASE WHEN sq.is_correct = '1' THEN 1 ELSE 0 END) AS correct_count,
+      SUM(CASE WHEN sq.is_correct = '0' THEN 1 ELSE 0 END) AS wrong_count
+
+      FROM questions qs 
+      -- Topics
+      LEFT JOIN topics ts ON qs.topic_id = ts.topic_id 
+      -- Subjects
+      LEFT JOIN units us ON ts.unit_id = us.unit_id
+      -- modules
+      LEFT JOIN modules ms ON ms.module_id = us.module_id
+      -- Teacher
+      LEFT JOIN teachers tchs ON tchs.teacher_id = ts.teacher_id
+      -- Solved Question 
+      LEFT JOIN solved_questions sq ON sq.student_id = ? AND sq.question_id = qs.question_id
+
+      
+      WHERE question_text LIKE ? GROUP BY qs.question_id LIMIT ? OFFSET ? `,
+      [studentId, `%${keyword}%`, limit, (page - 1) * limit]
+    );
+    const [total] = await client.execute(
+      "SELECT COUNT(*) FROM questions WHERE question_text LIKE ?",
+      [`%${keyword}%`]
+    );
+
+    return {
+      rows: rows?.filter(
+        (item) => item?.topic_id && item?.subject_id && item?.module_id
+      ),
+      limit,
+      page,
+      totalPages: Math.ceil(rows.length / limit),
+      total: total[0]['COUNT(*)']
+    };
+  } else if (question_id) {
+    const [rows] = await client.execute(
+      `SELECT 
+      -- qs selection
+      qs.*,
+    
+      -- subject selection
+      ts.topic_id, ts.topic_name, ts.teacher_id,
+
+      -- subject selection
+      us.unit_name as subject_name, us.unit_id as subject_id,
+      
+      -- module selection
+      ms.module_id, ms.subject_name as module_name, ms.subject_code as module_code,
+      
+      -- Teacher Selection
+      tchs.full_name, tchs.email, tchs.phone, tchs.teacher_id,
+
+      -- Correct Number
+      SUM(CASE WHEN sq.is_correct = '1' THEN 1 ELSE 0 END) AS correct_count,
+      SUM(CASE WHEN sq.is_correct = '0' THEN 1 ELSE 0 END) AS wrong_count,
+
+      -- Answers
+      JSON_ARRAYAGG(
+       JSON_OBJECT(
+       'text',qos.option_text,
+       'id',qos.option_id,
+       'correct',qos.is_correct
+       )
+      ) AS answers
+
+
+      FROM questions qs 
+      -- Topics
+      LEFT JOIN topics ts ON qs.topic_id = ts.topic_id 
+      -- Subjects
+      LEFT JOIN units us ON ts.unit_id = us.unit_id
+      -- modules
+      LEFT JOIN modules ms ON ms.module_id = us.module_id
+      -- Teacher
+      LEFT JOIN teachers tchs ON tchs.teacher_id = ts.teacher_id
+      -- Solved Question 
+      LEFT JOIN solved_questions sq ON sq.student_id = ? AND sq.question_id = qs.question_id
+      -- Answers
+      LEFT JOIN question_options qos ON qos.question_id = qs.question_id
+      WHERE qs.question_id = ? GROUP BY qs.question_id `,
+      [studentId, question_id]
+    );
+    try {
+      rows[0].answers = JSON.parse(rows[0].answers);
+      rows[0].keywords = JSON.parse(rows[0].keywords);
+      rows[0].tags = JSON.parse(rows[0].tags);
+    } catch (err) {}
+    return {
+      rows: rows[0]
+    };
+  } else {
+    return {};
+  }
 };
 
 const fetchModules = async (moduleIds = []) => {
@@ -325,8 +446,6 @@ const fetchQuestionsByTopicIds = async (
     }
   }
 
-
-
   // If no questions available, return empty result
   if (totalAvailable === 0) {
     return {
@@ -344,8 +463,8 @@ const fetchQuestionsByTopicIds = async (
         marked_count_easy: 0,
         marked_count_medium: 0,
         marked_count_hard: 0,
-        total_questions: 0,
-      },
+        total_questions: 0
+      }
     };
   }
 
@@ -364,7 +483,7 @@ const fetchQuestionsByTopicIds = async (
     marked_count_easy: 0,
     marked_count_medium: 0,
     marked_count_hard: 0,
-    total_questions: 0,
+    total_questions: 0
   };
 
   for (const { mode, limit, topicId } of modeLimits) {
@@ -533,8 +652,7 @@ const fetchQuestionsByTopicIds = async (
 
     modeSql += ` GROUP BY q.question_id ORDER BY RAND() LIMIT ?`;
     modeValues.push(limit);
-    // 
-    
+    //
 
     const [modeRows] = await client.execute(modeSql, modeValues);
 
@@ -542,9 +660,8 @@ const fetchQuestionsByTopicIds = async (
     const processedQuestions = modeRows.map((q) => ({
       ...q,
       options: JSON.parse(q.options)?.filter(Boolean) || [],
-      question_mode: mode,
+      question_mode: mode
     }));
-
 
     // Add questions, avoiding duplicates by question_id
     const existingQuestionIds = new Set(allQuestions.map((q) => q.question_id));
@@ -552,7 +669,6 @@ const fetchQuestionsByTopicIds = async (
       (q) => !existingQuestionIds.has(q.question_id)
     );
     allQuestions = allQuestions.concat(newQuestions);
-
 
     // Use aggregate counts from full scope
     const agg = countRows && countRows[0] ? countRows[0] : {};
@@ -579,8 +695,6 @@ const fetchQuestionsByTopicIds = async (
     allQuestions.length < actualNumQuestions &&
     totalAvailable > allQuestions.length
   ) {
-
-
     const existingQuestionIds = new Set(allQuestions.map((q) => q.question_id));
     const neededQuestions = actualNumQuestions - allQuestions.length;
 
@@ -701,14 +815,12 @@ const fetchQuestionsByTopicIds = async (
             const extraQuestions = extraRows.map((q) => ({
               ...q,
               options: JSON.parse(q.options)?.filter(Boolean) || [],
-              question_mode: mode,
+              question_mode: mode
             }));
 
             allQuestions = allQuestions.concat(extraQuestions);
             existingQuestionIds.clear();
             allQuestions.forEach((q) => existingQuestionIds.add(q.question_id));
-
-           
           }
         } catch (error) {
           console.error(
@@ -725,18 +837,16 @@ const fetchQuestionsByTopicIds = async (
 
   aggregatedCounts.total_questions = finalQuestions.length;
 
-
-
   return {
     questions: finalQuestions,
-    counts: aggregatedCounts,
+    counts: aggregatedCounts
   };
 };
 
 const fetchModulesSubjectsTopicsQuestions = async ({
   selected_modules = [],
   filters = {},
-  studentId = null,
+  studentId = null
 }) => {
   const modules = await fetchModules(selected_modules);
   const moduleIds = modules.map((m) => m.module_id);
@@ -773,7 +883,7 @@ const fetchModulesSubjectsTopicsQuestions = async ({
     subjects,
     topics,
     questions: questions.questions,
-    counts: questions.counts,
+    counts: questions.counts
   };
 };
 
@@ -792,7 +902,7 @@ const createQbank = async ({
   question_mode = ["all"],
 
   plan_id = 0,
-  date_schedule = null,
+  date_schedule = null
 }) => {
   /**
   numQuestions:null,
@@ -822,19 +932,16 @@ const createQbank = async ({
   const filters = {
     selected_modules,
     selected_subjects,
-    selected_topics, 
-    status: question_level, 
+    selected_topics,
+    status: question_level,
     question_mode: question_mode,
-    numQuestions: cleanNumQuestions,
+    numQuestions: cleanNumQuestions
   };
-  
-
 
   const questions = await fetchModulesSubjectsTopicsQuestions({
     studentId,
-    filters,
+    filters
   });
-
 
   const [insertQbank] = await client.execute(
     `INSERT INTO qbank (qbank_name, tutor_mode, timed, time_type, active, deleted, student_id, plan_id, day, date_schedule)
@@ -849,17 +956,15 @@ const createQbank = async ({
       studentId,
       plan_id ? plan_id : 0,
       day ? day : "---",
-      date_schedule ? date_schedule : null,
+      date_schedule ? date_schedule : null
     ]
   );
   const rows = (questions?.questions || []).map((q) => [
     q.question_id,
     insertQbank.insertId,
     (q.options || []).find((o) => ["1", 1, true].includes(o?.is_correct))
-      ?.option_text || "-",
+      ?.option_text || "-"
   ]);
-
-
 
   if (rows.length) {
     await client.execute(
@@ -868,7 +973,6 @@ const createQbank = async ({
         .join(",")}`,
       rows.flat()
     );
-   
   } else {
     console.warn(
       "createQbank: No questions to insert! Qbank ID:",
@@ -900,7 +1004,7 @@ const createDeck = async ({
   qbank_id,
   question_id,
   deck_title,
-  deck_description,
+  deck_description
 }) => {
   const [result] = await client.execute(
     `INSERT INTO student_deck (student_id, deck_title, deck_description, created_at)
@@ -1023,7 +1127,7 @@ const listQuestion = async ({ qbank_id, studentId, session_id }) => {
   }
 
   const qbank = await client.execute(`SELECT * FROM qbank WHERE qbank_id = ?`, [
-    qbank_id,
+    qbank_id
   ]);
   const [categories] = await client.query(
     "SELECT * FROM student_mark_categories WHERE student_id = ?",
@@ -1153,7 +1257,7 @@ const createFlashCard = async ({
   tags = [],
   difficulty = "medium",
   question_id = 0,
-  qbank_id = 0,
+  qbank_id = 0
 }) => {
   const [res] = await client.execute(
     `INSERT INTO student_flash_cards (student_flash_card_front, student_flash_card_back, deck_id, tags, card_status, card_solved, created_at, solved_at, difficulty, question_id, qbank_id)
@@ -1165,7 +1269,7 @@ const createFlashCard = async ({
       JSON.stringify(tags),
       difficulty,
       question_id,
-      qbank_id,
+      qbank_id
     ]
   );
   return res.insertId;
@@ -1179,7 +1283,7 @@ const updateFlashCard = async ({
   card_status,
   card_solved,
   solved_at,
-  difficulty,
+  difficulty
 }) => {
   const fields = [];
   const values = [];
@@ -1279,7 +1383,7 @@ const getFlashcardsByMode = async ({
   studentId,
   mode = "repetition",
   limit = 20,
-  deckId,
+  deckId
 }) => {
   let where = `sd.student_id = ?`;
   let order = `ORDER BY COALESCE(sfc.next_review, sfc.created_at) ASC`;
@@ -1323,7 +1427,7 @@ const reviewFlashcard = async ({
   studentId,
   student_flash_card_id,
   quality,
-  correct,
+  correct
 }) => {
   let q;
   if (quality !== undefined && quality !== null && quality !== "") {
@@ -1393,7 +1497,7 @@ const reviewFlashcard = async ({
       nextReview,
       status,
       "1",
-      student_flash_card_id,
+      student_flash_card_id
     ]
   );
   return res.affectedRows > 0
@@ -1402,13 +1506,13 @@ const reviewFlashcard = async ({
           next_review_in: intervalHours,
           unit: "hours",
           ease_factor: easeFactor,
-          repetitions,
+          repetitions
         }
       : {
           next_review_in: intervalDays,
           unit: "days",
           ease_factor: easeFactor,
-          repetitions,
+          repetitions
         }
     : null;
 };
@@ -1418,7 +1522,7 @@ const listQbanks = async ({
   page = 1,
   limit = 20,
   search = "",
-  status = "active",
+  status = "active"
 }) => {
   const offset = (page - 1) * limit;
 
@@ -1486,8 +1590,8 @@ const listQbanks = async ({
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
-    },
+      totalPages: Math.ceil(total / limit)
+    }
   };
 };
 
@@ -1499,7 +1603,7 @@ const getAvailableQuestions = async ({
   topic = "",
   difficulty = "",
   question_type = "",
-  status = "active",
+  status = "active"
 }) => {
   const offset = (page - 1) * limit;
 
@@ -1561,7 +1665,7 @@ const getAvailableQuestions = async ({
 
   const questions = rows.map((q) => ({
     ...q,
-    options: JSON.parse(q.options).filter(Boolean),
+    options: JSON.parse(q.options).filter(Boolean)
   }));
 
   let countSql = `SELECT COUNT(*) as total FROM questions q
@@ -1605,8 +1709,8 @@ const getAvailableQuestions = async ({
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
-    },
+      totalPages: Math.ceil(total / limit)
+    }
   };
 };
 
@@ -1616,7 +1720,7 @@ const getStudentExams = async ({
   limit = 20,
   search = "",
   status = "published",
-  difficulty = "",
+  difficulty = ""
 }) => {
   const offset = (page - 1) * limit;
 
@@ -1698,8 +1802,8 @@ const getStudentExams = async ({
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
-    },
+      totalPages: Math.ceil(total / limit)
+    }
   };
 };
 
@@ -1709,7 +1813,7 @@ const getUpcomingExams = async ({
   page = 1,
   limit = 20,
   search = "",
-  difficulty = "",
+  difficulty = ""
 }) => {
   const offset = (page - 1) * limit;
 
@@ -1797,8 +1901,8 @@ const getUpcomingExams = async ({
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
-    },
+      totalPages: Math.ceil(total / limit)
+    }
   };
 };
 
@@ -1808,7 +1912,7 @@ const getOnDemandExams = async ({
   page = 1,
   limit = 20,
   search = "",
-  difficulty = "",
+  difficulty = ""
 }) => {
   const offset = (page - 1) * limit;
 
@@ -1893,8 +1997,8 @@ AND (e.start_date IS NOT NULL AND e.start_date <= NOW())
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
-    },
+      totalPages: Math.ceil(total / limit)
+    }
   };
 };
 
@@ -1904,7 +2008,7 @@ const getExamResults = async ({
   page = 1,
   limit = 20,
   search = "",
-  difficulty = "",
+  difficulty = ""
 }) => {
   const offset = (page - 1) * limit;
 
@@ -1958,7 +2062,7 @@ const getExamResults = async ({
       ? new Date(examDate).toLocaleDateString("en-US", {
           year: "numeric",
           month: "short",
-          day: "numeric",
+          day: "numeric"
         })
       : "TBD";
 
@@ -1987,7 +2091,7 @@ const getExamResults = async ({
       duration: formattedDuration,
       difficulty: result.difficulty || "Medium",
       subject_name: result.subject_name,
-      attempt_status: result.attempt_status,
+      attempt_status: result.attempt_status
     };
   });
 
@@ -2000,8 +2104,8 @@ const getExamResults = async ({
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
-    },
+      totalPages: Math.ceil(total / limit)
+    }
   };
 };
 
@@ -2086,7 +2190,7 @@ const submitExamAnswer = async ({
   examQuestionId,
   answerText,
   selectedOptionId,
-  timeSpent,
+  timeSpent
 }) => {
   // Check if answer already exists
   const existingAnswer = await client.execute(
@@ -2173,7 +2277,7 @@ const submitExam = async ({ attemptId, studentId }) => {
     success: result.affectedRows > 0,
     totalScore,
     totalPoints,
-    percentage: Math.round((totalScore / totalPoints) * 100),
+    percentage: Math.round((totalScore / totalPoints) * 100)
   };
 };
 
@@ -2281,7 +2385,7 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
     ...q,
     options: JSON.parse(q.options).filter(Boolean),
     selected_option_id: q.selected_option_id || null,
-    selected_answer_text: q.selected_answer_text || null,
+    selected_answer_text: q.selected_answer_text || null
   }));
 
   return {
@@ -2290,9 +2394,9 @@ const getExamQuestions = async ({ examId, studentId, session_id }) => {
       title: exam.title,
       duration: exam.duration,
       instructions: exam.instructions,
-      total_questions: questions.length,
+      total_questions: questions.length
     },
-    questions: questionsWithOptions,
+    questions: questionsWithOptions
   };
 };
 
@@ -2304,7 +2408,7 @@ const registerForExam = async ({
   notifications,
   notes,
   startISO,
-  endISO,
+  endISO
 }) => {
   // Ensure registration table exists (idempotent)
 
@@ -2325,7 +2429,7 @@ const registerForExam = async ({
       notifications ? JSON.stringify(notifications) : null,
       notes || null,
       startISO || null,
-      endISO || null,
+      endISO || null
     ]
   );
 
@@ -2340,7 +2444,7 @@ const transformExamData = (exam) => {
     ? new Date(examDate).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
-        day: "numeric",
+        day: "numeric"
       })
     : "TBD";
 
@@ -2349,7 +2453,7 @@ const transformExamData = (exam) => {
     ? new Date(examDate).toLocaleTimeString("en-US", {
         hour: "numeric",
         minute: "2-digit",
-        hour12: true,
+        hour12: true
       })
     : "TBD";
 
@@ -2391,7 +2495,7 @@ const transformExamData = (exam) => {
     type: "teacher", // Assuming all exams are created by teachers
     subject_name: exam.subject_name,
     status: exam.status,
-    instructions: exam.instructions,
+    instructions: exam.instructions
   };
 };
 
@@ -2508,4 +2612,5 @@ module.exports = {
   registerForExam,
   updateDeck,
   deleteDeck,
+  searchQuestion
 };
